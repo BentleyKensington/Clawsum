@@ -1,0 +1,19 @@
+{
+  "accounts": [
+    {
+      "slug": "ghl",
+      "id": "ghl",
+      "display_name": "GHL CRM",
+      "schema_prefix": "crm",
+      "obsidian_folder": "GHL",
+      "paperclip_name": "Clawsum GHL",
+      "telegram_needles": ["ghl", "gohighlevel", "highlevel"],
+      "env_pit": "GHL_PIT",
+      "env_location": "GHL_LOCATION_ID",
+      "env_db_password": "GHL_DB_PASSWORD",
+      "mcp_server": "ghl",
+      "identity_name": "GHL Ops",
+      "identity_emoji": "📋"
+    }
+  ]
+}

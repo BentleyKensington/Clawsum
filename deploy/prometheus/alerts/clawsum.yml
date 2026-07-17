@@ -1,0 +1,29 @@
+groups:
+  - name: clawsum
+    rules:
+      - alert: ClawsumGatewayDown
+        expr: probe_success{job="clawsum-health", instance=~".*:48166.*"} == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: OpenClaw gateway health probe failed
+          description: "Blackbox probe to {{ $labels.instance }} failed for 3m."
+
+      - alert: ClawsumPaperclipDown
+        expr: probe_success{job="clawsum-health", instance=~".*:3100.*"} == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: Paperclip Boss UI health probe failed
+          description: "Probe to {{ $labels.instance }} failed for 3m."
+
+      - alert: ClawsumGatewaySlow
+        expr: probe_duration_seconds{job="clawsum-health", instance=~".*:48166.*"} > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: OpenClaw gateway probe slow
+          description: "Health check took {{ $value }}s."

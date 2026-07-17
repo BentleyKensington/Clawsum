@@ -1,0 +1,43 @@
+{
+  "title": "Clawsum Health",
+  "uid": "clawsum-health",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "OpenClaw gateway /healthz",
+      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "probe_success{instance=~\".*48166.*\"}",
+          "legendFormat": "gateway"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Paperclip /api/health",
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "probe_success{instance=~\".*3100.*\"}",
+          "legendFormat": "paperclip"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Probe duration (s)",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "targets": [
+        {
+          "expr": "probe_duration_seconds{job=\"clawsum-health\"}",
+          "legendFormat": "{{instance}}"
+        }
+      ]
+    }
+  ]
+}

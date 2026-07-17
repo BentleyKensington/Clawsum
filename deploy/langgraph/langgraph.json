@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "gmail_triage": "./graphs/gmail_triage.py:graph",
+    "research_brief": "./graphs/research_brief.py:graph"
+  }
+}

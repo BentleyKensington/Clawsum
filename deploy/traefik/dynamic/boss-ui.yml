@@ -1,0 +1,17 @@
+# Boss UI (Paperclip) — Traefik file provider
+# Replace BOSS_HOST before deploy (e.g. boss.srv.example.com)
+http:
+  routers:
+    clawsum-boss:
+      rule: Host(`boss.srv.example.com`)
+      entryPoints:
+        - websecure
+      service: clawsum-boss
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    clawsum-boss:
+      loadBalancer:
+        servers:
+          - url: http://127.0.0.1:3100

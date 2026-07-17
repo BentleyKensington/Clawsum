@@ -1,0 +1,81 @@
+# Unified ops portal — Traefik file provider
+# Generated/customized by scripts/setup-ops-portal-traefik.sh
+# Replace hostnames and htpasswd user line before production use.
+
+http:
+  middlewares:
+    boss-ops-auth:
+      basicAuth:
+        users:
+          # Generate: htpasswd -nbB boss 'PASSWORD' | sed -e 's/\$/\$\$/g'
+          - "boss:$$2y$$05$$REPLACE_ME"
+
+    # Injects X-Forwarded-User after basic auth (for OpenClaw trusted-proxy)
+    boss-ops-user-header:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-User: "boss"
+
+  routers:
+    clawsum-boss:
+      rule: Host(`boss.srv.example.com`)
+      entryPoints:
+        - websecure
+      service: clawsum-boss
+      middlewares:
+        - boss-ops-auth
+      tls:
+        certResolver: letsencrypt
+
+    clawsum-openclaw:
+      rule: Host(`clawsum.srv.example.com`)
+      entryPoints:
+        - websecure
+      service: clawsum-openclaw
+      middlewares:
+        - boss-ops-auth
+        - boss-ops-user-header
+      tls:
+        certResolver: letsencrypt
+      priority: 100
+
+    clawsum-grafana:
+      rule: Host(`grafana.srv.example.com`)
+      entryPoints:
+        - websecure
+      service: clawsum-grafana
+      middlewares:
+        - boss-ops-auth
+      tls:
+        certResolver: letsencrypt
+
+    clawsum-hermes:
+      rule: Host(`hermes.srv.example.com`)
+      entryPoints:
+        - websecure
+      service: clawsum-hermes
+      middlewares:
+        - boss-ops-auth
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    clawsum-boss:
+      loadBalancer:
+        servers:
+          - url: http://127.0.0.1:3100
+
+    clawsum-openclaw:
+      loadBalancer:
+        servers:
+          - url: http://127.0.0.1:48166
+
+    clawsum-grafana:
+      loadBalancer:
+        servers:
+          - url: http://127.0.0.1:3000
+
+    clawsum-hermes:
+      loadBalancer:
+        servers:
+          - url: http://127.0.0.1:9119

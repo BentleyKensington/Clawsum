@@ -1,0 +1,17 @@
+[
+  {
+    "title": "MCO REI — GHL automation audit (read-only)",
+    "department": "ghl",
+    "priority": "medium"
+  },
+  {
+    "title": "AVE REI — stale opportunity review",
+    "department": "ghl-ave-rei",
+    "priority": "medium"
+  },
+  {
+    "title": "WNN REI — workflow inventory",
+    "department": "ghl-wnn-rei",
+    "priority": "low"
+  }
+]

@@ -1,0 +1,51 @@
+{
+  "_comment": "Instance overlay example — copy to ghl-accounts.json on a REI VPS only. NOT the generic template default.",
+  "accounts": [
+    {
+      "slug": "mco-rei",
+      "id": "ghl-mco-rei",
+      "display_name": "MCO REI",
+      "schema_prefix": "mco_rei",
+      "obsidian_folder": "MCO-REI",
+      "paperclip_name": "Clawsum GHL — MCO REI",
+      "telegram_needles": ["mco rei", "mco-rei", "ghl mco", "cs ghl"],
+      "telegram_group_id": "",
+      "env_pit": "GHL_MCO_REI_PIT",
+      "env_location": "GHL_MCO_REI_LOCATION_ID",
+      "env_db_password": "GHL_MCO_REI_DB_PASSWORD",
+      "mcp_server": "ghl-mco-rei",
+      "identity_name": "MCO REI Ops",
+      "identity_emoji": "🏠"
+    },
+    {
+      "slug": "ave-rei",
+      "id": "ghl-ave-rei",
+      "display_name": "AVE REI",
+      "schema_prefix": "ave_rei",
+      "obsidian_folder": "AVE-REI",
+      "paperclip_name": "Clawsum GHL — AVE REI",
+      "telegram_needles": ["ave rei", "ave-rei", "ghl ave"],
+      "env_pit": "GHL_AVE_REI_PIT",
+      "env_location": "GHL_AVE_REI_LOCATION_ID",
+      "env_db_password": "GHL_AVE_REI_DB_PASSWORD",
+      "mcp_server": "ghl-ave-rei",
+      "identity_name": "AVE REI Ops",
+      "identity_emoji": "🏡"
+    },
+    {
+      "slug": "wnn-rei",
+      "id": "ghl-wnn-rei",
+      "display_name": "WNN REI",
+      "schema_prefix": "wnn_rei",
+      "obsidian_folder": "WNN-REI",
+      "paperclip_name": "Clawsum GHL — WNN REI",
+      "telegram_needles": ["wnn rei", "wnn-rei", "ghl wnn"],
+      "env_pit": "GHL_WNN_REI_PIT",
+      "env_location": "GHL_WNN_REI_LOCATION_ID",
+      "env_db_password": "GHL_WNN_REI_DB_PASSWORD",
+      "mcp_server": "ghl-wnn-rei",
+      "identity_name": "WNN REI Ops",
+      "identity_emoji": "🔑"
+    }
+  ]
+}

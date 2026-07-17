@@ -1,0 +1,243 @@
+# Clawsum self-hosted platform — OpenClaw 2026.6.10 + data plane + orchestration
+# Staging port 48166 (Hostinger remains on 48165 until cutover)
+
+name: clawsum
+
+networks:
+  clawsum:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    networks: [clawsum]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-clawsum}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clawsum_change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-clawsum}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clawsum}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  arcadedb:
+    image: arcadedata/arcadedb:latest
+    restart: unless-stopped
+    networks: [clawsum]
+    environment:
+      ARCADEDB_ROOT_PASSWORD: ${ARCADEDB_ROOT_PASSWORD:-arcadedb_change_me}
+    volumes:
+      - ./data/arcadedb:/home/arcadedb/databases
+    ports:
+      - "127.0.0.1:2480:2480"
+      - "127.0.0.1:5433:5432"
+
+  openclaw-gateway:
+    image: ${OPENCLAW_IMAGE:-ghcr.io/openclaw/openclaw:2026.6.10}
+    restart: unless-stopped
+    networks: [clawsum]
+    init: true
+    env_file: .env
+    environment:
+      HOME: /home/node
+      OPENCLAW_HOME: /home/node
+      OPENCLAW_STATE_DIR: /home/node/.openclaw
+      OPENCLAW_CONFIG_PATH: /home/node/.openclaw/openclaw.json
+      OPENCLAW_CONFIG_DIR: /home/node/.openclaw
+      OPENCLAW_WORKSPACE_DIR: /home/node/.openclaw/workspace
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
+      OPENCLAW_DISABLE_BONJOUR: "1"
+      TZ: ${OPENCLAW_TZ:-America/Chicago}
+      GOG_HOME: /home/node/.openclaw/gog
+      GOG_KEYRING_BACKEND: ${GOG_KEYRING_BACKEND:-file}
+      GOG_KEYRING_PASSWORD: ${GOG_KEYRING_PASSWORD:-}
+    volumes:
+      - ${OPENCLAW_CONFIG_DIR:-./data/.openclaw}:/home/node/.openclaw
+      - ${OPENCLAW_AUTH_PROFILE_SECRET_DIR:-./data/.openclaw-auth-secrets}:/home/node/.config/openclaw
+      - ./obsidian:/home/node/obsidian:rw
+      - ./bin/gog:/usr/local/bin/gog:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${OPENCLAW_GATEWAY_PORT:-48166}:18789"
+      - "127.0.0.1:18790:18790"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.clawsum.rule=Host(`clawsum.${TRAEFIK_HOST:-localhost}`)
+      - traefik.http.routers.clawsum.entrypoints=websecure
+      - traefik.http.routers.clawsum.tls.certresolver=letsencrypt
+      - traefik.http.services.clawsum.loadbalancer.server.port=18789
+    command:
+      - node
+      - dist/index.js
+      - gateway
+      - --bind
+      - lan
+      - --port
+      - "18789"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:18789/healthz').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  openclaw-cli:
+    image: ${OPENCLAW_IMAGE:-ghcr.io/openclaw/openclaw:2026.6.10}
+    network_mode: service:openclaw-gateway
+    init: true
+    env_file: .env
+    environment:
+      HOME: /home/node
+      OPENCLAW_HOME: /home/node
+      OPENCLAW_STATE_DIR: /home/node/.openclaw
+      OPENCLAW_CONFIG_PATH: /home/node/.openclaw/openclaw.json
+      OPENCLAW_CONFIG_DIR: /home/node/.openclaw
+      OPENCLAW_WORKSPACE_DIR: /home/node/.openclaw/workspace
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
+      BROWSER: echo
+      TZ: ${OPENCLAW_TZ:-America/Chicago}
+    volumes:
+      - ${OPENCLAW_CONFIG_DIR:-./data/.openclaw}:/home/node/.openclaw
+      - ${OPENCLAW_AUTH_PROFILE_SECRET_DIR:-./data/.openclaw-auth-secrets}:/home/node/.config/openclaw
+      - ./obsidian:/home/node/obsidian:rw
+    entrypoint: ["node", "dist/index.js"]
+    depends_on:
+      openclaw-gateway:
+        condition: service_healthy
+    profiles: ["cli"]
+
+  # Paperclip — task orchestrator (Boss UI :3100)
+  paperclip:
+    image: ${PAPERCLIP_IMAGE:-ghcr.io/paperclipai/paperclip:latest}
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      # Do NOT use env_file — Hostinger .env leaks PORT=48165 into Paperclip.
+      HOST: "127.0.0.1"
+      PORT: "3100"
+      PAPERCLIP_HOME: /paperclip
+      PAPERCLIP_INSTANCE_ID: default
+      PAPERCLIP_CONFIG: /paperclip/instances/default/config.json
+      PAPERCLIP_DEPLOYMENT_MODE: local_trusted
+      PAPERCLIP_DEPLOYMENT_EXPOSURE: private
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-}
+      BETTER_AUTH_BASE_URL: ${PAPERCLIP_PUBLIC_URL:-http://127.0.0.1:3100}
+      PAPERCLIP_AGENT_JWT_SECRET: ${PAPERCLIP_AGENT_JWT_SECRET:-}
+      OPENCLAW_GATEWAY_URL: http://127.0.0.1:48166
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./paperclip-data:/paperclip
+    depends_on:
+      openclaw-gateway:
+        condition: service_healthy
+    profiles: ["orchestration"]
+
+  # LangGraph API — OSS runner built from ./langgraph/Dockerfile (deploy-tier2.sh)
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks: [clawsum]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles: ["orchestration"]
+
+  langgraph:
+    image: clawsum-langgraph:local
+    restart: unless-stopped
+    networks: [clawsum]
+    ports:
+      - "127.0.0.1:8123:8000"
+    environment:
+      REDIS_URI: redis://redis:6379
+      DATABASE_URI: postgresql://${POSTGRES_USER:-clawsum}:${POSTGRES_PASSWORD:-clawsum_change_me}@postgres:5432/${POSTGRES_DB:-clawsum}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    profiles: ["orchestration"]
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ok')"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    networks: [clawsum]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-clawsum}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio_change_me}
+    volumes:
+      - ./data/minio:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    profiles: ["storage"]
+
+  blackbox:
+    image: prom/blackbox-exporter:v0.25.0
+    restart: unless-stopped
+    networks: [clawsum]
+    ports:
+      - "127.0.0.1:9115:9115"
+    profiles: ["monitoring"]
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    restart: unless-stopped
+    networks: [clawsum]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts:/etc/prometheus/alerts:ro
+      - ./data/prometheus:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    profiles: ["monitoring"]
+    depends_on:
+      - blackbox
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    restart: unless-stopped
+    networks: [clawsum]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin_change_me}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "127.0.0.1:3000:3000"
+    profiles: ["monitoring"]
+    depends_on:
+      - prometheus
