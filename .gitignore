@@ -50,3 +50,7 @@ node_modules/
 *.tgz
 *.tar.gz
 data/backups/
+
+# Local tooling (portable gh, etc.)
+.tools/
+
