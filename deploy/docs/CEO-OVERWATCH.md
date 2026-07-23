@@ -60,10 +60,10 @@
 - [x] CRON_TZ fix for 7:00 America/Chicago daily Telegram
 - [x] Overwatch SQL + seed cells + approval CLI
 - [x] Hermes cockpit theme/plugin (logo in `examples/hermes-cockpit/assets`)
-- [ ] Sync repo → VPS `/docker/clawsum`
-- [ ] Apply `12-overwatch.sql` + seed
-- [ ] Reinstall daily/reminders/obsidian crons
-- [ ] `install-hermes-dashboard` + `install-hermes-cockpit` + start dashboard
+- [x] Sync repo → VPS `/docker/clawsum` (2026-07-23)
+- [x] Apply `12-overwatch.sql` + seed (8 cells)
+- [x] Reinstall daily/reminders/obsidian crons (`CRON_TZ=America/Chicago`)
+- [x] `install-hermes-dashboard` + `install-hermes-cockpit` + start dashboard (`127.0.0.1:9119`)
 - [ ] Ops portal Traefik includes `hermes.*` (DNS as available)
 - [ ] Resume policy: CLA-41 before heartbeats ([RESUME-POLICY.md](./RESUME-POLICY.md))
 
