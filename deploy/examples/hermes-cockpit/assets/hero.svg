@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" fill="none">
+  <rect width="240" height="320" fill="#0a0e14"/>
+  <path d="M120 40 L200 90 L200 190 L120 240 L40 190 L40 90 Z" stroke="#2dd4bf" stroke-width="2" opacity="0.5"/>
+  <text x="120" y="160" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#c8d6e5" opacity="0.8">JARVIS</text>
+  <text x="120" y="180" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#38bdf8" opacity="0.7">CEO OVERWATCH</text>
+</svg>

@@ -1,0 +1,15 @@
+{
+  "name": "clawsum-cockpit",
+  "label": "Clawsum",
+  "description": "CEO cockpit — brief, approvals, Grafana health, ops deep-links",
+  "icon": "LayoutDashboard",
+  "version": "1.0.0",
+  "tab": {
+    "path": "/clawsum",
+    "position": "before:chat"
+  },
+  "slots": ["sidebar", "header-left", "footer-right"],
+  "entry": "dist/index.js",
+  "css": "dist/style.css",
+  "api": "plugin_api.py"
+}

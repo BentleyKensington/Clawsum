@@ -10,10 +10,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import sys
 import urllib.request
+from pathlib import Path
 
-API = "http://127.0.0.1:3100/api"
-COMPANY = ""
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from instance_config import get, paperclip_company_id  # noqa: E402
+
+API = os.environ.get("PAPERCLIP_API", "http://127.0.0.1:3100/api")
 
 
 def api(method: str, path: str, body: dict | None = None) -> tuple[int, object]:
@@ -39,7 +44,10 @@ def main() -> None:
     )
     args = p.parse_args()
 
-    code, agents = api("GET", f"companies/{COMPANY}/agents")
+    company = get("PAPERCLIP_COMPANY_ID")
+    if not company:
+        company = paperclip_company_id()
+    _code, agents = api("GET", f"companies/{company}/agents")
     for agent in agents:
         if not isinstance(agent, dict):
             continue

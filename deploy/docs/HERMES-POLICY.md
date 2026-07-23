@@ -1,91 +1,102 @@
 # Hermes usage policy (Boss authorization required)
 
-**Default:** all Boss UI tasks go to **OpenClaw agents** (Admin, Data, Coding, RE, GHL, …).  
-**Hermes** is **opt-in only** for long autonomous runs that Boss explicitly assigns.
+**Default path for Gerald (2026-07-23):** browser **Hermes UI** (`hermes.${DOMAIN}` / `:9119`) is the **primary CEO chat face**.  
+**Default path for work execution:** all governed tasks still go through **Paperclip** → **OpenClaw agents**.  
+**Clawsum Hermes assignee** remains **opt-in only** for long autonomous runs that Boss explicitly assigns.
 
 **Boss UI** = **Paperclip** (company Clawsum). It is not Hermes-branded.  
-**Hermes** on Clawsum = a **headless Paperclip assignee** — not a standalone web product in our stack.
+**Hermes UI** = Nous Hermes Agent dashboard (chat / exploration).  
+**Clawsum Hermes** (Paperclip) = a **headless assignee** via OpenClaw session `paperclip:hermes`.
+
+See [CEO-COCKPIT.md](./CEO-COCKPIT.md) for how these surfaces fit together.
+
+---
+
+## Two Hermes concepts
+
+| Concept | Role | Access |
+|---------|------|--------|
+| **Hermes UI** (Nous dashboard) | CEO conversation entry (“JARVIS talks”) | `https://hermes…` behind ops portal |
+| **Clawsum Hermes** (Paperclip assignee) | Long 50+ step jobs | Boss UI assignee + `Boss authorized Hermes: yes` |
+
+Hermes UI must **not** hold unrestricted business credentials. Serious work → Paperclip task → cell-scoped OpenClaw agent.
 
 ---
 
 ## Architecture (production)
 
 ```text
-Boss UI (Paperclip / Clawsum branding)
-    → you create task, assignee = Clawsum Hermes (only when authorized)
-    → Paperclip heartbeat (OFF by default for Hermes)
-    → adapter: openclaw_gateway
-    → OpenClaw admin session: paperclip:hermes
-    → Codex / ChatGPT Plus
-    → results in Paperclip task + Obsidian (Paperclip/ or assignee folder)
+Gerald
+  → Hermes UI (browser) / Telegram / later Discord
+      → ask / summarize / route intent
+  → Paperclip Boss UI
+      → tasks, approvals, budgets, audit
+      → heartbeats → OpenClaw agents (Codex)
+      → optional assignee Clawsum Hermes → session paperclip:hermes
 ```
-
-There is **no** separate Hermes hostname, workspace, or Telegram agent in the default Clawsum design.
 
 ---
 
-## Hermes Agent web dashboard (Nous product) — not deployed
-
-Nous Hermes Agent ships a **browser dashboard** (`hermes dashboard`, default `http://127.0.0.1:9119`) for config, sessions, cron, and embedded chat. **Clawsum does not run this today:**
+## Hermes Agent web dashboard — enable as CEO face
 
 | Item | Clawsum status |
 |------|----------------|
-| `hermes` CLI in Paperclip container | Not installed |
-| `hermes_local` adapter | Deprecated; not used on VPS |
-| `hermes dashboard` on :9119 | Not started |
-| Traefik route for Hermes UI | Not configured |
+| `hermes` CLI in Paperclip container | Install via `install-hermes-dashboard.sh` |
+| `hermes dashboard` on :9119 | `hermes-dashboard.sh start` |
+| Traefik route `hermes.${DOMAIN}` | `setup-ops-portal-traefik.sh` |
+| Default production assignee path | Still `openclaw_gateway` (not `hermes_local`) |
 
-To add it later (optional): install `hermes-agent[web]`, bind to loopback, route via Traefik with ops-portal auth — see [MASTER-TASK-LIST.md](./MASTER-TASK-LIST.md) § Hermes UI.
+```bash
+bash /docker/clawsum/scripts/install-hermes-dashboard.sh
+bash /docker/clawsum/scripts/hermes-dashboard.sh start
+HERMES_HOST=hermes.yourdomain.com bash /docker/clawsum/scripts/setup-ops-portal-traefik.sh
+```
 
-**Until then:** manage Hermes only through **Boss UI** (assignee + activity feed).
+Never expose `:9119` on `0.0.0.0` without Traefik auth.
+
+**Clawsum cockpit skin:** theme + plugin overlay — see [../examples/hermes-cockpit/README.md](../examples/hermes-cockpit/README.md) and `bash scripts/install-hermes-cockpit.sh`.
 
 ---
 
-## Why
+## Why assignee Hermes stays gated
 
 | Assignee | Runtime | LLM billing |
 |----------|---------|-------------|
-| **Clawsum Admin** (and other OpenClaw agents) | `openclaw_gateway` → gateway Codex OAuth | **ChatGPT Plus** (subscription) first |
-| **Clawsum Hermes** (when Boss assigns) | `openclaw_gateway` → **admin** session `paperclip:hermes` | **ChatGPT Plus / Codex** (same as Admin) |
-| ~~`hermes_local`~~ | Deprecated on Clawsum — API-only, heartbeat **off** |
-
-Hermes also bypasses Telegram visibility unless you mirror results in the task.
+| **Clawsum Admin** (and specialists) | `openclaw_gateway` → Codex OAuth | ChatGPT Plus first |
+| **Clawsum Hermes** (when Boss assigns) | `openclaw_gateway` → `paperclip:hermes` | Same Codex path |
+| ~~`hermes_local`~~ | Deprecated | API-only |
 
 ---
 
 ## Boss rules (locked)
 
-1. **Do not** assign routine tasks, triage, or your task list to **Clawsum Hermes** unless the issue says **Boss authorized Hermes**.
-2. **Admin** breaks down lists and delegates to specialists (Data, Coding, RE, GHL, …).
-3. Use Hermes only when you need **50+ step** autonomous work (large refactor, multi-repo sweep) and accept API usage.
-4. In issue description, add: `Boss authorized Hermes: yes` when intentional.
-5. **Paperclip liaison** agent may *suggest* Hermes; Boss must change assignee to Hermes manually.
-
----
-
-## Where this is enforced
-
-| Layer | Enforcement |
-|-------|-------------|
-| **Boss UI** | You choose assignee — keep Hermes off default |
-| **admin SOUL / ESCALATION** | Text policy on VPS (`seed-persona-os.sh`) |
-| **paperclip / admin WORKFLOWS** | Do not auto-route to Hermes |
+1. **Daily chat:** prefer Hermes UI; route actions into Paperclip.
+2. **Do not** assign routine tasks to **Clawsum Hermes** unless the issue says **Boss authorized Hermes**.
+3. **Admin** breaks down lists and delegates to specialists.
+4. Use Hermes assignee only for **50+ step** autonomous work.
+5. Add `Boss authorized Hermes: yes` when intentional.
+6. Resume agents only per [RESUME-POLICY.md](./RESUME-POLICY.md).
 
 ---
 
 ## OpenClaw vs Hermes decision
 
 ```text
-Boss creates task
-    ├─ assign Clawsum Admin / specialist → openclaw_gateway (preferred, Codex)
-    └─ assign Clawsum Hermes ONLY if Boss authorized → openclaw_gateway session paperclip:hermes (same Codex path)
-    └─ (optional future) standalone hermes_local → API billing — not deployed on Clawsum VPS
+Gerald asks in Hermes UI
+    ├─ answer-only / archive query → stay in Hermes (tier 0)
+    ├─ needs task / approval → Paperclip issue (+ ops.approvals if tier 2)
+    └─ long autonomous run → assignee Clawsum Hermes (explicit)
+
+Boss creates task in Boss UI
+    ├─ assign specialist → openclaw_gateway (preferred)
+    └─ assign Clawsum Hermes → only if authorized
 ```
 
 ---
 
 ## Related
 
-- [OPENAI-AUTH.md](./OPENAI-AUTH.md) — Codex first, API backup  
-- [PAPERCLIP-SETUP.md](./PAPERCLIP-SETUP.md) — adapters, protocol fix  
-- [BOSS-UI-AND-MONITORING.md](./BOSS-UI-AND-MONITORING.md) — task progress  
+- [CEO-COCKPIT.md](./CEO-COCKPIT.md)
+- [PAPERCLIP-OVERWATCH.md](./PAPERCLIP-OVERWATCH.md)
+- [HERMES-OPENCLAW-ROUTING.md](./HERMES-OPENCLAW-ROUTING.md)
+- [BOSS-OPS-PORTAL.md](./BOSS-OPS-PORTAL.md)

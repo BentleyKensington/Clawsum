@@ -1,0 +1,62 @@
+# Clawsum Command — Hermes dashboard theme
+# Install: bash scripts/install-hermes-cockpit.sh
+# Pick "Clawsum Command" from the palette icon after refresh.
+
+name: clawsum-command
+label: Clawsum Command
+description: Gerald CEO overwatch cockpit — JARVIS face for Hermes UI
+
+palette:
+  background:
+    hex: "#0a0e14"
+    alpha: 1.0
+  midground: "#c8d6e5"
+  foreground:
+    hex: "#f0f4f8"
+    alpha: 0.12
+  warmGlow: "rgba(45, 212, 191, 0.22)"
+  noiseOpacity: 0.35
+
+typography:
+  fontSans: '"DM Sans", "Segoe UI", system-ui, sans-serif'
+  fontMono: '"IBM Plex Mono", ui-monospace, monospace'
+  fontDisplay: '"Syne", "DM Sans", sans-serif'
+  fontUrl: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;700&display=swap"
+  baseSize: "14px"
+  lineHeight: "1.5"
+  letterSpacing: "0"
+
+layout:
+  radius: "0.5rem"
+  density: comfortable
+
+layoutVariant: cockpit
+
+assets:
+  # Served by clawsum-cockpit plugin_api after install
+  logo: "/api/plugins/clawsum-cockpit/assets/logo.svg"
+  crest: "/api/plugins/clawsum-cockpit/assets/crest.svg"
+  hero: "/api/plugins/clawsum-cockpit/assets/hero.svg"
+  bg: "/api/plugins/clawsum-cockpit/assets/bg.svg"
+
+colorOverrides:
+  primary: "#2dd4bf"
+  accent: "#38bdf8"
+  destructive: "#f87171"
+  muted: "#64748b"
+
+customCSS: |
+  :root[data-layout-variant="cockpit"] body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(45, 212, 191, 0.02) 4px
+    );
+    mix-blend-mode: screen;
+  }

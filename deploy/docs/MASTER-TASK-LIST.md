@@ -83,8 +83,12 @@ Two lists — do not mix them:
 - [ ] **OpenClaw trusted-proxy** — `patch-control-ui-trusted-proxy.py` after portal auth
 - [ ] **Authelia / Cloudflare Access** — replace basic auth for production SSO (optional)
 - [x] **Hermes dashboard on VPS** — installed v0.18.0; `http://127.0.0.1:9119` (SSH tunnel) or `hermes.*` after Traefik
-- [ ] **Hermes dashboard public URL** — DNS + `setup-ops-portal-traefik.sh`
+- [x] **Hermes cockpit overlay (repo)** — `deploy/examples/hermes-cockpit` + `install-hermes-cockpit.sh` (theme, logo, Brief/Approvals/Grafana)
+- [ ] **Hermes cockpit on VPS** — run install script + set `CLAWSUM_*` / Grafana embed URL
+- [ ] **Hermes dashboard public URL** — DNS + `setup-ops-portal-traefik.sh` (**primary CEO browser face** — [CEO-COCKPIT.md](./CEO-COCKPIT.md))
 - [ ] Grafana behind same Traefik auth (included in ops-portal script)
+- [x] **Paperclip overwatch Phase 3 starter** — `12-overwatch.sql`, seed cells, approval scripts ([PAPERCLIP-OVERWATCH.md](./PAPERCLIP-OVERWATCH.md))
+- [x] **Daily report CRON_TZ fix** — 07:00 America/Chicago (was firing ~02:00 CDT on UTC VPS)
 
 ### LLM & routing
 - [ ] **`OPENROUTER_API_KEY`** on VPS + run `configure-openrouter-escalation.py`

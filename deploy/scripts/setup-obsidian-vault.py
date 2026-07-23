@@ -164,9 +164,10 @@ See `/docker/clawsum/docs/OBSIDIAN-VAULT.md` for setup and desktop sync.
             except OSError:
                 pass
 
-    # cron
+    # cron — CRON_TZ so 7:02 is America/Chicago, not UTC
+    cron_tz = "CRON_TZ=America/Chicago"
     cron_line = (
-        "2 7 * * * TZ=America/Chicago "
+        "2 7 * * * "
         "/usr/bin/python3 /docker/clawsum/scripts/setup-obsidian-vault.py --sync-only "
         ">> /docker/clawsum/data/reports/obsidian-sync.log 2>&1"
     )
@@ -175,8 +176,11 @@ See `/docker/clawsum/docs/OBSIDIAN-VAULT.md` for setup and desktop sync.
         lines = [
             ln
             for ln in (existing.stdout or "").splitlines()
-            if "obsidian" not in ln.lower() and "setup-obsidian-vault" not in ln
+            if "obsidian" not in ln.lower()
+            and "setup-obsidian-vault" not in ln
+            and not ln.startswith("CRON_TZ=")
         ]
+        lines.insert(0, cron_tz)
         lines.append(cron_line)
         subprocess.run(["crontab", "-"], input="\n".join(lines) + "\n", text=True, check=True)
     except subprocess.CalledProcessError:

@@ -104,7 +104,7 @@ See [GMAIL-ADMIN-SETUP.md](./GMAIL-ADMIN-SETUP.md):
 
 ## 7:00 AM global report (implemented)
 
-**Schedule:** every day **07:00 America/Chicago**  
+**Schedule:** every day **07:00 America/Chicago** (`CRON_TZ=America/Chicago` in crontab — required so UTC VPS does not fire at 02:00 CDT)  
 **Delivered to:** CS Ops Telegram group (admin) — override with `TELEGRAM_REPORT_CHAT_ID` in `.env` for DM.
 
 **Includes:**

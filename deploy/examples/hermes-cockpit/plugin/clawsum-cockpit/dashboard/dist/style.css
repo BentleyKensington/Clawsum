@@ -1,0 +1,101 @@
+/* Clawsum cockpit plugin chrome */
+.clawsum-cockpit-root {
+  font-family: var(--theme-font-sans, system-ui, sans-serif);
+  color: inherit;
+  padding: 1.25rem 1.5rem;
+  max-width: 1100px;
+}
+.clawsum-cockpit-root h1 {
+  font-family: var(--theme-font-display, system-ui, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.25rem;
+}
+.clawsum-cockpit-root .muted {
+  opacity: 0.65;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+.clawsum-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.clawsum-tabs button {
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  background: rgba(45, 212, 191, 0.08);
+  color: inherit;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.clawsum-tabs button.active {
+  background: rgba(45, 212, 191, 0.22);
+  border-color: #2dd4bf;
+}
+.clawsum-card {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: rgba(15, 23, 42, 0.45);
+}
+.clawsum-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+.clawsum-kpi {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2dd4bf;
+}
+.clawsum-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.clawsum-link-row a {
+  color: #38bdf8;
+  text-decoration: none;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+}
+.clawsum-iframe {
+  width: 100%;
+  min-height: 520px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.5rem;
+  background: #0a0e14;
+}
+.clawsum-sidebar {
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.clawsum-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.25rem;
+  font-size: 0.65rem;
+  border: 1px solid rgba(45, 212, 191, 0.4);
+  color: #2dd4bf;
+}
+.clawsum-badge.warn {
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #f87171;
+}
+.clawsum-badge.ok {
+  border-color: rgba(74, 222, 128, 0.5);
+  color: #4ade80;
+}
