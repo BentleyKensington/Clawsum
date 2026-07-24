@@ -322,13 +322,53 @@ nav a:hover { opacity: 1; }
 }
 .price {
   font-family: var(--display);
-  font-size: clamp(2.8rem, 8vw, 4rem);
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
   font-weight: 800;
   color: var(--accent);
   letter-spacing: -0.03em;
   line-height: 1;
 }
 .per { color: var(--muted); font-size: 1.05rem; }
+.plan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.plan {
+  padding: 1.35rem 1.1rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: rgba(7, 11, 16, 0.45);
+}
+.plan.featured {
+  border-color: rgba(45, 212, 191, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.15);
+}
+.plan-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+.plan .price { font-size: clamp(2rem, 5vw, 2.75rem); }
+.plan .sub { margin-bottom: 0.75rem; }
+.plan .prose { font-size: 0.95rem; margin-bottom: 1rem; }
+.plan .btn { width: 100%; }
+.pay-choice {
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  padding: 0.85rem 1rem;
+  margin: 0;
+}
+.pay-choice legend {
+  padding: 0 0.35rem;
+  font-size: 0.85rem;
+  color: var(--accent-2);
+}
+.pay-choice .check { margin-top: 0.55rem; }
 
 .include, .agree {
   margin: 0;
@@ -416,6 +456,7 @@ footer {
   nav { display: none; }
   .nav-toggle { display: inline-block; }
   .split { grid-template-columns: 1fr; gap: 1.75rem; }
+  .plan-grid { grid-template-columns: 1fr; }
   .hero { min-height: auto; padding-top: 2.5rem; align-items: start; }
   .hero-mark {
     width: min(88vw, 360px);
