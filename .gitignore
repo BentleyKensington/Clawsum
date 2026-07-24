@@ -54,3 +54,9 @@ data/backups/
 # Local tooling (portable gh, etc.)
 .tools/
 
+
+.secrets/
+deploy/.secrets/
+
+deploy/sites/clawsum-com/assets/_inbox/
+

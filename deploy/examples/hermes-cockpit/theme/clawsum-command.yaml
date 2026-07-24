@@ -34,8 +34,8 @@ layoutVariant: cockpit
 
 assets:
   # Served by clawsum-cockpit plugin_api after install
-  logo: "/api/plugins/clawsum-cockpit/assets/logo.svg"
-  crest: "/api/plugins/clawsum-cockpit/assets/crest.svg"
+  logo: "/api/plugins/clawsum-cockpit/assets/logo.png"
+  crest: "/api/plugins/clawsum-cockpit/assets/logo-mark.png"
   hero: "/api/plugins/clawsum-cockpit/assets/hero.svg"
   bg: "/api/plugins/clawsum-cockpit/assets/bg.svg"
 

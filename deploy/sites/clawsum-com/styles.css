@@ -67,7 +67,7 @@ a:hover { color: var(--accent); }
   border-bottom: 1px solid var(--line);
 }
 .brand { display: inline-flex; align-items: center; }
-.brand-logo { width: min(168px, 42vw); height: auto; }
+.brand-logo { width: min(200px, 48vw); height: auto; }
 nav {
   display: flex;
   gap: 1.15rem;
@@ -150,7 +150,8 @@ nav a:hover { opacity: 1; }
   max-width: 38rem;
 }
 .hero-logo {
-  width: min(280px, 78vw);
+  width: min(420px, 88vw);
+  height: auto;
   margin-bottom: 1.25rem;
   animation: fade-up 700ms ease both;
 }
