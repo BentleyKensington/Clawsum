@@ -75,9 +75,22 @@ python3 scripts/gmail-inbox-review.py --inbox-only --all --report-dir /docker/cl
 ```
 
 
-## Hermes standing orders
+## Cron (Hermes feed)
 
-See `examples/hermes-cockpit/SOUL.md`:
+Every **15 minutes** (`CRON_TZ=America/Chicago`):
+
+```bash
+bash /docker/clawsum/scripts/run-gmail-inbox-pipeline.sh
+# = gmail-sync.py + gmail-inbox-review.py --inbox-only --all --markdown --create-reminders
+```
+
+Install:
+
+```bash
+bash /docker/clawsum/scripts/install-gmail-inbox-review-cron.sh
+```
+
+Hermes does **not** re-parse raw Gmail; it reads `ops.email_reviews` / analysis columns and drives Boss questions.
 
 1. Paperclip board first  
 2. Inbox (`clawsums@gmail.com`) action items + reminders  

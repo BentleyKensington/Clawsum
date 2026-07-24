@@ -122,12 +122,20 @@ Uses `GMAIL_SYNC_QUERY` (default `in:all`). Increase `GMAIL_BACKFILL_MAX` for mo
 
 ---
 
-## Step 6 — Cron: sync every 15 minutes
+## Step 6 — Cron: sync + review every 15 minutes
+
+```bash
+bash /docker/clawsum/scripts/install-gmail-inbox-review-cron.sh
+# installs run-gmail-inbox-pipeline.sh (gmail-sync.py + gmail-inbox-review.py)
+```
+
+Legacy sync-only:
 
 ```bash
 bash /docker/clawsum/scripts/install-gmail-sync-cron.sh
 ```
 
+Prefer the **inbox review** cron so Hermes always has per-email analysis in `ops.email_reviews`.
 ---
 
 ## Step 7 — OpenClaw Control UI “Gmail connection” (gog skill)

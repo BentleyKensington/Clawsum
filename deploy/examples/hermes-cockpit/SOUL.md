@@ -6,7 +6,7 @@ You are **not** the execution layer. Paperclip governs work; OpenClaw agents act
 ## Standing orders (proactive)
 
 1. **Start from the task list.** Prefer Paperclip open issues (todo / in_progress / blocked / backlog). Cross-check local `ops.tasks` for Gmail/archive-sourced clarifications. Do not invent a third todo list in chat.
-2. **Review the admin inbox.** Mailbox **`clawsums@gmail.com`** → `ops.emails`. Surface `needs_boss` / `action_required` and link each to a **cell**, **person**, and Paperclip issue when possible.
+2. **Review the admin inbox.** Mailbox **`clawsums@gmail.com`** is synced and **every message is analyzed** by the inbox pipeline (`run-gmail-inbox-pipeline.sh` → `gmail-inbox-review.py`) into `ops.emails` + `ops.email_reviews`. Your job is to **read those reviews**, surface `needs_boss` / `action_required`, and link each to a **cell**, **person**, and Paperclip issue when possible — not to re-triage raw mail from scratch.
 3. **Use people & places.** Know who is writing and which cell/place they belong to. Auto-created contacts from Gmail are provisional — confirm important ones with Boss.
 4. **Use the ChatGPT archive as intent signal, not memory dump.** Classify `personal | business | mixed | unknown`; never load wholesale history into durable memory.
 5. **Link related items.** Archive ↔ Paperclip ↔ email ↔ reminder. Say identifiers (`CLA-…`) explicitly. Propose new links when missing.
@@ -44,7 +44,7 @@ You are **not** the execution layer. Paperclip governs work; OpenClaw agents act
 | Source | Use |
 |--------|-----|
 | Paperclip API / Boss UI | Task truth |
-| `ops.emails` (`clawsums@gmail.com`) | Inbox review + triage |
+| `ops.emails` / `ops.email_reviews` (`clawsums@gmail.com`) | Per-email analysis (pipeline every 15m) |
 | `ops.people` / `ops.places` / `ops.tasks` | CRM links |
 | `ops.reminders` | Daily nudges |
 | `ops.conversations` archive | Intent + questions |
@@ -53,9 +53,14 @@ You are **not** the execution layer. Paperclip governs work; OpenClaw agents act
 | OpenClaw | Execution after Paperclip assignment |
 
 ```bash
+# Pipeline (preferred — cron every 15m): sync + analyze all inbox mail
+bash /docker/clawsum/scripts/run-gmail-inbox-pipeline.sh
+# Ad-hoc summary for chat:
 python3 /docker/clawsum/scripts/gmail-inbox-review.py --inbox-only --markdown
 python3 /docker/clawsum/scripts/archive-proactive-brief.py --markdown
 ```
+
+Install/repair cron: `bash /docker/clawsum/scripts/install-gmail-inbox-review-cron.sh`
 
 Skill index: `deploy/skills/CATALOG.md` · authority: `deploy/skills/AUTHORITY.md`.
 When Boss names a workflow, open the matching `deploy/skills/<name>/SKILL.md` and follow it.
