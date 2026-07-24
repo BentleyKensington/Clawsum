@@ -2,82 +2,278 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Clawsum — Private CEO Operating System</title>
-  <meta name="description" content="Clawsum is a self-hosted CEO command system. Hermes talks. Paperclip manages. OpenClaw acts. You approve." />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Clawsum — Private CEO Operating System | Hermes · Paperclip · OpenClaw</title>
+  <meta name="description" content="Clawsum is a self-hosted CEO command system for multi-business operators. Hermes talks. Paperclip manages. OpenClaw acts. You approve. Isolated business cells, inbox intelligence, governed automation — $997/mo." />
+  <meta name="keywords" content="CEO operating system, AI operator stack, self-hosted AI, business automation, Hermes, Paperclip, OpenClaw, private AI, multi-agent governance" />
+  <meta name="author" content="Clawsum" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="theme-color" content="#070b10" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="canonical" href="https://clawsum.com/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Clawsum" />
+  <meta property="og:url" content="https://clawsum.com/" />
+  <meta property="og:title" content="Clawsum — Private CEO Operating System" />
+  <meta property="og:description" content="Not another chatbot. A governed command stack: Hermes talks, Paperclip manages, OpenClaw acts — you approve. $997/mo." />
+  <meta property="og:image" content="https://clawsum.com/assets/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_US" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Clawsum — Private CEO Operating System" />
+  <meta name="twitter:description" content="Self-hosted CEO OS with isolated business cells, approval gates, and real execution." />
+  <meta name="twitter:image" content="https://clawsum.com/assets/og-image.jpg" />
+
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="mask-icon" href="/assets/crest.svg" color="#2dd4bf" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="/assets/crest.svg" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://clawsum.com/#org",
+        "name": "Clawsum",
+        "url": "https://clawsum.com/",
+        "logo": "https://clawsum.com/assets/logo.svg",
+        "description": "Private CEO operating system for multi-business operators."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://clawsum.com/#website",
+        "url": "https://clawsum.com/",
+        "name": "Clawsum",
+        "publisher": { "@id": "https://clawsum.com/#org" }
+      },
+      {
+        "@type": "Product",
+        "name": "Clawsum Command — Founding Operator",
+        "description": "Self-hosted CEO operating system with Hermes conversation face, Paperclip governance, OpenClaw execution, isolated business cells, inbox intelligence, and tiered human approval.",
+        "brand": { "@id": "https://clawsum.com/#org" },
+        "image": "https://clawsum.com/assets/og-image.jpg",
+        "offers": {
+          "@type": "Offer",
+          "url": "https://clawsum.com/offer/",
+          "priceCurrency": "USD",
+          "price": "997.00",
+          "priceValidUntil": "2027-12-31",
+          "availability": "https://schema.org/LimitedAvailability",
+          "category": "SaaS",
+          "eligibleDuration": {
+            "@type": "QuantitativeValue",
+            "value": 12,
+            "unitCode": "MON"
+          },
+          "description": "$997 per month with a 12-month founding agreement ($11,964 year one)."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
-  <header class="top">
-    <a class="brand" href="/">
-      <img src="/assets/crest.svg" width="28" height="28" alt="" />
-      <span>Clawsum</span>
-    </a>
-    <nav>
-      <a href="#model">Model</a>
-      <a href="#cells">Cells</a>
-      <a class="cta-nav" href="https://login.clawsum.com">Enter</a>
-    </nav>
-  </header>
+  <a class="skip" href="#main">Skip to content</a>
 
-  <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Self-hosted · Private · Boss in command</p>
-        <h1><span class="wordmark">Clawsum</span></h1>
-        <p class="lede">Your personal CEO operating system — not another chatbot.</p>
-        <div class="actions">
-          <a class="btn primary" href="https://login.clawsum.com">Open command</a>
-          <a class="btn ghost" href="#model">See how it works</a>
-        </div>
+  <header class="top">
+    <a class="brand" href="/" aria-label="Clawsum home">
+      <img class="brand-logo" src="/assets/logo.svg" width="168" height="34" alt="Clawsum" />
+    </a>
+    <nav aria-label="Primary">
+      <a href="#system">System</a>
+      <a href="#cells">Cells</a>
+      <a href="#intelligence">Intelligence</a>
+      <a href="/offer/">Offer</a>
+      <a class="cta-nav" href="/offer/#enroll">$997 / mo</a>
+    </nav>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" data-nav-toggle>
+      <span class="sr-only">Menu</span>
+      <span></span><span></span>
+    </button>
+  </header>
+  <div id="mobile-nav" class="mobile-nav" hidden>
+    <a href="#system">System</a>
+    <a href="#cells">Cells</a>
+    <a href="#intelligence">Intelligence</a>
+    <a href="/offer/">Offer</a>
+    <a href="/offer/#enroll">Enroll — $997/mo</a>
+  </div>
+
+  <main id="main">
+    <section class="hero" aria-label="Clawsum">
+      <div class="hero-plane" aria-hidden="true">
+        <img class="hero-mark" src="/assets/crest.svg" width="420" height="420" alt="" />
+        <div class="hero-sheen"></div>
       </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="orbit">
-          <span>Hermes</span>
-          <span>Paperclip</span>
-          <span>OpenClaw</span>
+      <div class="hero-copy">
+        <img class="hero-logo" src="/assets/logo.svg" width="280" height="56" alt="Clawsum" />
+        <h1>The private operating system for the CEO who runs more than one empire.</h1>
+        <p class="lede">Hermes talks. Paperclip manages. OpenClaw acts. You approve — every time it matters.</p>
+        <div class="actions">
+          <a class="btn primary" href="/offer/#enroll">Claim founding seat — $997/mo</a>
+          <a class="btn ghost" href="#system">How the stack works</a>
         </div>
       </div>
     </section>
 
-    <section id="model" class="band">
-      <h2>Control model</h2>
-      <p class="sub">Authority without a single dangerous super-agent.</p>
-      <ol class="steps">
-        <li><strong>Hermes talks</strong> — JARVIS face for intent, briefings, routing.</li>
-        <li><strong>Paperclip manages</strong> — tasks, approvals, budgets, audit.</li>
-        <li><strong>OpenClaw acts</strong> — tools, CRMs, servers, automation.</li>
-        <li><strong>You approve</strong> — tiered risk; cells stay isolated.</li>
+    <section class="band tension" id="problem" aria-labelledby="problem-title">
+      <h2 id="problem-title">Chatbots don’t run companies. Control planes do.</h2>
+      <p class="prose">
+        You already live in a swarm of tools: CRMs, inboxes, servers, agents, calendars, ChatGPT threads that hold half your strategy.
+        The bottleneck isn’t intelligence — it’s <em>governance</em>. Who may act? On which business?
+        With whose credentials? After whose approval? Clawsum is the missing layer: a self-hosted CEO command system that turns intent into audited execution without handing a single agent the keys to everything.
+      </p>
+    </section>
+
+    <section class="band" id="system" aria-labelledby="system-title">
+      <h2 id="system-title">Four layers. One chain of command.</h2>
+      <p class="sub">Designed so no “super-agent” can silently spend money, message clients, or touch production.</p>
+      <ol class="rail">
+        <li>
+          <span class="rail-k">01 · Hermes</span>
+          <strong>Talks</strong>
+          <p>Your JARVIS face — briefings, routing, clarifying questions. Reads the board. Does not hold unrestricted credentials.</p>
+        </li>
+        <li>
+          <span class="rail-k">02 · Paperclip</span>
+          <strong>Manages</strong>
+          <p>Tasks, budgets, risk tiers, audit trails. The control plane that decides what is allowed to run.</p>
+        </li>
+        <li>
+          <span class="rail-k">03 · OpenClaw</span>
+          <strong>Acts</strong>
+          <p>Hands on the tools — GHL, Gmail, servers, deploy scripts — inside cell-scoped permissions.</p>
+        </li>
+        <li>
+          <span class="rail-k">04 · You</span>
+          <strong>Approve</strong>
+          <p>Tiered risk. Client-facing, money, and production changes wait for Gerald — not vibes.</p>
+        </li>
       </ol>
     </section>
 
-    <section id="cells" class="band alt">
-      <h2>Business cells</h2>
-      <p class="sub">Each company or client keeps its own credentials, memory, and agents.</p>
-      <ul class="cells">
-        <li>Personal Admin</li>
-        <li>WNN / Client</li>
-        <li>Vocalitic</li>
-        <li>Roofing OS</li>
-        <li>Techtasia</li>
-        <li>Real Estate</li>
+    <section class="band alt" id="cells" aria-labelledby="cells-title">
+      <h2 id="cells-title">Business cells — isolation by design</h2>
+      <p class="sub">Each company or client keeps its own memory namespace, credentials, and allowed actions.</p>
+      <ul class="cell-grid">
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>Clawsum Platform</span></li>
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>Personal Admin</span></li>
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>WNN / Client</span></li>
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>Vocalitic</span></li>
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>Roofing OS</span></li>
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>Techtasia</span></li>
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>AcceptAI / FastBuy</span></li>
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>Real Estate</span></li>
+        <li><img src="/assets/crest.svg" width="22" height="22" alt="" /><span>Hardware / Local AI</span></li>
       </ul>
+      <p class="prose narrow">
+        When Hermes sees an inbox thread or an archive conversation, it tags the cell first.
+        Agents don’t wander across businesses. Credentials never live in chat history.
+        That is how you scale from one brand to a portfolio without building a liability machine.
+      </p>
     </section>
 
-    <section class="band close">
-      <h2>Ready when you are</h2>
-      <p class="sub">Ops surfaces live on dedicated hosts — Hermes, Boss, OpenClaw, Grafana.</p>
-      <a class="btn primary" href="https://login.clawsum.com">Go to login</a>
+    <section class="band" id="intelligence" aria-labelledby="intel-title">
+      <h2 id="intel-title">Intelligence that remembers — without dumping secrets into memory</h2>
+      <div class="split">
+        <div>
+          <h3>Admin inbox as a command feed</h3>
+          <p class="prose">
+            Point the chaos at <strong>clawsums@gmail.com</strong>. Every message gets a stored review:
+            intent, priority, cell, person, recommendation, and the exact question Hermes should ask you.
+            Noise is ignored. Money and security cues escalate. Action items become tasks and reminders —
+            not another unread pile.
+          </p>
+        </div>
+        <div>
+          <h3>ChatGPT history, governed</h3>
+          <p class="prose">
+            Years of strategy already exist in ChatGPT exports. Clawsum imports them as an archive:
+            personal vs business, pending vs complete, linked to Paperclip when possible.
+            Nothing is bulk-loaded into Hermes memory. You promote what deserves to be durable.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="band alt" id="day" aria-labelledby="day-title">
+      <h2 id="day-title">What a Clawsum day feels like</h2>
+      <ol class="daylist">
+        <li><strong>07:00</strong> — Daily brief hits Telegram: health, pending approvals, inbox heat, blocked work.</li>
+        <li><strong>Morning</strong> — Open Hermes. Top decisions first. One clarifying question per stuck item.</li>
+        <li><strong>Midday</strong> — Approve a Tier-2 outreach. OpenClaw executes inside the right cell only.</li>
+        <li><strong>Anytime</strong> — Forward a vendor email. Review appears with cell + recommendation before you dig.</li>
+        <li><strong>Evening</strong> — Reminders that still matter nudge. Completed work leaves the board.</li>
+      </ol>
+    </section>
+
+    <section class="band offer-tease" id="pricing" aria-labelledby="pricing-title">
+      <img class="offer-crest" src="/assets/crest.svg" width="64" height="64" alt="" />
+      <h2 id="pricing-title">Founding Operator</h2>
+      <p class="price-line"><span class="price">$997</span><span class="per">/ month</span></p>
+      <p class="sub center">12-month agreement · $11,964 year one · Limited founding seats</p>
+      <p class="prose center">
+        Not a toy subscription. A committed build partnership for operators who need a real command stack:
+        private hosting posture, cell architecture, inbox intelligence, approval gates, and a Hermes face that drives work instead of chatting endlessly.
+      </p>
+      <div class="actions center-actions">
+        <a class="btn primary" href="/offer/">See the full offer</a>
+        <a class="btn ghost" href="/offer/#enroll">Start enrollment</a>
+      </div>
+    </section>
+
+    <section class="band" id="who" aria-labelledby="who-title">
+      <h2 id="who-title">Built for the operator, not the dabbler</h2>
+      <p class="prose">
+        Clawsum is for founders running multiple companies, client delivery stacks, or AI-heavy products
+        who are done renting their operating system from a chat window.
+        If you want a button that “does everything,” this isn’t it.
+        If you want a system that asks the right question, routes the right agent, and waits for your yes on what can hurt you — this is.
+      </p>
     </section>
   </main>
 
   <footer>
-    <span>© Clawsum</span>
-    <a href="https://login.clawsum.com">login.clawsum.com</a>
+    <a class="brand foot-brand" href="/">
+      <img src="/assets/logo.svg" width="140" height="28" alt="Clawsum" />
+    </a>
+    <div class="foot-links">
+      <a href="/offer/">Offer</a>
+      <a href="https://login.clawsum.com">Ops login</a>
+      <a href="mailto:clawsums@gmail.com">clawsums@gmail.com</a>
+    </div>
+    <p class="legal">© <span id="y"></span> Clawsum. Self-hosted CEO operating system.</p>
   </footer>
+
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    (function () {
+      var btn = document.querySelector("[data-nav-toggle]");
+      var panel = document.getElementById("mobile-nav");
+      if (!btn || !panel) return;
+      btn.addEventListener("click", function () {
+        var open = btn.getAttribute("aria-expanded") === "true";
+        btn.setAttribute("aria-expanded", String(!open));
+        panel.hidden = open;
+      });
+      panel.querySelectorAll("a").forEach(function (a) {
+        a.addEventListener("click", function () {
+          btn.setAttribute("aria-expanded", "false");
+          panel.hidden = true;
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
