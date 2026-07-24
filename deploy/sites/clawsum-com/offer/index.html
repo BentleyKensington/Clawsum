@@ -315,54 +315,161 @@
     </section>
 
     <section class="band alt" id="agreement" aria-labelledby="agree-title">
-      <h2 id="agree-title">12-month founding agreement — plain language</h2>
-      <ol class="agree">
-        <li><strong>Term.</strong> Twelve (12) consecutive months from the enrollment start date.</li>
-        <li><strong>Fee.</strong> Either (a) <strong>$10,000 USD paid in full</strong> at start (save $1,964 — two months free), or (b) <strong>$997 USD per month</strong> billed in advance for twelve months ($11,964). Toggle on this page selects your enrollment preference; both are the same Founding Operator agreement.</li>
-        <li><strong>Scope.</strong> Founding Operator access to the Clawsum command architecture, cell onboarding for your portfolio, and priority product influence.</li>
-        <li><strong>Self-hosted / private posture.</strong> Credentials and data boundaries stay under your control; hosting topology agreed at onboarding.</li>
-        <li><strong>Human approval.</strong> You remain responsible for Tier-2/Tier-3 decisions. Not legal, financial, or fiduciary advice.</li>
-        <li><strong>Early exit.</strong> Founding seats are commitment-priced. Early termination may require remaining months due unless Clawsum materially fails after a 30-day written cure.</li>
-        <li><strong>Confidentiality.</strong> Cell credentials, client data, and archives are confidential; not used to train public models.</li>
-        <li><strong>Acceptance.</strong> Enrollment interest + countersigned order finalizes start date.</li>
-      </ol>
-      <p class="fine">Final MSA / order form may refine these terms.</p>
+      <h2 id="agree-title">Founding agreement — what you’re signing up for</h2>
+      <p class="sub">Plain language commercial summary. A short written order after enrollment locks numbers, start date, and cells. This is not a substitute for the final order/MSA.</p>
+
+      <div class="agree-summary">
+        <div>
+          <h3>You get</h3>
+          <ul class="agree-bullets">
+            <li>12 months as a Founding Operator</li>
+            <li>Clawsum command stack posture (Hermes · Paperclip · OpenClaw)</li>
+            <li>Business cell mapping for your portfolio</li>
+            <li>Inbox intelligence, archive pipeline, approvals model</li>
+            <li>Priority influence on roadmap items you actually use</li>
+            <li>Onboarding call + written order before any payment is due</li>
+          </ul>
+        </div>
+        <div>
+          <h3>You do not get</h3>
+          <ul class="agree-bullets">
+            <li>Unsupervised Tier-2/3 actions (sends, spends, prod deploys)</li>
+            <li>Shared multi-tenant chatbot with your data mixed in</li>
+            <li>Legal, tax, banking, or fiduciary advice</li>
+            <li>A cancel-anytime consumer subscription (this is a founding commitment)</li>
+          </ul>
+        </div>
+      </div>
+
+      <dl class="agree-dl">
+        <div>
+          <dt>Term</dt>
+          <dd>Twelve (12) consecutive months beginning on the <strong>Start Date</strong> stated on your written order (not the day you fill this form).</dd>
+        </div>
+        <div>
+          <dt>Fees</dt>
+          <dd>
+            <strong>Monthly:</strong> $997 USD due in advance each month × 12 ($11,964).<br />
+            <strong>Annual prepaid:</strong> $10,000 USD due at Start Date — save $1,964 (two months free vs monthly).<br />
+            Taxes may apply where required. Payment method confirmed on the order (card/ACH/wire).
+          </dd>
+        </div>
+        <div>
+          <dt>When you pay</dt>
+          <dd>Interest form → onboarding call → written order → <strong>you pay only after you accept the order</strong>. Submitting this page does not charge your card.</dd>
+        </div>
+        <div>
+          <dt>Scope</dt>
+          <dd>Access to the Clawsum Founding Operator architecture and onboarding for the businesses/cells listed on your order. Hosting topology (self-hosted / private posture) agreed in writing during onboarding.</dd>
+        </div>
+        <div>
+          <dt>Your responsibilities</dt>
+          <dd>You remain the approver for Tier-2/Tier-3 actions. You provide accurate cell list, credential owners, and decision authority. You keep secrets out of public chats.</dd>
+        </div>
+        <div>
+          <dt>Our responsibilities</dt>
+          <dd>Stand up the agreed stack posture, map cells, wire inbox/archive/approvals patterns, and respond to founding roadmap priorities tied to your use.</dd>
+        </div>
+        <div>
+          <dt>Early exit</dt>
+          <dd>
+            Founding seats are commitment-priced. If you end early, remaining months under the order may still be due,
+            <em>unless</em> Clawsum materially fails to deliver the included architecture and does not cure within thirty (30) days of written notice.
+            Annual prepaid: unused months are not refunded except for that material-failure cure path (or as stated on your order).
+          </dd>
+        </div>
+        <div>
+          <dt>Confidentiality &amp; data</dt>
+          <dd>Your credentials, client data, and archives are confidential and are not used to train public models. Cell isolation is part of the design; you must not share PITs across cells.</dd>
+        </div>
+        <div>
+          <dt>Changes</dt>
+          <dd>Public marketing pricing may rise after the founding window. Your order locks your founding fee for the 12-month term.</dd>
+        </div>
+      </dl>
+      <p class="fine">Questions before you enroll? Email <a href="mailto:clawsums@gmail.com?subject=Clawsum%20Founding%20agreement%20question">clawsums@gmail.com</a>.</p>
     </section>
 
     <section class="band enroll" id="enroll" aria-labelledby="enroll-title">
       <img src="/assets/crest.svg" width="56" height="56" alt="" />
-      <h2 id="enroll-title">Enroll as a Founding Operator</h2>
-      <p class="sub center" data-enroll-sub>You’re selecting <strong>year in full — $10,000</strong>. Switch the toggle above anytime before you submit.</p>
+      <h2 id="enroll-title">Request a Founding Operator seat</h2>
+      <p class="sub center">Takes ~2 minutes. We’ll confirm plan, cells, and Start Date on a short call — then send a written order. No charge from this form.</p>
 
-      <form class="enroll-form" name="clawsum-founding" method="post" action="mailto:clawsums@gmail.com?subject=Clawsum%20Founding%20Operator%20%2410000" enctype="text/plain" data-enroll-form>
-        <label>
-          Full name
-          <input name="name" type="text" autocomplete="name" required placeholder="Your name" />
-        </label>
-        <label>
-          Email
-          <input name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
-        </label>
+      <ol class="enroll-steps" aria-label="What happens next">
+        <li><strong>1.</strong> Submit interest</li>
+        <li><strong>2.</strong> Onboarding call</li>
+        <li><strong>3.</strong> Written order + pay</li>
+        <li><strong>4.</strong> Cell mapping begins</li>
+      </ol>
+
+      <form class="enroll-form" id="enroll-form" novalidate data-enroll-form>
+        <fieldset class="pay-choice billing-inline">
+          <legend>Choose your plan</legend>
+          <label class="check plan-radio">
+            <input type="radio" name="plan_choice" value="annual" data-plan-radio checked />
+            <span><strong>$10,000 year in full</strong> — save $1,964 (two months free)</span>
+          </label>
+          <label class="check plan-radio">
+            <input type="radio" name="plan_choice" value="monthly" data-plan-radio />
+            <span><strong>$997 / month</strong> — 12-month agreement ($11,964)</span>
+          </label>
+        </fieldset>
         <input type="hidden" name="plan" value="annual_10000" data-plan-input />
-        <p class="plan-echo" data-plan-echo>Selected plan: <strong>Pay year in full — $10,000</strong> (save $1,964)</p>
+
         <label>
-          Companies / cells to run
-          <textarea name="cells" rows="3" required placeholder="e.g. client CRM delivery, voice AI product, personal admin…"></textarea>
+          Full name <span class="req">required</span>
+          <input name="name" id="f-name" type="text" autocomplete="name" required minlength="2" placeholder="Your name" />
         </label>
         <label>
-          What must be true in 90 days?
-          <textarea name="outcome" rows="3" placeholder="Inbox under control, approvals flowing, agents scoped to the right cells…"></textarea>
+          Work email <span class="req">required</span>
+          <input name="email" id="f-email" type="email" autocomplete="email" required placeholder="you@company.com" />
         </label>
         <label>
-          The story you want to stop living
-          <textarea name="pain" rows="3" placeholder="e.g. I approve nothing and still get surprised by what went out…"></textarea>
+          Mobile / WhatsApp <span class="opt">optional</span>
+          <input name="phone" id="f-phone" type="tel" autocomplete="tel" placeholder="+1 …" />
+        </label>
+        <label>
+          Company / operator name <span class="opt">optional</span>
+          <input name="company" id="f-company" type="text" autocomplete="organization" placeholder="Your holding / brand name" />
+        </label>
+        <label>
+          Businesses / cells to run <span class="req">required</span>
+          <textarea name="cells" id="f-cells" rows="3" required minlength="8" placeholder="List each company or client stack, e.g. WNN CRM delivery, Vocalitic, personal admin…"></textarea>
+        </label>
+        <label>
+          What must be true in 90 days? <span class="req">required</span>
+          <textarea name="outcome" id="f-outcome" rows="3" required minlength="8" placeholder="Inbox under control, approvals flowing, agents scoped to the right cells…"></textarea>
+        </label>
+        <label>
+          Biggest fragmentation pain today <span class="opt">optional</span>
+          <textarea name="pain" id="f-pain" rows="2" placeholder="e.g. I approve nothing and still get surprised by what went out…"></textarea>
+        </label>
+        <label>
+          Preferred start window <span class="opt">optional</span>
+          <select name="start_window" id="f-start">
+            <option value="asap">As soon as order is signed</option>
+            <option value="2_weeks">Within 2 weeks</option>
+            <option value="30_days">Within 30 days</option>
+            <option value="explore">Still exploring — call first</option>
+          </select>
+        </label>
+
+        <label class="check">
+          <input name="agree_terms" id="f-agree" type="checkbox" required />
+          <span>I request enrollment under the <a href="#agreement">founding agreement summary</a> for the plan selected, understand this is a <strong>12-month</strong> commitment, and that <strong>payment is only due after I accept a written order</strong>.</span>
         </label>
         <label class="check">
-          <input name="agree" type="checkbox" required />
-          <span>I understand this is a <strong>12-month</strong> founding agreement at the plan selected above.</span>
+          <input name="agree_contact" id="f-contact" type="checkbox" required />
+          <span>Clawsum may contact me at this email (and phone if provided) about founding onboarding.</span>
         </label>
-        <button class="btn primary" type="submit" data-submit-label>Submit — $10,000 year in full</button>
-        <p class="fine">Or email <a href="mailto:clawsums@gmail.com?subject=Clawsum%20Founding%20Operator" data-mail-link>clawsums@gmail.com</a>. Ops login: <a href="https://login.clawsum.com">login.clawsum.com</a>.</p>
+
+        <p class="form-error" id="form-error" hidden role="alert"></p>
+
+        <button class="btn primary" type="submit" data-submit-label>Send enrollment request — $10,000 year in full</button>
+        <p class="fine">
+          Prefer email? Write <a href="mailto:clawsums@gmail.com?subject=Clawsum%20Founding%20Operator" data-mail-link>clawsums@gmail.com</a>
+          with your plan + cell list. We’ll still send a written order before any payment.
+        </p>
       </form>
     </section>
   </main>
@@ -374,9 +481,10 @@
     <div class="foot-links">
       <a href="/">Home</a>
       <a href="/offer/">Offer</a>
+      <a href="/offer/#agreement">Agreement</a>
       <a href="mailto:clawsums@gmail.com">clawsums@gmail.com</a>
     </div>
-    <p class="legal">© <span id="y"></span> Clawsum. Founding Operator commercial offer.</p>
+    <p class="legal">© <span id="y"></span> Clawsum. Founding Operator commercial offer summary.</p>
   </footer>
 
   <script>
@@ -407,11 +515,10 @@
           per: "year in full",
           blurb: 'Save <strong>$1,964</strong> — two months free vs $11,964 paid monthly. Same Founding Operator term.',
           cta: "Enroll — pay $10,000 year in full",
-          submit: "Submit — $10,000 year in full",
-          echo: "Selected plan: <strong>Pay year in full — $10,000</strong> (save $1,964)",
-          enrollSub: 'You’re selecting <strong>year in full — $10,000</strong>. Switch the toggle above anytime before you submit.',
+          submit: "Send enrollment request — $10,000 year in full",
           value: "annual_10000",
-          mailto: "mailto:clawsums@gmail.com?subject=Clawsum%20Founding%20Operator%20%2410000",
+          label: "$10,000 year in full (save $1,964)",
+          mailtoSub: "Clawsum Founding Operator — $10,000 year in full",
           showSave: true
         },
         monthly: {
@@ -419,32 +526,36 @@
           per: "per month",
           blurb: 'Billed monthly in advance · <strong>12-month</strong> founding agreement · $11,964 if paid across the year. Toggle to annual to save $1,964.',
           cta: "Enroll — $997 per month",
-          submit: "Submit — $997 / month",
-          echo: "Selected plan: <strong>$997 / month</strong> · 12-month agreement ($11,964)",
-          enrollSub: 'You’re selecting <strong>$997 / month</strong> on a 12-month agreement. Switch the toggle above to pay year in full and save $1,964.',
+          submit: "Send enrollment request — $997 / month",
           value: "monthly_997",
-          mailto: "mailto:clawsums@gmail.com?subject=Clawsum%20Founding%20Operator%20%24997%2Fmo",
+          label: "$997 / month · 12-month ($11,964)",
+          mailtoSub: "Clawsum Founding Operator — $997/mo",
           showSave: false
         }
       };
 
-      function applyPlan(key) {
+      var currentPlan = "annual";
+
+      function applyPlan(key, fromRadio) {
         var p = plans[key];
         if (!p) return;
-        document.querySelectorAll("[data-plan]").forEach(function (el) {
+        currentPlan = key;
+        document.querySelectorAll(".billing-toggle [data-plan]").forEach(function (el) {
           var on = el.getAttribute("data-plan") === key;
           el.classList.toggle("is-active", on);
           el.setAttribute("aria-pressed", on ? "true" : "false");
         });
+        if (!fromRadio) {
+          document.querySelectorAll("[data-plan-radio]").forEach(function (r) {
+            r.checked = r.value === key;
+          });
+        }
         var amount = document.querySelector("[data-price-amount]");
         var per = document.querySelector("[data-price-per]");
         var blurb = document.querySelector("[data-price-blurb]");
         var cta = document.querySelector("[data-price-cta]");
         var pill = document.querySelector("[data-save-pill]");
-        var echo = document.querySelector("[data-plan-echo]");
-        var sub = document.querySelector("[data-enroll-sub]");
         var input = document.querySelector("[data-plan-input]");
-        var form = document.querySelector("[data-enroll-form]");
         var submit = document.querySelector("[data-submit-label]");
         var mail = document.querySelector("[data-mail-link]");
         if (amount) amount.textContent = p.amount;
@@ -452,18 +563,25 @@
         if (blurb) blurb.innerHTML = p.blurb;
         if (cta) cta.textContent = p.cta;
         if (pill) pill.hidden = !p.showSave;
-        if (echo) echo.innerHTML = p.echo;
-        if (sub) sub.innerHTML = p.enrollSub;
         if (input) input.value = p.value;
-        if (form) form.setAttribute("action", p.mailto);
         if (submit) submit.textContent = p.submit;
-        if (mail) mail.setAttribute("href", p.mailto);
+        if (mail) {
+          mail.setAttribute(
+            "href",
+            "mailto:clawsums@gmail.com?subject=" + encodeURIComponent(p.mailtoSub)
+          );
+        }
         try { localStorage.setItem("clawsum_plan", key); } catch (e) {}
       }
 
-      document.querySelectorAll("[data-plan]").forEach(function (el) {
+      document.querySelectorAll(".billing-toggle [data-plan]").forEach(function (el) {
         el.addEventListener("click", function () {
-          applyPlan(el.getAttribute("data-plan"));
+          applyPlan(el.getAttribute("data-plan"), false);
+        });
+      });
+      document.querySelectorAll("[data-plan-radio]").forEach(function (r) {
+        r.addEventListener("change", function () {
+          if (r.checked) applyPlan(r.value, true);
         });
       });
 
@@ -473,7 +591,101 @@
         if (saved === "monthly" || saved === "annual") initial = saved;
       } catch (e) {}
       if (location.hash === "#monthly") initial = "monthly";
-      applyPlan(initial);
+      applyPlan(initial, false);
+
+      var form = document.getElementById("enroll-form");
+      var err = document.getElementById("form-error");
+
+      function showError(msg) {
+        if (!err) return;
+        err.hidden = !msg;
+        err.textContent = msg || "";
+      }
+
+      function val(id) {
+        var el = document.getElementById(id);
+        return el ? String(el.value || "").trim() : "";
+      }
+
+      if (form) {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          showError("");
+
+          var name = val("f-name");
+          var email = val("f-email");
+          var phone = val("f-phone");
+          var company = val("f-company");
+          var cells = val("f-cells");
+          var outcome = val("f-outcome");
+          var pain = val("f-pain");
+          var start = val("f-start") || "asap";
+          var agree = document.getElementById("f-agree");
+          var contact = document.getElementById("f-contact");
+          var p = plans[currentPlan];
+
+          if (name.length < 2) {
+            showError("Please enter your full name.");
+            return;
+          }
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showError("Please enter a valid work email.");
+            return;
+          }
+          if (cells.length < 8) {
+            showError("List the businesses / cells you want to run (a short sentence is fine).");
+            return;
+          }
+          if (outcome.length < 8) {
+            showError("Tell us what must be true in 90 days.");
+            return;
+          }
+          if (!agree || !agree.checked) {
+            showError("Please confirm the founding agreement and payment timing.");
+            return;
+          }
+          if (!contact || !contact.checked) {
+            showError("Please confirm we may contact you about onboarding.");
+            return;
+          }
+
+          var body = [
+            "Clawsum Founding Operator — enrollment interest",
+            "",
+            "Plan: " + p.label,
+            "Plan code: " + p.value,
+            "",
+            "Name: " + name,
+            "Email: " + email,
+            "Phone: " + (phone || "(not provided)"),
+            "Company: " + (company || "(not provided)"),
+            "Start window: " + start,
+            "",
+            "Cells / businesses:",
+            cells,
+            "",
+            "90-day outcome:",
+            outcome,
+            "",
+            "Fragmentation pain:",
+            pain || "(not provided)",
+            "",
+            "Agreed to founding summary + contact: yes",
+            "Note: No payment charged from this form — written order required."
+          ].join("\n");
+
+          var href =
+            "mailto:clawsums@gmail.com?subject=" +
+            encodeURIComponent(p.mailtoSub) +
+            "&body=" +
+            encodeURIComponent(body);
+
+          window.location.href = href;
+          setTimeout(function () {
+            window.location.href = "/offer/thanks/";
+          }, 600);
+        });
+      }
     })();
   </script>
 </body>
