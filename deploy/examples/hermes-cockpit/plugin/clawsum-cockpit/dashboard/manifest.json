@@ -1,7 +1,7 @@
 {
   "name": "clawsum-cockpit",
   "label": "Clawsum",
-  "description": "CEO cockpit — brief, approvals, Grafana health, ops deep-links",
+  "description": "CEO cockpit — brief, inbox, archive, approvals, Grafana health",
   "icon": "LayoutDashboard",
   "version": "1.0.0",
   "tab": {

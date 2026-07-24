@@ -1,9 +1,9 @@
 /**
  * Clawsum CEO Cockpit — Hermes dashboard plugin
  *
- * - Visible tab /clawsum: Brief | Approvals | Health (Grafana)
+ * - Visible tab /clawsum: Brief | Inbox | Archive | Approvals | Health
  * - Slots: sidebar HUD, header crest, footer tagline
- * - Data: /api/plugins/clawsum-cockpit/{brief,approvals,links}
+ * - Data: /api/plugins/clawsum-cockpit/{brief,inbox,archive,approvals,links,crm}
  */
 (function () {
   "use strict";
@@ -116,6 +116,213 @@
     );
   }
 
+  function InboxPanel() {
+    var state = useState({ loading: true });
+    var data = state[0];
+    var setData = state[1];
+    useEffect(function () {
+      var cancel = false;
+      fetchJSON(API + "/inbox")
+        .then(function (j) { if (!cancel) setData(Object.assign({ loading: false }, j)); })
+        .catch(function (e) {
+          if (!cancel) setData({ loading: false, ok: false, error: String(e), action_items: [] });
+        });
+      return function () { cancel = true; };
+    }, []);
+
+    if (data.loading) {
+      return React.createElement("div", { className: "muted" }, "Loading inbox…");
+    }
+    if (!data.ok && data.error) {
+      return React.createElement(
+        "div",
+        { className: "clawsum-card" },
+        React.createElement("p", null, "Inbox not ready."),
+        React.createElement("p", { className: "muted" }, data.hint || data.error)
+      );
+    }
+    var items = data.action_items || [];
+    var analyses = data.email_analyses || items;
+    var questions = data.questions_for_boss || [];
+    return React.createElement(
+      "div",
+      null,
+      React.createElement(
+        "div",
+        { className: "clawsum-grid" },
+        React.createElement(
+          "div",
+          { className: "clawsum-card" },
+          React.createElement("div", { className: "muted" }, "Mailbox"),
+          React.createElement("div", null, data.mailbox || "clawsums@gmail.com")
+        ),
+        React.createElement(
+          "div",
+          { className: "clawsum-card" },
+          React.createElement("div", { className: "muted" }, "Action / needs Boss"),
+          React.createElement("div", { className: "clawsum-kpi" }, String(items.length))
+        ),
+        React.createElement(
+          "div",
+          { className: "clawsum-card" },
+          React.createElement("div", { className: "muted" }, "Analyses stored"),
+          React.createElement("div", { className: "clawsum-kpi" }, String(data.reviews_stored || analyses.length || 0))
+        ),
+        React.createElement(
+          "div",
+          { className: "clawsum-card" },
+          React.createElement("div", { className: "muted" }, "Active reminders"),
+          React.createElement("div", { className: "clawsum-kpi" }, String(data.reminders_active || 0))
+        )
+      ),
+      React.createElement(
+        "div",
+        { className: "clawsum-card" },
+        React.createElement("strong", null, "Ask Boss"),
+        React.createElement(
+          "ul",
+          { style: { margin: "0.5rem 0 0", paddingLeft: "1.2rem" } },
+          (questions.length ? questions : ["Run gmail-inbox-review.py to queue questions."]).map(function (q, i) {
+            return React.createElement("li", { key: i }, q);
+          })
+        )
+      ),
+      React.createElement(
+        "div",
+        { className: "clawsum-card" },
+        React.createElement("strong", null, "Per-email analysis"),
+        analyses.length
+          ? React.createElement(
+              "div",
+              null,
+              analyses.map(function (item, i) {
+                return React.createElement(
+                  "div",
+                  {
+                    key: i,
+                    style: {
+                      borderTop: i ? "1px solid rgba(45,212,191,0.2)" : "none",
+                      paddingTop: 8,
+                      marginTop: 8,
+                    },
+                  },
+                  React.createElement(
+                    "div",
+                    { style: { fontWeight: 600 } },
+                    "[" + (item.analysis_priority || item.review_status || "?") + "] " +
+                      (item.subject || "(no subject)")
+                  ),
+                  React.createElement(
+                    "div",
+                    { className: "muted", style: { fontSize: "0.8rem" } },
+                    (item.from_addr || "") +
+                      " · " +
+                      (item.business_slug || "—") +
+                      (item.person_name ? " · " + item.person_name : "")
+                  ),
+                  React.createElement(
+                    "p",
+                    { style: { margin: "0.4rem 0" } },
+                    item.analysis_intent || item.analysis_summary || "No analysis yet — run gmail-inbox-review.py"
+                  ),
+                  item.analysis_recommendation
+                    ? React.createElement(
+                        "p",
+                        { className: "muted", style: { margin: 0 } },
+                        "→ " + item.analysis_recommendation
+                      )
+                    : null
+                );
+              })
+            )
+          : React.createElement("p", { className: "muted" }, "No email analyses yet.")
+      )
+    );
+  }
+
+  function ArchivePanel() {
+    var state = useState({ loading: true });
+    var data = state[0];
+    var setData = state[1];
+    useEffect(function () {
+      var cancel = false;
+      fetchJSON(API + "/archive")
+        .then(function (j) { if (!cancel) setData(Object.assign({ loading: false }, j)); })
+        .catch(function (e) {
+          if (!cancel) setData({ loading: false, ok: false, error: String(e), drive_forward: [] });
+        });
+      return function () { cancel = true; };
+    }, []);
+
+    if (data.loading) {
+      return React.createElement("div", { className: "muted" }, "Loading archive brief…");
+    }
+    if (!data.ok && data.error) {
+      return React.createElement(
+        "div",
+        { className: "clawsum-card" },
+        React.createElement("p", null, "Archive not ready."),
+        React.createElement("p", { className: "muted" }, data.hint || data.error)
+      );
+    }
+    var drive = data.drive_forward || [];
+    var questions = data.questions_for_boss || [];
+    return React.createElement(
+      "div",
+      null,
+      React.createElement(
+        "div",
+        { className: "clawsum-grid" },
+        React.createElement(
+          "div",
+          { className: "clawsum-card" },
+          React.createElement("div", { className: "muted" }, "Personal (held private)"),
+          React.createElement("div", { className: "clawsum-kpi" }, String(data.personal_conversations || 0))
+        ),
+        React.createElement(
+          "div",
+          { className: "clawsum-card" },
+          React.createElement("div", { className: "muted" }, "Drive-forward"),
+          React.createElement("div", { className: "clawsum-kpi" }, String(drive.length))
+        )
+      ),
+      React.createElement(
+        "div",
+        { className: "clawsum-card" },
+        React.createElement("strong", null, "Ask Boss next"),
+        React.createElement(
+          "ul",
+          { style: { margin: "0.5rem 0 0", paddingLeft: "1.2rem" } },
+          (questions.length ? questions : ["Classify/link archive to queue questions."]).map(function (q, i) {
+            return React.createElement("li", { key: i }, q);
+          })
+        )
+      ),
+      React.createElement(
+        "div",
+        { className: "clawsum-card" },
+        React.createElement("strong", null, "Related work (archive ↔ Paperclip)"),
+        drive.length
+          ? React.createElement(
+              "ul",
+              { style: { margin: "0.5rem 0 0", paddingLeft: "1.2rem" } },
+              drive.map(function (item, i) {
+                var link = item.paperclip_issue_identifier || "unlinked";
+                var cell = item.business_slug || item.scope || "—";
+                return React.createElement(
+                  "li",
+                  { key: i },
+                  "[" + (item.work_status || "?") + "] (" + cell + ") " +
+                    (item.title || "untitled") +
+                    " — " + link
+                );
+              })
+            )
+          : React.createElement("p", { className: "muted" }, "No pending business archive items.")
+      )
+    );
+  }
+
   function ApprovalsPanel() {
     var state = useState({ loading: true, approvals: [] });
     var data = state[0];
@@ -216,6 +423,8 @@
     var setTab = tabState[1];
     var tabs = [
       { id: "brief", label: "CEO Brief" },
+      { id: "inbox", label: "Inbox" },
+      { id: "archive", label: "Archive" },
       { id: "approvals", label: "Approvals" },
       { id: "health", label: "Health" },
     ];
@@ -245,6 +454,8 @@
         })
       ),
       tab === "brief" ? React.createElement(BriefPanel) : null,
+      tab === "inbox" ? React.createElement(InboxPanel) : null,
+      tab === "archive" ? React.createElement(ArchivePanel) : null,
       tab === "approvals" ? React.createElement(ApprovalsPanel) : null,
       tab === "health" ? React.createElement(HealthPanel) : null
     );

@@ -94,9 +94,26 @@ Boss creates task in Boss UI
 
 ---
 
+## Proactive mode (ChatGPT archive + Paperclip)
+
+Hermes must **drive work**, not wait passively:
+
+1. Read the **Paperclip task list** first (open / blocked / backlog).
+2. Cross-check **ChatGPT archive** classifications (`personal` vs business cell; `work_status`).
+3. **Link** related archive conversations to issues; surface identifier in chat.
+4. Infer **intent**; ask **one sharp clarifying question** per stuck item to move it forward.
+5. Never dump archive text into durable memory — only Boss-approved facts.
+
+Install: `examples/hermes-cockpit/SOUL.md` → `/paperclip/.hermes/SOUL.md` (via `install-hermes-cockpit.sh`).  
+Pipeline: [CHATGPT-ARCHIVE.md](./CHATGPT-ARCHIVE.md). Cockpit tab **Archive** + `GET /api/plugins/clawsum-cockpit/archive`.
+
+---
+
 ## Related
 
 - [CEO-COCKPIT.md](./CEO-COCKPIT.md)
+- [CHATGPT-ARCHIVE.md](./CHATGPT-ARCHIVE.md)
+- [OVERWATCH-CRM.md](./OVERWATCH-CRM.md)
 - [PAPERCLIP-OVERWATCH.md](./PAPERCLIP-OVERWATCH.md)
 - [HERMES-OPENCLAW-ROUTING.md](./HERMES-OPENCLAW-ROUTING.md)
 - [BOSS-OPS-PORTAL.md](./BOSS-OPS-PORTAL.md)

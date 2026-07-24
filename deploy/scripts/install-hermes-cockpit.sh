@@ -70,6 +70,15 @@ docker exec -u root "${CONTAINER}" bash -lc "
   ln -sfn '${HERMES_HOME}/clawsum-assets' /paperclip/.hermes/clawsum-assets 2>/dev/null || true
 "
 
+# Proactive SOUL — task list + archive drive (do not overwrite if custom and newer)
+if [[ -f "${SRC}/SOUL.md" ]]; then
+  docker cp "${SRC}/SOUL.md" "${CONTAINER}:${HERMES_HOME}/SOUL.md"
+  docker exec -u root "${CONTAINER}" bash -lc "
+    ln -sfn '${HERMES_HOME}/SOUL.md' /paperclip/.hermes/SOUL.md 2>/dev/null || true
+  "
+  echo "Installed Hermes SOUL.md (proactive archive + Paperclip drive)"
+fi
+
 # Persist default theme if hermes config exists / create snippet
 docker exec -u root "${CONTAINER}" bash -lc "
   set -euo pipefail

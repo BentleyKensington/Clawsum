@@ -198,10 +198,22 @@ This path is more setup; **cron + DB** works without a public webhook.
 
 | Step | Who | Action |
 |------|-----|--------|
-| 1 | Gmail | Mail arrives (direct or forward) |
+| 1 | Gmail | Mail arrives at **clawsums@gmail.com** (direct or forward) |
 | 2 | Cron | `gmail-sync.py` → `ops.emails` |
-| 3 | Admin agent | Triage: set `processing_status`, create Paperclip issue |
-| 4 | Domain agents | Work in Telegram groups / Boss UI |
+| 3 | Review | `gmail-inbox-review.py` → cell + person + `ops.tasks` + questions |
+| 4 | Triage | `gmail-triage.py` → Paperclip issues when action required |
+| 5 | Hermes | Ask Boss; link reminders; drive outcomes |
+| 6 | Domain agents | Work in Telegram / Boss UI after approval |
+
+**Full inbox review:**
+
+```bash
+python3 /docker/clawsum/scripts/gmail-inbox-review.py --inbox-only --sync-first --markdown --create-reminders
+# or:
+bash /docker/clawsum/scripts/run-overwatch-crm.sh --review-inbox --sync-first
+```
+
+See [OVERWATCH-CRM.md](./OVERWATCH-CRM.md) for people / places / cells.
 
 **SQL triage examples:**
 

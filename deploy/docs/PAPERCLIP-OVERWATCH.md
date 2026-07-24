@@ -60,6 +60,7 @@ Default seeds (instance overlay — no secrets):
 
 | slug | name |
 |------|------|
+| `clawsum-platform` | Clawsum Platform (control plane + admin inbox) |
 | `personal-admin` | Personal Admin |
 | `hardware-local-ai` | Hardware / Local AI |
 | `wnn-client` | WNN / Client |
@@ -68,6 +69,8 @@ Default seeds (instance overlay — no secrets):
 | `techtasia` | Techtasia |
 | `acceptai-fastbuy` | AcceptAI / FastBuy |
 | `real-estate` | Real Estate |
+
+CRM (people / places / local tasks / inbox review): [OVERWATCH-CRM.md](./OVERWATCH-CRM.md) — `14-ops-crm.sql`, `seed-people-places.py`, `gmail-inbox-review.py`.
 
 Credentials stay in `.env` / vault per cell — never in these rows.
 

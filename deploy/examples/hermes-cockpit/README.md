@@ -11,6 +11,7 @@ Upstream capability: [Extending the Dashboard](https://hermes-agent.nousresearch
 ```text
 hermes-cockpit/
 ├── README.md                 (this file)
+├── SOUL.md                   proactive Hermes instructions (archive + Paperclip)
 ├── theme/clawsum-command.yaml
 ├── assets/                   logo.svg, crest.svg, hero.svg, bg.svg (shipping Clawsum brand)
 └── plugin/clawsum-cockpit/
@@ -29,9 +30,10 @@ hermes-cockpit/
 | Piece | Behavior |
 |-------|----------|
 | **Theme** `Clawsum Command` | Teal cockpit layout, fonts, crest/logo assets |
-| **Tab** `/clawsum` | CEO Brief · Approvals · Health |
+| **Tab** `/clawsum` | CEO Brief · Inbox · Archive · Approvals · Health |
+| **SOUL.md** | Paperclip + inbox + archive drive; ask clarifying questions |
 | **Sidebar / header / footer slots** | HUD KPIs + crest + tagline |
-| **Backend** | Brief + approvals from Postgres overwatch; links to Boss/OpenClaw/Grafana |
+| **Backend** | Brief + inbox + archive + CRM + approvals; links to Boss/OpenClaw/Grafana |
 | **Health** | Grafana iframe via `CLAWSUM_GRAFANA_EMBED_URL` |
 
 Governance stays in **Paperclip** + `ops.approvals`. Hermes displays and deep-links.
@@ -113,5 +115,6 @@ Or point theme `assets:` URLs at your CDN / MinIO public paths.
 
 - [CEO-COCKPIT.md](../../docs/CEO-COCKPIT.md)
 - [HERMES-POLICY.md](../../docs/HERMES-POLICY.md)
+- [CHATGPT-ARCHIVE.md](../../docs/CHATGPT-ARCHIVE.md)
 - [PAPERCLIP-OVERWATCH.md](../../docs/PAPERCLIP-OVERWATCH.md)
 - [BOSS-OPS-PORTAL.md](../../docs/BOSS-OPS-PORTAL.md)

@@ -123,7 +123,7 @@ def guess_domain(subject: str, from_addr: str, body: str) -> str | None:
     return None
 
 
-def upsert_email(cur, msg: dict, full: dict | None = None):
+def upsert_email(cur, msg: dict, full: dict | None = None, mailbox: str = "clawsums@gmail.com"):
     payload = (full or msg).get("payload", {})
     headers = header_map(payload.get("headers", []))
     from_addr = headers.get("from", "")
@@ -141,12 +141,13 @@ def upsert_email(cur, msg: dict, full: dict | None = None):
         """
         INSERT INTO ops.emails (
           gmail_id, thread_id, from_addr, to_addrs, cc_addrs, subject, snippet, body_text,
-          labels, is_inbox, is_sent, received_at, domain_guess, raw_headers
-        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+          labels, is_inbox, is_sent, received_at, domain_guess, raw_headers, mailbox
+        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         ON CONFLICT (gmail_id) DO UPDATE SET
           snippet = EXCLUDED.snippet,
           body_text = COALESCE(NULLIF(EXCLUDED.body_text,''), ops.emails.body_text),
           labels = EXCLUDED.labels,
+          mailbox = COALESCE(ops.emails.mailbox, EXCLUDED.mailbox),
           synced_at = NOW()
         """,
         (
@@ -164,6 +165,7 @@ def upsert_email(cur, msg: dict, full: dict | None = None):
             received_at,
             domain,
             json.dumps(headers),
+            mailbox,
         ),
     )
 
@@ -199,7 +201,8 @@ def main() -> None:
             sys.exit(1)
 
     max_backfill = int(env.get("GMAIL_BACKFILL_MAX", "500"))
-    account = env.get("GMAIL_ADMIN_ADDRESS", "me")
+    account = env.get("GMAIL_ADMIN_ADDRESS", "clawsums@gmail.com")
+    mailbox = account
 
     service = gmail_service(env)
     conn = pg_conn(env)
@@ -207,7 +210,7 @@ def main() -> None:
 
     if args.backfill:
         query = env.get("GMAIL_SYNC_QUERY", "in:all")
-        print(f"Backfill query={query!r} max={max_backfill}")
+        print(f"Backfill query={query!r} max={max_backfill} mailbox={mailbox}")
         ids = list_message_ids(service, query, max_backfill)
     else:
         # Last 48h inbox + anything with Clawsum label if used
@@ -217,7 +220,7 @@ def main() -> None:
     inserted = 0
     for i, mid in enumerate(ids):
         msg = service.users().messages().get(userId="me", id=mid, format="full").execute()
-        upsert_email(cur, msg, msg)
+        upsert_email(cur, msg, msg, mailbox=mailbox)
         inserted += 1
         if (i + 1) % 50 == 0:
             conn.commit()

@@ -206,6 +206,34 @@ def create_task(
     return None
 
 
+def domain_to_cell() -> dict[str, str]:
+    return {
+        "admin": "clawsum-platform",
+        "coding": "clawsum-platform",
+        "planning": "clawsum-platform",
+        "data": "clawsum-platform",
+        "research": "clawsum-platform",
+        "comms": "acceptai-fastbuy",
+        "realestate": "real-estate",
+        "ghl": "wnn-client",
+    }
+
+
+def find_person_id(cur, from_addr: str):
+    import re
+
+    m = re.search(r"[\w.+-]+@[\w.-]+", from_addr or "")
+    if not m:
+        return None
+    email = m.group(0).lower()
+    cur.execute(
+        "SELECT id FROM ops.people WHERE lower(primary_email) = %s OR %s = ANY(emails) LIMIT 1",
+        (email, email),
+    )
+    row = cur.fetchone()
+    return row[0] if row else None
+
+
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--limit", type=int, default=15)
@@ -271,9 +299,20 @@ def main() -> None:
             issue_id = None
 
         agent_name = dept_to_agent().get(domain, "Clawsum Admin")
-        print(f"{gmail_id[:12]}… {status} -> {domain} ({agent_name}) {subject[:50] if subject else ''}")
+        cell_slug = domain_to_cell().get(domain, "clawsum-platform")
+        print(f"{gmail_id[:12]}… {status} -> {domain}/{cell_slug} ({agent_name}) {subject[:50] if subject else ''}")
 
+        person_id = None
+        business_id = None
         if not args.dry_run:
+            try:
+                cur.execute("SELECT id FROM ops.businesses WHERE slug = %s", (cell_slug,))
+                brow = cur.fetchone()
+                business_id = brow[0] if brow else None
+                person_id = find_person_id(cur, from_addr or "")
+            except Exception:
+                pass
+
             cur.execute(
                 """
                 UPDATE ops.emails SET
@@ -281,7 +320,9 @@ def main() -> None:
                   domain_guess = %s,
                   assigned_agent = %s,
                   triage_notes = %s,
-                  paperclip_issue_id = COALESCE(%s, paperclip_issue_id)
+                  paperclip_issue_id = COALESCE(%s, paperclip_issue_id),
+                  business_id = COALESCE(%s, business_id),
+                  person_id = COALESCE(%s, person_id)
                 WHERE id = %s
                 """,
                 (
@@ -290,6 +331,8 @@ def main() -> None:
                     domain,
                     triage_notes,
                     issue_id if issue_id and issue_id != "dry-run" else None,
+                    business_id,
+                    person_id,
                     eid,
                 ),
             )
