@@ -72,7 +72,17 @@ def gmail_service(env: dict):
         client_secret=env["GMAIL_CLIENT_SECRET"],
         scopes=["https://www.googleapis.com/auth/gmail.readonly"],
     )
-    creds.refresh(Request())
+    try:
+        creds.refresh(Request())
+    except Exception as e:  # noqa: BLE001
+        # Alert Boss — do not fail silently in cron
+        try:
+            from gmail_oauth_health import notify_auth_failure
+
+            notify_auth_failure(e, context="gmail-sync")
+        except Exception as alert_err:  # noqa: BLE001
+            print(f"WARN: oauth alert hook failed: {alert_err}", file=sys.stderr)
+        raise
     return build("gmail", "v1", credentials=creds, cache_discovery=False)
 
 
@@ -198,13 +208,23 @@ def main() -> None:
     for key in ("GMAIL_CLIENT_ID", "GMAIL_CLIENT_SECRET", "GMAIL_REFRESH_TOKEN"):
         if not env.get(key):
             print(f"ERROR: {key} missing in .env — see docs/GMAIL-ADMIN-SETUP.md", file=sys.stderr)
+            try:
+                from gmail_oauth_health import notify_auth_failure
+
+                notify_auth_failure(f"missing env {key}", context="gmail-sync")
+            except Exception as alert_err:  # noqa: BLE001
+                print(f"WARN: oauth alert hook failed: {alert_err}", file=sys.stderr)
             sys.exit(1)
 
     max_backfill = int(env.get("GMAIL_BACKFILL_MAX", "500"))
     account = env.get("GMAIL_ADMIN_ADDRESS", "clawsums@gmail.com")
     mailbox = account
 
-    service = gmail_service(env)
+    try:
+        service = gmail_service(env)
+    except Exception as e:  # noqa: BLE001
+        print(f"ERROR: Gmail OAuth failed: {e}", file=sys.stderr)
+        sys.exit(2)
     conn = pg_conn(env)
     cur = conn.cursor()
 

@@ -192,6 +192,21 @@ def email_summary() -> str:
     else:
         lines.append("Sync: not started — add Gmail OAuth then gmail-sync.py --backfill")
 
+    # Surface OAuth health from alert state file (written by gmail_oauth_health.py)
+    health = Path("/docker/clawsum/data/reports/gmail-oauth-health.json")
+    if health.exists():
+        try:
+            st = json.loads(health.read_text(encoding="utf-8"))
+            if st.get("failing"):
+                lines.append(
+                    f"⚠️ Gmail OAuth BROKEN: {st.get('last_error') or 'unknown'} "
+                    f"(last fail {st.get('last_fail_at')})"
+                )
+            elif st.get("last_ok_at"):
+                lines.append(f"Gmail OAuth: ok (last check {st.get('last_ok_at')})")
+        except (OSError, json.JSONDecodeError):
+            pass
+
     return "\n".join(lines)
 
 

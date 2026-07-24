@@ -249,6 +249,27 @@ Override delivery: `TELEGRAM_REPORT_CHAT_ID` in `.env`.
 
 ---
 
+## Alerts — OAuth must not fail silently
+
+If Gmail refresh token dies (`invalid_grant`) or sync cannot auth, Boss is Telegram-alerted:
+
+```bash
+python3 /docker/clawsum/scripts/gmail_oauth_health.py
+```
+
+- Wired into `gmail-sync.py` and `run-gmail-inbox-pipeline.sh` (every 15m)
+- Cooldown default **6h** (`GMAIL_OAUTH_ALERT_COOLDOWN_HOURS`) so cron does not spam
+- Recovery message when OAuth works again after a failure
+- Chat: `TELEGRAM_ADMIN_CHAT_ID` or `TELEGRAM_REPORT_CHAT_ID`
+
+Force a test alert:
+
+```bash
+python3 /docker/clawsum/scripts/gmail_oauth_health.py --from-failure "test oauth alert" --force
+```
+
+---
+
 ## Troubleshooting: `403 access_denied` / “has not completed the Google verification process”
 
 Google shows this when the OAuth app is in **Testing** and the account you sign in with is **not** on the **Test users** list (or you are not a project owner/editor).
