@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clawsum Login — Ops Launcher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Syne:wght@700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/assets/crest.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #070b10; --ink: #e8eef4; --muted: #8b9aab; --accent: #2dd4bf; --line: rgba(232,238,244,.12);
+      --font: "DM Sans", system-ui, sans-serif; --display: "Syne", sans-serif;
+    }
+    body { margin: 0; font-family: var(--font); color: var(--ink); background: radial-gradient(800px 400px at 50% -20%, rgba(45,212,191,.15), transparent), var(--bg); min-height: 100vh; }
+    main { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem; }
+    h1 { font-family: var(--display); font-size: 2rem; margin: 0 0 .4rem; }
+    p { color: var(--muted); }
+    .grid { display: grid; gap: .75rem; margin-top: 1.75rem; }
+    a.card {
+      display: block; padding: 1rem 1.15rem; border: 1px solid var(--line); border-radius: .65rem;
+      text-decoration: none; color: inherit; background: rgba(255,255,255,.02);
+    }
+    a.card:hover { border-color: rgba(45,212,191,.5); }
+    a.card strong { color: var(--accent); }
+    .meta { font-size: .85rem; color: var(--muted); margin-top: .25rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Clawsum Command</h1>
+    <p>Choose a surface. Traefik auth protects these hosts.</p>
+    <div class="grid">
+      <a class="card" href="https://hermes.clawsum.com"><strong>Hermes</strong><div class="meta">JARVIS chat · CEO cockpit</div></a>
+      <a class="card" href="https://boss.clawsum.com"><strong>Boss</strong><div class="meta">Paperclip tasks · approvals</div></a>
+      <a class="card" href="https://openclaw.clawsum.com"><strong>OpenClaw</strong><div class="meta">Gateway · channels · devices</div></a>
+      <a class="card" href="https://grafana.clawsum.com"><strong>Grafana</strong><div class="meta">Server health · metrics</div></a>
+      <a class="card" href="https://connect.clawsum.com"><strong>Connect</strong><div class="meta">Integrations hub</div></a>
+    </div>
+  </main>
+</body>
+</html>

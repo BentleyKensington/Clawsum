@@ -22,7 +22,7 @@ On the VPS, the stack typically lives at `/docker/clawsum` with `deploy/` artifa
 |-----|---------|
 | [deploy/docs/PLATFORM-DEPLOY-TEMPLATE.md](deploy/docs/PLATFORM-DEPLOY-TEMPLATE.md) | Multi-VPS template spec and completion tiers |
 | [deploy/docs/CEO-COCKPIT.md](deploy/docs/CEO-COCKPIT.md) | Hermes-first browser access + cockpit shell |
-| [deploy/docs/CEO-OVERWATCH.md](deploy/docs/CEO-OVERWATCH.md) | Full report coverage matrix + phase task board |
+| [deploy/docs/DOMAIN-MAP.md](deploy/docs/DOMAIN-MAP.md) | clawsum.com subdomain map + Porkbun/Traefik |
 | [deploy/examples/hermes-cockpit/README.md](deploy/examples/hermes-cockpit/README.md) | Clawsum theme/plugin for Hermes UI |
 | [deploy/docs/RESUME-POLICY.md](deploy/docs/RESUME-POLICY.md) | Unpause agents + 7am Chicago cron fix |
 | [deploy/docs/PAPERCLIP-OVERWATCH.md](deploy/docs/PAPERCLIP-OVERWATCH.md) | Approvals / business cells (Phase 3) |

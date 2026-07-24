@@ -10,18 +10,26 @@ CONFIG = Path("/docker/clawsum/data/.openclaw/openclaw.json")
 ENV_FILE = Path("/docker/clawsum/.env")
 
 
-def load_traefik_host() -> str:
+def load_env() -> dict[str, str]:
+    out: dict[str, str] = {}
     if ENV_FILE.exists():
         for line in ENV_FILE.read_text().splitlines():
-            if line.startswith("TRAEFIK_HOST="):
-                return line.split("=", 1)[1].strip().strip('"').strip("'")
-    return os.environ.get("TRAEFIK_HOST", "srv.example.com.hstgr.cloud")
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, _, v = line.partition("=")
+            out[k.strip()] = v.strip().strip('"').strip("'")
+    out.update({k: v for k, v in os.environ.items() if k not in out or not out.get(k)})
+    return out
 
 
 def main() -> None:
-    host = load_traefik_host()
-    port = os.environ.get("OPENCLAW_GATEWAY_PORT", "48166")
+    env = load_env()
+    host = env.get("TRAEFIK_HOST", "srv.example.com")
+    openclaw_ui = env.get("OPENCLAW_UI_HOST", f"openclaw.{host}")
+    port = env.get("OPENCLAW_GATEWAY_PORT", "48166")
     origins = [
+        f"https://{openclaw_ui}",
         f"https://clawsum.{host}",
         f"http://127.0.0.1:{port}",
         f"http://localhost:{port}",
