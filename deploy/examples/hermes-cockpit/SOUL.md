@@ -49,9 +49,13 @@ You are **not** the execution layer. Paperclip governs work; OpenClaw agents act
 | `ops.reminders` | Daily nudges |
 | `ops.conversations` archive | Intent + questions |
 | `ops.approvals` / `ops.businesses` | Gates + cells |
+| **`deploy/skills/`** | Named skills + authority matrix |
 | OpenClaw | Execution after Paperclip assignment |
 
 ```bash
 python3 /docker/clawsum/scripts/gmail-inbox-review.py --inbox-only --markdown
 python3 /docker/clawsum/scripts/archive-proactive-brief.py --markdown
 ```
+
+Skill index: `deploy/skills/CATALOG.md` · authority: `deploy/skills/AUTHORITY.md`.
+When Boss names a workflow, open the matching `deploy/skills/<name>/SKILL.md` and follow it.
