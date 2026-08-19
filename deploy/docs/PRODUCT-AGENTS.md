@@ -38,12 +38,23 @@ Never print the key. Mutating containers / deploys = **Tier 2**.
 
 ## AcceptAI (`acceptai`)
 
-Same pattern as Vocalitic for the AcceptAI / FastBuy **app**, not just ad copy.
+Same pattern as Vocalitic for the AcceptAI **product runtime**, not just FastBuy ad copy.
+
+**Codebase:** local tree **`C:\APPS\Projects\AcceptAI`**. Root README is a stale scaffold note; the live product is:
+
+| Path | Role |
+|------|------|
+| `aaip_service/` | FastAPI **AAIP** (AI Action Interface Protocol): catalog feeds, ACP, OAuth, Stripe ACS, ops imports, AI browse/guide |
+| `aaip-mcp-server/` | MCP so Claude/agents can shop certified Shopify stores via AAIP |
+| `aaip-extension/` | Browser/extension surface |
+| `shopify-marketplace-app/acceptai-marketplace/` | Shopify marketplace app (React Router) |
+
+SSH host is **not** in-repo (unlike Vocalitic’s `69.62.64.214`). Set it when Gerald names the box.
 
 ```env
-ACCEPTAI_CODEBASE_PATH=
+ACCEPTAI_CODEBASE_PATH=C:\APPS\Projects\AcceptAI
 ACCEPTAI_SSH_HOST=
-ACCEPTAI_SSH_USER=
+ACCEPTAI_SSH_USER=root
 ACCEPTAI_SSH_PORT=22
 ACCEPTAI_SSH_KEY_PATH=
 ACCEPTAI_DASHBOARD_URL=
@@ -53,7 +64,7 @@ ACCEPTAI_API_KEY=          # if a management API exists
 
 **Skills:** `acceptai-product-ops`, `commerce-fastbuy`, `product-ssh-ops`.
 
-Comms still drafts customer copy; AcceptAI agent owns **the product runtime**.
+Comms still drafts customer copy; AcceptAI agent owns **the product runtime**. Recommend-only until Tier 2.
 
 ---
 

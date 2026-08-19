@@ -42,7 +42,7 @@ NEW_AGENTS = [
         "id": "acceptai",
         "name": "AcceptAI",
         "workspace": "/home/node/.openclaw/workspace-acceptai",
-        "tools": {"allow": ["read", "write", "browser"], "deny": ["exec", "apply_patch"]},
+        "tools": {"allow": ["read", "write", "browser", "exec"], "deny": ["apply_patch"]},
     },
     {
         "id": "calendar",

@@ -14,9 +14,9 @@ See [PRODUCT-AGENTS.md](../../docs/PRODUCT-AGENTS.md). Same discipline as Vocali
 
 ## Instructions
 
-1. Read `$ACCEPTAI_CODEBASE_PATH` (README, app purpose, admin/API).
-2. SSH via `product-ssh-ops` or call `$ACCEPTAI_API_BASE` with `ACCEPTAI_API_KEY` (header never printed).
-3. Dashboard + logs → observations → Paperclip. Comms drafts customer copy separately (`commerce-fastbuy`).
+1. Read `$ACCEPTAI_CODEBASE_PATH` (default **`C:\APPS\Projects\AcceptAI`**). Ignore the stale root README “minimal scaffold.” Required reading: `aaip_service/app/main.py` (AAIP FastAPI: catalog feeds, ACP, OAuth, Stripe, AI browse), `aaip-mcp-server/README.md` (agent shopping MCP), `shopify-marketplace-app/acceptai-marketplace/` (Shopify app). FastBuy copy stays on `commerce-fastbuy`.
+2. SSH via `product-ssh-ops` when `$ACCEPTAI_SSH_HOST` is set, or call `$ACCEPTAI_API_BASE` with `ACCEPTAI_API_KEY` (header never printed). If SSH host is empty, ask once — do not guess Vocalitic’s box.
+3. Dashboard + logs → observations in Obsidian `AcceptAI/` → Paperclip with recommended diffs. Comms drafts customer copy separately.
 4. Pricing, live offer, refunds, prod deploy = Tier 2.
 
 ## Escalation
