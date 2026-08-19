@@ -4,7 +4,7 @@ Files that define or seed the AI Persona OS. Runtime copies live under `data/.op
 
 ## Seed script
 
-- `deploy/scripts/seed-persona-os.sh` — core agents (admin, coding, data, realestate, **ghl**, comms, research, planning, paperclip)
+- `deploy/scripts/seed-persona-os.sh` — core agents (admin, coding, data, realestate, **ghl**, comms, research, planning, paperclip, **media**)
 - `deploy/scripts/seed-workspace-db-docs.sh` — `DATABASE.md` per agent
 - `deploy/scripts/provision-ghl-accounts.py` — GHL template render from `deploy/templates/ghl/`
 

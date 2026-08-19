@@ -4,6 +4,7 @@
 CREATE SCHEMA IF NOT EXISTS mco_rei;
 CREATE SCHEMA IF NOT EXISTS ave_rei;
 CREATE SCHEMA IF NOT EXISTS wnn_rei;
+CREATE SCHEMA IF NOT EXISTS dispo_dudes;
 
 DO $$
 BEGIN
@@ -15,6 +16,9 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ghl_wnn_rei') THEN
     CREATE ROLE ghl_wnn_rei LOGIN PASSWORD 'ghl_wnn_rei_change_me';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'ghl_dispo_dudes') THEN
+    CREATE ROLE ghl_dispo_dudes LOGIN PASSWORD 'ghl_dispo_dudes_change_me';
   END IF;
 END $$;
 

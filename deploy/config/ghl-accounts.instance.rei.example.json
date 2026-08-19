@@ -46,6 +46,21 @@
       "mcp_server": "ghl-wnn-rei",
       "identity_name": "WNN REI Ops",
       "identity_emoji": "🔑"
+    },
+    {
+      "slug": "dispo-dudes",
+      "id": "ghl-dispo-dudes",
+      "display_name": "Dispo Dudes",
+      "schema_prefix": "dispo_dudes",
+      "obsidian_folder": "DISPO-DUDES",
+      "paperclip_name": "Clawsum GHL — Dispo Dudes",
+      "telegram_needles": ["dispo dudes", "dispo-dudes", "ghl dispo", "dispodeudes"],
+      "env_pit": "GHL_DISPO_DUDES_PIT",
+      "env_location": "GHL_DISPO_DUDES_LOCATION_ID",
+      "env_db_password": "GHL_DISPO_DUDES_DB_PASSWORD",
+      "mcp_server": "ghl-dispo-dudes",
+      "identity_name": "Dispo Dudes",
+      "identity_emoji": "🤝"
     }
   ]
 }

@@ -45,6 +45,19 @@ AGENTS = [
     ("research", "Research", "Research briefs and synthesis"),
     ("planning", "Planning", "Roadmaps, priorities, ADRs"),
     ("paperclip", "Paperclip", "Orchestration and task breakdown notes"),
+    ("closebot", "CloseBot", "CloseBot workflows, routing, and API operator notes"),
+    ("printful", "Printful", "Printful merchant, fulfillment, and SKU notes"),
+    ("shopify", "Shopify", "Shopify storefront, product, and order ops"),
+    ("seo-aeo-geo", "SEO-AEO-GEO", "Search, answer-engine, and geo visibility notes"),
+    ("meta-ads", "MetaAds", "Meta/Facebook ads planning and operations"),
+    ("acceptai", "AcceptAI", "AcceptAI / FastBuy commerce notes"),
+    ("calendar", "Calendar", "Scheduling, invite, and calendar operations"),
+    ("slack-avenou", "Slack-Avenou", "Slack workflows and Avenou comms"),
+    ("vocalitic", "Vocalitic", "Vocalitic product — v1m12, dashboard, SSH notes"),
+    ("llm-lab", "LLM-Lab", "Model bake-offs and vendor watch"),
+    ("vapi", "VAPI", "VAPI assistants, calls, numbers"),
+    ("sellthebizfast", "SellTheBizFast", "Acquisition buy box, CIM, DD"),
+    ("rocco", "Rocco", "Sentry, official Ring, freeze alerts"),
 ]
 
 
@@ -164,10 +177,10 @@ See `/docker/clawsum/docs/OBSIDIAN-VAULT.md` for setup and desktop sync.
             except OSError:
                 pass
 
-    # cron — CRON_TZ so 7:02 is America/Chicago, not UTC
+    # cron — keep vault fresh throughout the day, not only once in the morning.
     cron_tz = "CRON_TZ=America/Chicago"
     cron_line = (
-        "2 7 * * * "
+        "*/15 * * * * "
         "/usr/bin/python3 /docker/clawsum/scripts/setup-obsidian-vault.py --sync-only "
         ">> /docker/clawsum/data/reports/obsidian-sync.log 2>&1"
     )
@@ -195,6 +208,7 @@ if __name__ == "__main__":
 
     if "--sync-only" in sys.argv:
         REPORTS.mkdir(parents=True, exist_ok=True)
+        inbox = Path("/docker/clawsum/data/inbox-reports")
         count = 0
         for src in sorted(REPORTS.glob("global-*.md")):
             dest = OBS / "Admin" / "Reports" / src.name
@@ -202,13 +216,26 @@ if __name__ == "__main__":
             if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
                 shutil.copy2(src, dest)
                 count += 1
+        inbox_count = 0
+        for src in sorted(inbox.glob("*.md")):
+            dest = OBS / "Admin" / "Inbox" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            if not dest.exists() or src.stat().st_mtime > dest.stat().st_mtime:
+                shutil.copy2(src, dest)
+                inbox_count += 1
         latest = sorted(REPORTS.glob("global-*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
         if latest:
             link = OBS / "Admin" / "Latest-Report.md"
             if link.exists() or link.is_symlink():
                 link.unlink()
             link.symlink_to(f"Reports/{latest[0].name}")
+        latest_inbox = sorted(inbox.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
+        if latest_inbox:
+            link = OBS / "Admin" / "Latest-Inbox.md"
+            if link.exists() or link.is_symlink():
+                link.unlink()
+            link.symlink_to(f"Inbox/{latest_inbox[0].name}")
         chown_tree(OBS / "Admin")
-        print(f"sync-only: {count} updated")
+        print(f"sync-only: reports={count} inbox={inbox_count}")
     else:
         main()

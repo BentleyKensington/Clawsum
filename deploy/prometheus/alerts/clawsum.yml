@@ -2,7 +2,7 @@ groups:
   - name: clawsum
     rules:
       - alert: ClawsumGatewayDown
-        expr: probe_success{job="clawsum-health", instance=~".*:48166.*"} == 0
+        expr: probe_success{job="clawsum-health", service="openclaw"} == 0
         for: 3m
         labels:
           severity: critical
@@ -11,7 +11,7 @@ groups:
           description: "Blackbox probe to {{ $labels.instance }} failed for 3m."
 
       - alert: ClawsumPaperclipDown
-        expr: probe_success{job="clawsum-health", instance=~".*:3100.*"} == 0
+        expr: probe_success{job="clawsum-health", service="paperclip"} == 0
         for: 3m
         labels:
           severity: warning
@@ -19,11 +19,97 @@ groups:
           summary: Paperclip Boss UI health probe failed
           description: "Probe to {{ $labels.instance }} failed for 3m."
 
+      - alert: ClawsumHermesDown
+        expr: probe_success{job="clawsum-health", service="hermes"} == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: Hermes / Clawsum cockpit probe failed
+          description: "Probe to {{ $labels.instance }} failed for 3m."
+
+      - alert: ClawsumHermesGatewayStopped
+        expr: clawsum_hermes_gateway_up == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Hermes messaging gateway is stopped
+          description: "Footer will show gateway stopped. Keepalive should restart it; if this persists, run ensure-hermes-runtime.sh."
+
+      - alert: ClawsumAutheliaDown
+        expr: probe_success{job="clawsum-health", service="authelia"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Authelia SSO probe failed
+          description: "Probe to {{ $labels.instance }} failed for 2m."
+
       - alert: ClawsumGatewaySlow
-        expr: probe_duration_seconds{job="clawsum-health", instance=~".*:48166.*"} > 5
+        expr: probe_duration_seconds{job="clawsum-health", service="openclaw"} > 5
         for: 5m
         labels:
           severity: warning
         annotations:
           summary: OpenClaw gateway probe slow
           description: "Health check took {{ $value }}s."
+
+      - alert: ClawsumMarketingDown
+        expr: probe_success{job="clawsum-health", service="marketing"} == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Clawsum marketing site probe failed
+          description: "Local marketing probe failed for 5m."
+
+      - alert: ClawsumPublicEdgeDown
+        expr: probe_success{job="clawsum-public"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Public Clawsum endpoint unavailable: {{ $labels.service }}"
+          description: "External HTTPS probe to {{ $labels.instance }} failed for 5m."
+
+      - alert: ClawsumOpsMetricsDown
+        expr: absent(clawsum_ops_metrics_generated_timestamp_seconds) or (time() - clawsum_ops_metrics_generated_timestamp_seconds > 180)
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Clawsum CEO metrics unavailable
+          description: "The host textfile exporter has not produced fresh workload metrics."
+
+      - alert: ClawsumPostgresDown
+        expr: pg_up == 0 or clawsum_postgres_up == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: Clawsum Postgres unavailable
+          description: "Postgres exporter or cockpit DB connection has failed."
+
+      - alert: ClawsumGmailSyncStale
+        expr: clawsum_gmail_sync_age_seconds > 1800
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Gmail sync is stale
+          description: "No successful Gmail sync for {{ $value | humanizeDuration }}."
+
+      - alert: ClawsumDiskSpaceLow
+        expr: >
+          (
+            node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}
+            /
+            node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}
+          ) < 0.15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Clawsum VPS disk space below 15%
+          description: "Root filesystem has {{ $value | humanizePercentage }} free."

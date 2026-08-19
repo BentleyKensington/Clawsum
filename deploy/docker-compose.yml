@@ -33,6 +33,8 @@ services:
     networks: [clawsum]
     environment:
       ARCADEDB_ROOT_PASSWORD: ${ARCADEDB_ROOT_PASSWORD:-arcadedb_change_me}
+      # Non-interactive root password (image ignores bare ARCADEDB_ROOT_PASSWORD alone)
+      JAVA_OPTS: "-Darcadedb.server.rootPassword=${ARCADEDB_ROOT_PASSWORD:-arcadedb_change_me} -Darcadedb.server.mode=development"
     volumes:
       - ./data/arcadedb:/home/arcadedb/databases
     ports:
@@ -58,6 +60,18 @@ services:
       GOG_HOME: /home/node/.openclaw/gog
       GOG_KEYRING_BACKEND: ${GOG_KEYRING_BACKEND:-file}
       GOG_KEYRING_PASSWORD: ${GOG_KEYRING_PASSWORD:-}
+      # CloseBot API (skill closebot-api-operator → header X-CB-KEY)
+      CLOSEBOT_API_KEY: ${CLOSEBOT_API_KEY:-}
+      X_CB_KEY: ${X_CB_KEY:-}
+      VAPI_API_KEY: ${VAPI_API_KEY:-}
+      PRINTFUL_API_TOKEN: ${PRINTFUL_API_TOKEN:-}
+      SHOPIFY_STORE: ${SHOPIFY_STORE:-}
+      SHOPIFY_ADMIN_TOKEN: ${SHOPIFY_ADMIN_TOKEN:-}
+      DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:-}
+      NVIDIA_NIM_API_KEY: ${NVIDIA_NIM_API_KEY:-}
+      # Agent→Paperclip callback via host proxy (local_trusted is loopback-only on :3100)
+      PAPERCLIP_API_URL: ${PAPERCLIP_AGENT_API_URL:-http://host.docker.internal:3102/api}
+      PAPERCLIP_RUNTIME_API_URL: ${PAPERCLIP_AGENT_API_URL:-http://host.docker.internal:3102/api}
     volumes:
       - ${OPENCLAW_CONFIG_DIR:-./data/.openclaw}:/home/node/.openclaw
       - ${OPENCLAW_AUTH_PROFILE_SECRET_DIR:-./data/.openclaw-auth-secrets}:/home/node/.config/openclaw
@@ -128,6 +142,8 @@ services:
     network_mode: host
     environment:
       # Do NOT use env_file — Hostinger .env leaks PORT=48165 into Paperclip.
+      # local_trusted REQUIRES loopback bind. Agents reach API via host proxy :3102
+      # (systemd clawsum-paperclip-agent-proxy → 127.0.0.1:3100). Never Authelia public URL.
       HOST: "127.0.0.1"
       PORT: "3100"
       PAPERCLIP_HOME: /paperclip
@@ -142,8 +158,21 @@ services:
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Hermes cockpit plugins (inbox / approvals) need DB from the same process
+      POSTGRES_HOST: ${POSTGRES_HOST:-127.0.0.1}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB:-clawsum}
+      POSTGRES_USER: ${POSTGRES_USER:-clawsum}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      GMAIL_ADMIN_ADDRESS: ${GMAIL_ADMIN_ADDRESS:-clawsums@gmail.com}
+      CLAWSUM_BOSS_URL: ${CLAWSUM_BOSS_URL:-https://paperclip.clawsum.com}
+      CLAWSUM_OPENCLAW_URL: ${CLAWSUM_OPENCLAW_URL:-https://openclaw.clawsum.com}
+      CLAWSUM_GRAFANA_URL: ${CLAWSUM_GRAFANA_URL:-https://grafana.clawsum.com}
+      CLAWSUM_GRAFANA_EMBED_URL: ${CLAWSUM_GRAFANA_EMBED_URL:-https://grafana.clawsum.com/d/clawsum-operations?orgId=1&kiosk}
+      CLAWSUM_HERMES_URL: ${CLAWSUM_HERMES_URL:-https://boss.clawsum.com}
     volumes:
       - ./paperclip-data:/paperclip
+      - ./obsidian:/obsidian:ro
     depends_on:
       openclaw-gateway:
         condition: service_healthy
@@ -201,13 +230,58 @@ services:
       - "127.0.0.1:9001:9001"
     profiles: ["storage"]
 
+  # Host network so probes can hit 127.0.0.1-bound services (Hermes, Authelia, etc.).
+  # Prometheus still scrapes via host.docker.internal:9115 (see prometheus.yml).
   blackbox:
     image: prom/blackbox-exporter:v0.25.0
     restart: unless-stopped
-    networks: [clawsum]
-    ports:
-      - "127.0.0.1:9115:9115"
+    network_mode: host
+    command:
+      - --config.file=/etc/blackbox/blackbox.yml
+    volumes:
+      - ./blackbox.yml:/etc/blackbox/blackbox.yml:ro
     profiles: ["monitoring"]
+
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    restart: unless-stopped
+    networks: [clawsum]
+    command:
+      - --path.rootfs=/host
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+      - --collector.textfile.directory=/textfile
+    volumes:
+      - /:/host:ro,rslave
+      - ./data/prometheus-textfile:/textfile:ro
+    profiles: ["monitoring"]
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.52.1
+    restart: unless-stopped
+    networks: [clawsum]
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    profiles: ["monitoring"]
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.17.1
+    restart: unless-stopped
+    networks: [clawsum]
+    environment:
+      DATA_SOURCE_URI: postgres:5432/${POSTGRES_DB:-clawsum}?sslmode=disable
+      DATA_SOURCE_USER: ${POSTGRES_USER:-clawsum}
+      DATA_SOURCE_PASS: ${POSTGRES_PASSWORD:-clawsum_change_me}
+    profiles: ["monitoring"]
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   prometheus:
     image: prom/prometheus:v2.55.0
@@ -215,6 +289,10 @@ services:
     networks: [clawsum]
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/alerts:/etc/prometheus/alerts:ro
@@ -224,15 +302,35 @@ services:
     profiles: ["monitoring"]
     depends_on:
       - blackbox
+      - node-exporter
+      - cadvisor
+      - postgres-exporter
 
   grafana:
     image: grafana/grafana:11.4.0
     restart: unless-stopped
     networks: [clawsum]
+    user: "472:472"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin_change_me}
+      GF_SECURITY_ADMIN_USER: ${BOSS_OPS_AUTH_USER:-boss}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-${BOSS_OPS_AUTH_PASSWORD:-admin_change_me}}
       GF_USERS_ALLOW_SIGN_UP: "false"
+      # Authelia (Traefik forwardAuth) is the human gate — auto-login via X-Forwarded-User
+      GF_SERVER_ROOT_URL: ${CLAWSUM_GRAFANA_URL:-https://grafana.clawsum.com}
+      GF_SERVER_DOMAIN: grafana.clawsum.com
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_BASIC_ENABLED: "false"
+      GF_AUTH_PROXY_ENABLED: "true"
+      GF_AUTH_PROXY_HEADER_NAME: X-Forwarded-User
+      GF_AUTH_PROXY_HEADER_PROPERTY: username
+      GF_AUTH_PROXY_AUTO_SIGN_UP: "true"
+      GF_AUTH_PROXY_HEADERS: "Email:X-Forwarded-Email Name:X-Forwarded-Preferred-Username"
+      GF_USERS_AUTO_ASSIGN_ORG_ROLE: Admin
       GF_INSTALL_PLUGINS: ""
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_SECURITY_COOKIE_SAMESITE: lax
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/provisioning/dashboards/json/clawsum-operations.json
     volumes:
       - ./data/grafana:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro

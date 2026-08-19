@@ -1,6 +1,6 @@
 #!/bin/bash
-# Forward firing Prometheus alerts (via Grafana) to Admin Telegram when configured.
-# Requires: GRAFANA_ADMIN_PASSWORD, TELEGRAM_BOT_TOKEN, TELEGRAM_ADMIN_CHAT_ID in .env
+# Forward firing Prometheus alerts (via Grafana) to Discord + Telegram (dual-write).
+# Requires: GRAFANA_ADMIN_PASSWORD; Discord and/or Telegram via clawsum_notify.
 set -euo pipefail
 
 ROOT="${CLAWSUM_ROOT:-/docker/clawsum}"
@@ -11,19 +11,20 @@ set -a
 source .env 2>/dev/null || true
 set +a
 
-TOKEN="${TELEGRAM_BOT_TOKEN:-}"
-CHAT="${TELEGRAM_ADMIN_CHAT_ID:-}"
 GPASS="${GRAFANA_ADMIN_PASSWORD:-}"
-
-[[ -n "$TOKEN" && -n "$CHAT" ]] || exit 0
+[[ -n "$GPASS" ]] || exit 0
 
 ALERTS=$(curl -sf -u "admin:${GPASS}" "http://127.0.0.1:3000/api/prometheus/grafana/api/v1/alerts" 2>/dev/null || true)
 [[ -n "$ALERTS" ]] || exit 0
 
-python3 - <<'PY' "$ALERTS" "$TOKEN" "$CHAT"
-import json, sys, urllib.request
+python3 - <<'PY' "$ALERTS"
+import json, sys
+from pathlib import Path
 
-raw, token, chat = sys.argv[1:4]
+sys.path.insert(0, "/docker/clawsum/scripts")
+from clawsum_notify import notify_boss, any_ok, load_env
+
+raw = sys.argv[1]
 try:
     data = json.loads(raw)
 except json.JSONDecodeError:
@@ -39,10 +40,7 @@ if not firing:
     sys.exit(0)
 
 text = "Clawsum alerts firing:\n" + "\n".join(f"- {x}" for x in firing[:10])
-req = urllib.request.Request(
-    f"https://api.telegram.org/bot{token}/sendMessage",
-    data=json.dumps({"chat_id": chat, "text": text}).encode(),
-    headers={"Content-Type": "application/json"},
-)
-urllib.request.urlopen(req, timeout=15)
+results = notify_boss(text, severity="critical", env=load_env())
+if not any_ok(results):
+    sys.exit(1)
 PY

@@ -79,6 +79,24 @@ AGENTS.extend(
 
         {"id": "paperclip", "name": "Paperclip", "workspace": "/home/node/.openclaw/workspace-paperclip"},
 
+        {"id": "media", "name": "Media", "workspace": "/home/node/.openclaw/workspace-media"},
+        {"id": "pentest", "name": "Pentest", "workspace": "/home/node/.openclaw/workspace-pentest"},
+        {"id": "content", "name": "Content", "workspace": "/home/node/.openclaw/workspace-content"},
+        {"id": "social", "name": "Social", "workspace": "/home/node/.openclaw/workspace-social"},
+        {"id": "closebot", "name": "CloseBot", "workspace": "/home/node/.openclaw/workspace-closebot"},
+        {"id": "printful", "name": "Printful", "workspace": "/home/node/.openclaw/workspace-printful"},
+        {"id": "shopify", "name": "Shopify", "workspace": "/home/node/.openclaw/workspace-shopify"},
+        {"id": "seo-aeo-geo", "name": "SEO AEO GEO", "workspace": "/home/node/.openclaw/workspace-seo-aeo-geo"},
+        {"id": "meta-ads", "name": "Meta Ads", "workspace": "/home/node/.openclaw/workspace-meta-ads"},
+        {"id": "acceptai", "name": "AcceptAI", "workspace": "/home/node/.openclaw/workspace-acceptai"},
+        {"id": "calendar", "name": "Calendar", "workspace": "/home/node/.openclaw/workspace-calendar"},
+        {"id": "slack-avenou", "name": "Slack Avenou", "workspace": "/home/node/.openclaw/workspace-slack-avenou"},
+        {"id": "vocalitic", "name": "Vocalitic", "workspace": "/home/node/.openclaw/workspace-vocalitic"},
+        {"id": "llm-lab", "name": "LLM Lab", "workspace": "/home/node/.openclaw/workspace-llm-lab"},
+        {"id": "vapi", "name": "VAPI", "workspace": "/home/node/.openclaw/workspace-vapi"},
+        {"id": "sellthebizfast", "name": "SellTheBizFast", "workspace": "/home/node/.openclaw/workspace-sellthebizfast"},
+        {"id": "rocco", "name": "Rocco Secure", "workspace": "/home/node/.openclaw/workspace-rocco"},
+
     ]
 
 )
@@ -108,6 +126,26 @@ TOOL_POLICIES = {
         "deny": ["exec"],
 
     },
+
+    # Media needs exec for FFmpeg, yt-dlp, Whisper, auto-editor on GPU host.
+    "media": {"allow": ["read", "write", "edit", "exec", "browser"], "deny": []},
+    # Pentest: defensive scans only (scripts); no exploit payloads in policy/docs.
+    "pentest": {"allow": ["read", "write", "edit", "exec", "browser"], "deny": []},
+    "content": {"allow": ["read", "write", "edit", "exec"], "deny": []},
+    "social": {"allow": ["read", "write", "edit"], "deny": ["exec"]},
+    "closebot": {"allow": ["read", "write", "browser", "exec"], "deny": ["apply_patch"]},
+    "printful": {"allow": ["read", "write", "browser"], "deny": ["exec", "apply_patch"]},
+    "shopify": {"allow": ["read", "write", "browser"], "deny": ["exec", "apply_patch"]},
+    "seo-aeo-geo": {"allow": ["read", "write", "browser"], "deny": ["exec", "apply_patch"]},
+    "meta-ads": {"allow": ["read", "write", "browser"], "deny": ["exec", "apply_patch"]},
+    "acceptai": {"allow": ["read", "write", "browser", "exec"], "deny": ["apply_patch"]},
+    "calendar": {"allow": ["read", "write"], "deny": ["exec", "apply_patch"]},
+    "slack-avenou": {"allow": ["read", "write"], "deny": ["exec", "apply_patch"]},
+    "vocalitic": {"allow": ["read", "write", "edit", "exec", "browser"], "deny": []},
+    "llm-lab": {"allow": ["read", "write", "browser", "exec"], "deny": []},
+    "vapi": {"allow": ["read", "write", "browser", "exec"], "deny": ["apply_patch"]},
+    "sellthebizfast": {"allow": ["read", "write", "browser"], "deny": ["exec", "apply_patch"]},
+    "rocco": {"allow": ["read", "write", "edit", "exec", "browser"], "deny": []},
 
 }
 
@@ -149,35 +187,34 @@ def main():
 
 
 
-    cfg.setdefault("channels", {}).setdefault("telegram", {})["enabled"] = False
-
-    cfg.setdefault("channels", {})["whatsapp"] = {
-
+    # Preserve existing channel enable flags. Never force Discord/Telegram off —
+    # that made chat non-responsive after Media agent provisioning.
+    channels = cfg.setdefault("channels", {})
+    channels.setdefault("telegram", {}).setdefault("enabled", True)
+    channels.setdefault("discord", {}).setdefault("enabled", True)
+    channels.setdefault("whatsapp", {
         "enabled": False,
-
         "dmPolicy": "allowlist",
-
         "selfChatMode": True,
-
         "groupPolicy": "allowlist",
-
-    }
-
-
+    })
+    if "enabled" not in channels["whatsapp"]:
+        channels["whatsapp"]["enabled"] = False
 
     plugins = cfg.setdefault("plugins", {})
-
     plugins.setdefault("entries", {})
-
-    for p in ["telegram", "whatsapp", "openai", "openrouter", "anthropic", "google", "xai", "browser", "microsoft"]:
-
-        plugins["entries"].setdefault(p, {"enabled": p in ("openai", "openrouter", "anthropic", "google", "xai", "browser", "microsoft")})
-
-    plugins["entries"]["telegram"] = {"enabled": False}
-
+    for p in ["telegram", "whatsapp", "discord", "openai", "openrouter", "anthropic", "google", "xai", "browser", "microsoft"]:
+        default_on = p in ("openai", "openrouter", "anthropic", "google", "xai", "browser", "microsoft", "discord", "telegram")
+        plugins["entries"].setdefault(p, {"enabled": default_on})
+    # Keep Discord/Telegram plugins on unless explicitly disabled already as False by operator.
+    # Only force WhatsApp off by default for this stack.
+    plugins["entries"].setdefault("whatsapp", {"enabled": False})
     plugins["entries"]["whatsapp"] = {"enabled": False}
-
-    plugins["allow"] = ["telegram", "whatsapp", "openai", "openrouter", "anthropic", "google", "xai", "browser", "microsoft"]
+    if plugins["entries"].get("discord", {}).get("enabled") is not True:
+        plugins["entries"]["discord"] = {"enabled": True}
+    if plugins["entries"].get("telegram", {}).get("enabled") is not True:
+        plugins["entries"]["telegram"] = {"enabled": True}
+    plugins["allow"] = ["telegram", "whatsapp", "discord", "openai", "openrouter", "anthropic", "google", "xai", "browser", "microsoft"]
 
 
 

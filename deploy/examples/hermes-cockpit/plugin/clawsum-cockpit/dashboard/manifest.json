@@ -1,14 +1,14 @@
 {
   "name": "clawsum-cockpit",
-  "label": "Clawsum",
-  "description": "CEO cockpit — brief, inbox, archive, approvals, Grafana health",
-  "icon": "LayoutDashboard",
-  "version": "1.0.0",
+  "label": "Start",
+  "description": "Clawsum Start — ops KPIs, brief, archive, approvals, Ops/Grafana",
+  "icon": "Home",
+  "version": "1.7.2",
   "tab": {
-    "path": "/clawsum",
+    "path": "/home",
     "position": "before:chat"
   },
-  "slots": ["sidebar", "header-left", "footer-right"],
+  "slots": ["sidebar", "header-left", "footer-right", "cron:top", "skills:top"],
   "entry": "dist/index.js",
   "css": "dist/style.css",
   "api": "plugin_api.py"

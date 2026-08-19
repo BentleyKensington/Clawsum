@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """
-Re-auth Gmail for clawsums@gmail.com (console / paste-code flow).
+Re-auth Gmail for clawsums@gmail.com (SSH-friendly, no OOB).
+
+Google deprecated urn:ietf:wg:oauth:2.0:oob — that caused:
+  Error 400: invalid_request  (flowName=GeneralOAuthFlow)
+
+New flow (Desktop OAuth client):
+  1) Script prints an auth URL (redirect = http://127.0.0.1:8765/)
+  2) You open it, sign in as clawsums@gmail.com, Allow
+  3) Browser goes to 127.0.0.1 — page may fail to load; that is OK
+  4) Copy the FULL address-bar URL (has ?code=...) and paste here
+  5) Script exchanges code → writes GMAIL_REFRESH_TOKEN to .env
 
 Run on VPS:
   python3 /docker/clawsum/scripts/gmail-reauth-console.py
-
-1) Opens nothing — prints an auth URL
-2) You open the URL, sign in as clawsums@gmail.com, allow access
-3) Paste the verification code back into the terminal
-4) Script updates GMAIL_REFRESH_TOKEN in /docker/clawsum/.env
-5) Optionally rewires gog (--gog)
 """
 from __future__ import annotations
 
@@ -20,12 +24,15 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 ROOT = Path("/docker/clawsum")
 ENV_FILE = ROOT / ".env"
 SECRET_OUT = Path("/tmp/clawsum-gmail-client-secret.json")
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 ADMIN = "clawsums@gmail.com"
+# Loopback — required now that OOB is dead. Desktop clients allow this by default.
+REDIRECT_URI = "http://127.0.0.1:8765/"
 
 
 def load_env(path: Path) -> dict[str, str]:
@@ -68,11 +75,16 @@ def write_client_secret(env: dict[str, str]) -> Path:
     secret = env.get("GMAIL_CLIENT_SECRET")
     if not cid or not secret:
         raise SystemExit("Missing GMAIL_CLIENT_ID / GMAIL_CLIENT_SECRET in .env")
+    # Desktop ("installed") client — no OOB
     data = {
         "installed": {
             "client_id": cid,
             "client_secret": secret,
-            "redirect_uris": ["http://localhost", "urn:ietf:wg:oauth:2.0:oob"],
+            "redirect_uris": [
+                REDIRECT_URI,
+                "http://localhost:8765/",
+                "http://127.0.0.1:8765",
+            ],
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
         }
@@ -82,55 +94,23 @@ def write_client_secret(env: dict[str, str]) -> Path:
     return SECRET_OUT
 
 
-def run_oauth(secret_path: Path) -> str:
-    from google_auth_oauthlib.flow import InstalledAppFlow
-    from google.auth.transport.requests import Request
-    from google.oauth2.credentials import Credentials
-    from googleapiclient.discovery import build
-
-    flow = InstalledAppFlow.from_client_secrets_file(str(secret_path), SCOPES)
-    # Console-style: print URL, paste code (works over SSH)
-    auth_url, _ = flow.authorization_url(
-        access_type="offline",
-        prompt="consent",
-        include_granted_scopes="true",
-    )
-    print("\n=== Gmail re-auth ===")
-    print(f"1) Open this URL in a browser (incognito recommended)")
-    print(f"2) Sign in ONLY as {ADMIN}")
-    print("3) Approve access")
-    print("4) Copy the code / paste below\n")
-    print(auth_url)
-    print()
-    code = input("Paste authorization code here: ").strip()
-    if not code:
-        raise SystemExit("No code provided")
-    flow.fetch_token(code=code)
-    creds = flow.credentials
-    if not creds.refresh_token:
-        raise SystemExit(
-            "No refresh_token returned. Revoke prior access at "
-            "https://myaccount.google.com/permissions then retry with prompt=consent."
-        )
-
-    # Verify mailbox
-    c = Credentials(
-        token=creds.token,
-        refresh_token=creds.refresh_token,
-        token_uri="https://oauth2.googleapis.com/token",
-        client_id=creds.client_id,
-        client_secret=creds.client_secret,
-        scopes=SCOPES,
-    )
-    if not c.valid:
-        c.refresh(Request())
-    svc = build("gmail", "v1", credentials=c, cache_discovery=False)
-    profile = svc.users().getProfile(userId="me").execute()
-    email = profile.get("emailAddress", "")
-    print(f"\nVerified mailbox: {email}")
-    if email.lower() != ADMIN.lower():
-        raise SystemExit(f"Signed in as {email}, expected {ADMIN}")
-    return creds.refresh_token
+def extract_code(pasted: str) -> str:
+    pasted = (pasted or "").strip().strip('"').strip("'")
+    if not pasted:
+        raise SystemExit("No code/URL provided")
+    if pasted.startswith("http://") or pasted.startswith("https://"):
+        qs = parse_qs(urlparse(pasted).query)
+        if qs.get("error"):
+            raise SystemExit(f"Google returned error in redirect: {qs['error']}")
+        if not qs.get("code"):
+            raise SystemExit("URL has no code= parameter — paste the full redirect URL")
+        return qs["code"][0]
+    if "code=" in pasted:
+        m = re.search(r"[?&#]code=([^&]+)", pasted)
+        if m:
+            return m.group(1)
+    # raw code
+    return pasted
 
 
 def rewire_gog() -> None:
@@ -138,7 +118,6 @@ def rewire_gog() -> None:
     if not script.exists():
         print("install-gog-gmail-openclaw.sh missing — skip gog", file=sys.stderr)
         return
-    # Reset corrupted file keyring for gog
     gog_home = ROOT / "data" / ".openclaw" / "gog"
     keyring = gog_home / "data" / "keyring"
     if keyring.exists():
@@ -148,8 +127,6 @@ def rewire_gog() -> None:
                 p.unlink()
             except OSError as e:
                 print(f"  warn: {p}: {e}")
-    env = os.environ.copy()
-    # Ensure password exists
     cur = load_env(ENV_FILE)
     if not cur.get("GOG_KEYRING_PASSWORD"):
         import secrets
@@ -157,15 +134,11 @@ def rewire_gog() -> None:
         pw = secrets.token_urlsafe(24)
         upsert_env(
             ENV_FILE,
-            {
-                "GOG_KEYRING_BACKEND": "file",
-                "GOG_KEYRING_PASSWORD": pw,
-            },
+            {"GOG_KEYRING_BACKEND": "file", "GOG_KEYRING_PASSWORD": pw},
         )
         print("Generated new GOG_KEYRING_PASSWORD")
     elif "GOG_KEYRING_BACKEND" not in cur:
         upsert_env(ENV_FILE, {"GOG_KEYRING_BACKEND": "file"})
-
     print("Running install-gog-gmail-openclaw.sh …")
     subprocess.run(["bash", str(script)], check=False)
 
@@ -173,58 +146,97 @@ def rewire_gog() -> None:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--gog", action="store_true", help="Also reset/rewire OpenClaw gog")
-    ap.add_argument(
-        "--code",
-        help="Authorization code (non-interactive). If omitted, prompts.",
-    )
+    ap.add_argument("--code", help="Auth code or full redirect URL (non-interactive)")
     ap.add_argument(
         "--print-url-only",
         action="store_true",
-        help="Only print auth URL (for agent to show Boss), write state to /tmp",
+        help="Only print auth URL",
     )
     args = ap.parse_args()
 
     env = load_env(ENV_FILE)
     secret_path = write_client_secret(env)
+    state_path = Path("/tmp/clawsum-gmail-oauth-state.json")
 
-    from google_auth_oauthlib.flow import InstalledAppFlow
+    from google_auth_oauthlib.flow import Flow
     from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
 
-    flow = InstalledAppFlow.from_client_secrets_file(str(secret_path), SCOPES)
-    auth_url, state = flow.authorization_url(
-        access_type="offline",
-        prompt="consent",
-        include_granted_scopes="true",
+    # Resume a --print-url-only flow so PKCE code_verifier still matches.
+    pending = {}
+    if args.code and state_path.is_file() and not args.print_url_only:
+        try:
+            pending = json.loads(state_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            pending = {}
+
+    # Use Flow (not InstalledAppFlow OOB path) with explicit loopback redirect
+    flow = Flow.from_client_secrets_file(
+        str(pending.get("secret") or secret_path),
+        scopes=SCOPES,
+        redirect_uri=pending.get("redirect_uri") or REDIRECT_URI,
+        state=pending.get("state"),
     )
+    if pending.get("code_verifier"):
+        flow.code_verifier = pending["code_verifier"]
+
+    if not pending:
+        # Do NOT set include_granted_scopes — it often triggers invalid_request
+        auth_url, state = flow.authorization_url(
+            access_type="offline",
+            prompt="consent",
+        )
+    else:
+        auth_url = pending.get("auth_url") or ""
+        state = pending.get("state")
 
     if args.print_url_only:
-        state_path = Path("/tmp/clawsum-gmail-oauth-state.json")
-        # Persist flow client config; code exchange will recreate flow
         state_path.write_text(
-            json.dumps({"auth_url": auth_url, "state": state, "secret": str(secret_path)})
+            json.dumps(
+                {
+                    "auth_url": auth_url,
+                    "state": state,
+                    "secret": str(secret_path),
+                    "redirect_uri": REDIRECT_URI,
+                    "code_verifier": getattr(flow, "code_verifier", None),
+                }
+            )
             + "\n"
         )
         print(auth_url)
         return 0
 
-    print("\n=== Gmail re-auth ===")
+    print("\n=== Gmail re-auth (loopback — OOB is dead) ===")
     print(f"Sign in ONLY as {ADMIN}")
+    print(f"OAuth client must be type: Desktop app")
+    print()
+    print("1) Open this URL in an incognito window:")
     print(auth_url)
     print()
-    code = (args.code or "").strip() or input("Paste authorization code here: ").strip()
-    if not code:
-        print("No code provided", file=sys.stderr)
+    print("2) Approve access.")
+    print("3) Browser redirects to 127.0.0.1:8765 — page may say connection refused.")
+    print("   That is EXPECTED when running over SSH.")
+    print("4) Copy the ENTIRE address-bar URL (starts with http://127.0.0.1:8765/?code=...)")
+    print("   and paste it below.\n")
+
+    pasted = (args.code or "").strip() or input("Paste full redirect URL (or code): ").strip()
+    code = extract_code(pasted)
+
+    try:
+        flow.fetch_token(code=code)
+    except Exception as exc:
+        print(f"Token exchange failed: {exc}", file=sys.stderr)
+        print(
+            "\nHints:\n"
+            "  - OAuth client must be Desktop app (not Web)\n"
+            "  - Paste the FULL redirect URL, not just part of it\n"
+            "  - Add clawsums@gmail.com as Test user if app is in Testing\n"
+            "  - Revoke old access: https://myaccount.google.com/permissions\n",
+            file=sys.stderr,
+        )
         return 1
 
-    # Google sometimes returns a URL-encoded code or full redirect URL
-    if "code=" in code:
-        m = re.search(r"[?&]code=([^&]+)", code)
-        if m:
-            code = m.group(1)
-
-    flow.fetch_token(code=code)
     creds = flow.credentials
     if not creds.refresh_token:
         print(
@@ -264,7 +276,6 @@ def main() -> int:
     )
     print(f"Updated {ENV_FILE} with new GMAIL_REFRESH_TOKEN")
 
-    # Smoke: list 1 message
     res = svc.users().messages().list(userId="me", maxResults=1).execute()
     print(f"Gmail API OK — messages visible: {bool(res.get('messages'))}")
 
@@ -272,8 +283,8 @@ def main() -> int:
         rewire_gog()
 
     print("\nDone. Next:")
+    print("  python3 /docker/clawsum/scripts/gmail_oauth_health.py")
     print("  python3 /docker/clawsum/scripts/gmail-sync.py")
-    print("  python3 /docker/clawsum/scripts/gmail-fetch-logo-attachment.py /tmp/clawsum-logo")
     return 0
 
 

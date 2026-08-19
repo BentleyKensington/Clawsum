@@ -24,6 +24,8 @@ Clawsum uses **both**. They are not interchangeable: Postgres is the system of r
 | Data | Store | Why |
 |------|-------|-----|
 | Gmail archive | **Postgres** `ops.emails` | Structured, triage status, cron |
+| Gmail attachments / call `.wav` / transcripts | **MinIO** + `ops.media_objects` | Blobs in MinIO; metadata + person links in Postgres; graph mirror in Arcade |
+| Contacts (people) | **Postgres** `ops.people` (SoR) + **ArcadeDB** `Person` vertices | Merge upsert on email/phone; edges for emailed_with / Mentions |
 | Boss reminders / snooze | **Postgres** `ops.reminders` | Daily cron, SQL filters |
 | Paperclip issue IDs (links) | Postgres reference only | Source of truth is Paperclip |
 | Audit log (optional) | **Postgres** | Time-series friendly |
@@ -132,7 +134,7 @@ python3 /docker/clawsum/scripts/arcadedb-ingest.py \
 python3 /docker/clawsum/scripts/arcadedb-ingest.py --file /tmp/listings.jsonl
 ```
 
-**Boss browse:** `ssh -L 2480:127.0.0.1:2480 clawsum` → http://localhost:2480 (root + `ARCADEDB_ROOT_PASSWORD`).
+**Boss browse:** https://arcade.clawsum.com (Authelia, then Studio `root` + `ARCADEDB_ROOT_PASSWORD`). Tunnel still works: `ssh -L 2480:127.0.0.1:2480 clawsum`.
 
 ### Rules (still locked)
 
@@ -155,6 +157,27 @@ When you add relationships (`Comp` → `Listing`), extend ingest or a second scr
 | ArcadeDB container | ✅ Running on `:2480` |
 | Schema-on-arrival ingest | ✅ Script `arcadedb-ingest.py` |
 | RE comps ETL → ArcadeDB | ⬜ Wire `data` agent / cron |
-| Research RAG chunks | ⬜ Phase 4+ |
+| Research RAG chunks | ✅ `clawsum_docs_etl.py` → `ops.documents` / `ops.document_chunks` + Arcade `Document`/`SourceChunk` |
+| Call wav + transcript | ✅ `clawsum_docs_etl.py --call-wav` → MinIO `clawsum-calls` + graph |
 
-Next: populate Postgres RE tables, then JSONL export → `arcadedb-ingest.py` for comps graph.
+### Document / call ETL
+
+```bash
+# Text note → MinIO + Postgres chunks + Arcade Document/SourceChunk + Mentions
+python3 /docker/clawsum/scripts/clawsum_docs_etl.py \
+  --text "Met Jane (jane@acme.com) at 312-555-0100 about Deepstar." \
+  --title "Meeting note"
+
+# File (txt/md; PDF if pypdf installed)
+python3 /docker/clawsum/scripts/clawsum_docs_etl.py --file /path/notes.md --title "Notes"
+
+# Call recording + transcript
+python3 /docker/clawsum/scripts/clawsum_docs_etl.py \
+  --call-wav /path/call.wav \
+  --call-transcript /path/call.txt \
+  --caller-phone 3125550100 \
+  --title "Inbound call"
+```
+
+Postgres SoR: `ops.documents`, `ops.document_chunks`, `ops.call_recordings`.  
+Blobs: MinIO. Graph: Arcade `Document` → `HasChunk`/`Mentions` → `SourceChunk` / `Person`.

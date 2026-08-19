@@ -20,6 +20,8 @@ GHL CRM deliverables for **{DISPLAY_NAME}** only — audits, recommendations, ru
 - `Audits/` — automation reviews
 - `Recommendations/` — lost opportunities, remediation proposals
 - `Recommendations/LATEST-REENGAGE-SUMMARY.md` — **Telegram quick summary** (updated each strategic audit)
+- `Reports/` — weekly REI ops digests (`LATEST-WEEKLY-REPORT.md`)
+- `Playbooks/` — `REI-WHOLESALE-KNOWLEDGE.md` (MCO / Avenou knowledge pack)
 
 ## Instance overlays (optional)
 

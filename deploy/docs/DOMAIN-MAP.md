@@ -12,14 +12,19 @@
 |------|---------|---------|
 | **clawsum.com** | Yes | Sales funnel / marketing |
 | **www.clawsum.com** | Yes | → same funnel |
-| **hermes.clawsum.com** | Auth | JARVIS / Hermes CEO UI (primary ops face) |
-| **boss.clawsum.com** | Auth | Paperclip Boss UI (tasks / approvals) |
+| **boss.clawsum.com** | Auth | JARVIS / Hermes CEO UI (primary ops face) |
+| **paperclip.clawsum.com** | Auth | Paperclip Boss UI (tasks / approvals) |
+| **hermes.clawsum.com** | Redirect | → `boss.clawsum.com` (legacy) |
 | **openclaw.clawsum.com** | Auth | OpenClaw Control UI (gateway, channels) |
 | **grafana.clawsum.com** | Auth | Metrics / health |
-| **login.clawsum.com** | Auth | Ops launcher — links into Hermes/Boss/OpenClaw/Grafana |
+| **arcade.clawsum.com** | Auth | ArcadeDB Studio (graph UI) |
+| **login.clawsum.com** | Auth | Ops launcher — links into Boss/Paperclip/OpenClaw/Grafana/Arcade |
 | **connect.clawsum.com** | Auth | Integrations / OAuth / “connect systems” hub |
+| **auth.clawsum.com** | Public* | Authelia SSO portal (login once; cookie on `.clawsum.com`) |
 | **api.clawsum.com** | Auth later | Future CEO/overwatch API |
 | **mail.clawsum.com** | DNS only* | Reserved for mail gateway; apex **MX stays Porkbun** until you cut over |
+
+\*Authelia portal is public HTTPS so the login form can load; ops apps stay behind Authelia `forwardAuth`.
 
 \*Do not put a public webmail UI on `mail` until spam/auth is designed. A-record reserves the name.
 
@@ -27,7 +32,7 @@
 
 | Idea | Why skip |
 |------|----------|
-| `cockpit.*` | Redundant with `hermes.*` |
+| `cockpit.*` | Redundant with `boss.*` |
 | `status.*` | Use Grafana + daily Telegram for now |
 | `*.clawsum.com` wildcard → VPS | Too broad; explicit hosts only |
 | Discord/Telegram as DNS | Not HTTP |
@@ -36,10 +41,12 @@
 
 ## Auth model
 
-- **Marketing** (`clawsum.com`, `www`): public HTTPS, no basic auth  
-- **Ops hosts** (`hermes`, `boss`, `openclaw`, `grafana`, `login`, `connect`, `api`): Traefik basic auth (ops portal) → app login where applicable  
+- **Marketing** (`clawsum.com`, `www`): public HTTPS  
+- **SSO**: `auth.clawsum.com` (Authelia) — login once; session cookie `clawsum_session` on `.clawsum.com` (~14d)  
+- **Ops hosts** (`boss`, `paperclip`, `openclaw`, `grafana`, `arcade`, `login`, `connect`, `api`): Traefik `forwardAuth` → Authelia  
+- **Legacy** `hermes.clawsum.com` → permanent redirect to `boss.clawsum.com`
 
-VPN/Tailscale still recommended long-term; Traefik wall is the minimum.
+VPN/Tailscale still recommended long-term. Setup: `bash scripts/setup-authelia.sh`
 
 ---
 

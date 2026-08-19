@@ -27,14 +27,17 @@ DRY = os.environ.get("DRY_RUN", "").strip() in ("1", "true", "yes")
 A_HOSTS = [
     "",  # apex
     "www",
-    "hermes",
-    "boss",
+    "boss",       # Hermes CEO UI
+    "paperclip",  # Paperclip tasks UI
+    "hermes",     # legacy redirect → boss
     "openclaw",
     "grafana",
+    "arcade",  # ArcadeDB Studio (Authelia)
     "login",
     "connect",
     "api",
     "mail",
+    "auth",  # Authelia SSO portal
 ]
 
 # Parking / catch-alls that block custom hosts

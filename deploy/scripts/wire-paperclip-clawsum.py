@@ -49,6 +49,39 @@ AGENTS.extend(
         ("Clawsum Planning", "planning", "pm", "Planning — roadmaps, tasks."),
         ("Clawsum Paperclip", "paperclip", "pm", "Orchestration liaison."),
         ("Clawsum Hermes", "hermes", "engineer", "Long-running jobs via Hermes."),
+        (
+            "Clawsum Media",
+            "media",
+            "engineer",
+            "Media studio — ingest, Whisper, FFmpeg Shorts, Resolve/Comfy, publish (T2).",
+        ),
+        (
+            "Clawsum Pentest",
+            "pentest",
+            "researcher",
+            "Defensive security — surface scan, reports, Boss notify (no exploits).",
+        ),
+        (
+            "Clawsum Content",
+            "content",
+            "engineer",
+            "Evergreen packs — topic, flyer, story, script; daily factory.",
+        ),
+        (
+            "Clawsum Social",
+            "social",
+            "engineer",
+            "Schedule or post ready packs (Tier 2).",
+        ),
+        ("CloseBot", "closebot", "engineer", "CloseBot agency API — send/publish Tier 2."),
+        ("Printful", "printful", "engineer", "Printful catalog and fulfillment."),
+        ("Shopify", "shopify", "engineer", "Shopify storefront and orders."),
+        ("AcceptAI", "acceptai", "engineer", "AcceptAI / FastBuy product runtime."),
+        ("Vocalitic", "vocalitic", "engineer", "Vocalitic product — codebase, SSH, dashboard."),
+        ("Clawsum LLM Lab", "llm-lab", "researcher", "Model/STT/TTS bake-offs; no silent spend."),
+        ("VAPI", "vapi", "engineer", "VAPI org — assistants/calls; outbound Tier 2."),
+        ("SellTheBizFast", "sellthebizfast", "researcher", "Acquisition research; outbound Tier 2."),
+        ("Rocco Secure", "rocco", "researcher", "Sentry + official Ring; no exploits."),
     ]
 )
 

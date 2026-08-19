@@ -80,26 +80,62 @@ def ts_from_export(value) -> datetime | None:
     return None
 
 
-def extract_conversations_payload(path: Path) -> tuple[list, str]:
-    """Return (conversations_list, raw_uri_note)."""
+def _as_conversation_list(data) -> list:
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict) and "conversations" in data:
+        return data["conversations"] or []
+    return []
+
+
+def _is_conversation_shard(name: str) -> bool:
+    base = name.rstrip("/").split("/")[-1]
+    if base.startswith("shared_"):
+        return False
+    if base == "conversations.json":
+        return True
+    # ChatGPT large exports: conversations-000.json … conversations-022.json
+    return bool(re.fullmatch(r"conversations-\d+\.json", base))
+
+
+def iter_conversation_shards(path: Path):
+    """Yield (label, conversations_list) for each shard — does not keep all shards in memory."""
+    if path.is_dir():
+        files = sorted(
+            [p for p in path.iterdir() if p.is_file() and _is_conversation_shard(p.name)],
+            key=lambda p: p.name,
+        )
+        if not files:
+            raise SystemExit(f"No conversations*.json shards in directory: {path}")
+        for fp in files:
+            data = json.loads(fp.read_text(encoding="utf-8", errors="replace"))
+            yield f"dir:{fp.name}", _as_conversation_list(data)
+        return
+
     if path.suffix.lower() == ".zip":
         with zipfile.ZipFile(path, "r") as zf:
-            names = zf.namelist()
-            cand = None
-            for n in names:
-                if n.endswith("conversations.json") or n == "conversations.json":
-                    cand = n
-                    break
-            if not cand:
-                raise SystemExit("ZIP missing conversations.json")
-            data = json.loads(zf.read(cand).decode("utf-8", errors="replace"))
-            return data if isinstance(data, list) else data.get("conversations", []), f"zip:{path.name}:{cand}"
+            members = sorted(n for n in zf.namelist() if _is_conversation_shard(n))
+            if not members:
+                sample = ", ".join(Path(n).name for n in zf.namelist()[:25])
+                raise SystemExit(f"ZIP missing conversations*.json shards (found: {sample}…)")
+            for member in members:
+                raw = zf.read(member).decode("utf-8", errors="replace")
+                data = json.loads(raw)
+                yield f"zip:{path.name}:{member}", _as_conversation_list(data)
+        return
+
     data = json.loads(path.read_text(encoding="utf-8", errors="replace"))
-    if isinstance(data, list):
-        return data, f"file:{path.name}"
-    if isinstance(data, dict) and "conversations" in data:
-        return data["conversations"], f"file:{path.name}"
-    raise SystemExit("Unrecognized ChatGPT export JSON shape")
+    yield f"file:{path.name}", _as_conversation_list(data)
+
+
+def extract_conversations_payload(path: Path) -> tuple[list, str]:
+    """Return (conversations_list, raw_uri_note). Loads all shards into memory."""
+    all_convs: list = []
+    notes: list[str] = []
+    for label, chunk in iter_conversation_shards(path):
+        notes.append(f"{label}({len(chunk)})")
+        all_convs.extend(chunk)
+    return all_convs, "+".join(notes[:12]) + ("…" if len(notes) > 12 else "")
 
 
 def iter_messages(conv: dict) -> list[dict]:
@@ -140,9 +176,65 @@ def iter_messages(conv: dict) -> list[dict]:
     return [m for _, _, m in msgs]
 
 
+def store_conversations(cur, import_id, conversations: list) -> int:
+    stored = 0
+    for conv in conversations:
+        source_id = str(conv.get("id") or conv.get("conversation_id") or "")
+        title = (conv.get("title") or "Untitled").strip() or "Untitled"
+        created = ts_from_export(conv.get("create_time"))
+        updated = ts_from_export(conv.get("update_time"))
+        messages = iter_messages(conv)
+        sensitive = any(SENSITIVE_RE.search(m["content"] or "") for m in messages)
+
+        cur.execute(
+            """
+            INSERT INTO ops.conversations (
+              import_id, source_conversation_id, title, created_at_source, updated_at_source,
+              sensitivity_level, message_count, scope, work_status
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'unknown', 'other')
+            ON CONFLICT (import_id, source_conversation_id) DO UPDATE SET
+              title = EXCLUDED.title,
+              updated_at_source = EXCLUDED.updated_at_source,
+              message_count = EXCLUDED.message_count,
+              updated_at = now()
+            RETURNING id
+            """,
+            (
+                import_id,
+                source_id or f"anon-{stored}",
+                title[:500],
+                created,
+                updated,
+                "flagged" if sensitive else "unknown",
+                len(messages),
+            ),
+        )
+        conv_id = cur.fetchone()["id"]
+
+        cur.execute("DELETE FROM ops.messages WHERE conversation_id = %s", (conv_id,))
+        for i, m in enumerate(messages):
+            cur.execute(
+                """
+                INSERT INTO ops.messages (
+                  conversation_id, role, content, created_at_source, message_order, contains_sensitive
+                ) VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    conv_id,
+                    m.get("role"),
+                    (m.get("content") or "")[:50000],
+                    ts_from_export(m.get("create_time")),
+                    i,
+                    bool(SENSITIVE_RE.search(m.get("content") or "")),
+                ),
+            )
+        stored += 1
+    return stored
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("path", help="Path to ChatGPT export ZIP or conversations.json")
+    ap.add_argument("path", help="Path to ChatGPT export ZIP, conversations.json, or shards directory")
     ap.add_argument("--limit", type=int, default=0, help="Max conversations (0=all)")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--source-account", default="chatgpt")
@@ -152,22 +244,25 @@ def main() -> None:
     if not src.exists():
         raise SystemExit(f"Not found: {src}")
 
-    conversations, raw_note = extract_conversations_payload(src)
-    if args.limit:
-        conversations = conversations[: args.limit]
-    print(f"Found {len(conversations)} conversations ({raw_note})")
-
+    # Count / dry-run without holding everything when possible
     if args.dry_run:
-        for c in conversations[:10]:
-            print("-", (c.get("title") or c.get("id") or "?")[:80])
+        total = 0
+        for label, chunk in iter_conversation_shards(src):
+            print(f"{label}: {len(chunk)} conversations")
+            for c in chunk[:3]:
+                print("  -", (c.get("title") or c.get("id") or "?")[:80])
+            total += len(chunk)
+            if args.limit and total >= args.limit:
+                break
+        print(f"Total listed ≈ {total}")
         return
 
     IMPORT_DIR.mkdir(parents=True, exist_ok=True)
-    # Keep a copy of the file reference (not necessarily full ZIP duplicate)
     dest_note = IMPORT_DIR / f"import-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
-    dest_note.write_text(json.dumps({"source": str(src), "raw": raw_note, "count": len(conversations)}), encoding="utf-8")
 
     conn = connect()
+    stored = 0
+    shard_notes: list[str] = []
     with conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
@@ -177,76 +272,46 @@ def main() -> None:
                 ) VALUES (%s, %s, %s, 'parsing', %s)
                 RETURNING id
                 """,
-                (args.source_account, src.name, str(dest_note), len(conversations)),
+                (args.source_account, src.name, str(dest_note), 0),
             )
             import_id = cur.fetchone()["id"]
 
-            stored = 0
-            for conv in conversations:
-                source_id = str(conv.get("id") or conv.get("conversation_id") or "")
-                title = (conv.get("title") or "Untitled").strip() or "Untitled"
-                created = ts_from_export(conv.get("create_time"))
-                updated = ts_from_export(conv.get("update_time"))
-                messages = iter_messages(conv)
-                sensitive = any(SENSITIVE_RE.search(m["content"] or "") for m in messages)
-
-                cur.execute(
-                    """
-                    INSERT INTO ops.conversations (
-                      import_id, source_conversation_id, title, created_at_source, updated_at_source,
-                      sensitivity_level, message_count, scope, work_status
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'unknown', 'other')
-                    ON CONFLICT (import_id, source_conversation_id) DO UPDATE SET
-                      title = EXCLUDED.title,
-                      updated_at_source = EXCLUDED.updated_at_source,
-                      message_count = EXCLUDED.message_count,
-                      updated_at = now()
-                    RETURNING id
-                    """,
-                    (
-                        import_id,
-                        source_id or f"anon-{stored}",
-                        title[:500],
-                        created,
-                        updated,
-                        "flagged" if sensitive else "unknown",
-                        len(messages),
-                    ),
-                )
-                conv_id = cur.fetchone()["id"]
-
-                # replace messages for re-import
-                cur.execute("DELETE FROM ops.messages WHERE conversation_id = %s", (conv_id,))
-                for i, m in enumerate(messages):
-                    cur.execute(
-                        """
-                        INSERT INTO ops.messages (
-                          conversation_id, role, content, created_at_source, message_order, contains_sensitive
-                        ) VALUES (%s, %s, %s, %s, %s, %s)
-                        """,
-                        (
-                            conv_id,
-                            m.get("role"),
-                            (m.get("content") or "")[:50000],
-                            ts_from_export(m.get("create_time")),
-                            i,
-                            bool(SENSITIVE_RE.search(m.get("content") or "")),
-                        ),
-                    )
-                stored += 1
+            for label, chunk in iter_conversation_shards(src):
+                if args.limit and stored >= args.limit:
+                    break
+                if args.limit:
+                    remain = args.limit - stored
+                    chunk = chunk[:remain]
+                print(f"importing {label} ({len(chunk)})…", flush=True)
+                n = store_conversations(cur, import_id, chunk)
+                stored += n
+                shard_notes.append(f"{label}:{n}")
+                conn.commit()
 
             cur.execute(
                 "UPDATE ops.chatgpt_imports SET import_status = 'parsed', conversation_count = %s WHERE id = %s",
                 (stored, import_id),
             )
-            cur.execute(
-                """
-                INSERT INTO ops.audit_logs (actor_type, actor_name, action, tool_name, input_summary, output_summary)
-                VALUES ('system', 'import-chatgpt-export', 'archive_imported', 'import-chatgpt-export', %s, %s)
-                """,
-                (str(src), f"import_id={import_id} conversations={stored}"),
-            )
+            try:
+                cur.execute(
+                    """
+                    INSERT INTO ops.audit_logs (actor_type, actor_name, action, tool_name, input_summary, output_summary)
+                    VALUES ('system', 'import-chatgpt-export', 'archive_imported', 'import-chatgpt-export', %s, %s)
+                    """,
+                    (str(src), f"import_id={import_id} conversations={stored}"),
+                )
+            except Exception as exc:
+                print(f"audit_logs skip: {exc}", flush=True)
+                conn.rollback()
+                cur.execute(
+                    "UPDATE ops.chatgpt_imports SET import_status = 'parsed', conversation_count = %s WHERE id = %s",
+                    (stored, import_id),
+                )
 
+    dest_note.write_text(
+        json.dumps({"source": str(src), "shards": shard_notes, "count": stored}, indent=2),
+        encoding="utf-8",
+    )
     print(f"OK import_id={import_id} stored={stored}")
     print("Next: python3 scripts/classify-chatgpt-archive.py")
     print("Then:  python3 scripts/link-archive-to-paperclip.py")

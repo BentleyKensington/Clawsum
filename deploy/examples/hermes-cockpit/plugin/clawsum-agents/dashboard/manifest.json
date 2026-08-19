@@ -1,0 +1,11 @@
+{
+  "name": "clawsum-agents",
+  "label": "Team",
+  "description": "Clawsum team — agents by operating cell",
+  "icon": "Users",
+  "version": "1.0.0",
+  "tab": { "path": "/agents", "position": "before:chat" },
+  "slots": [],
+  "entry": "dist/index.js",
+  "css": "dist/style.css"
+}

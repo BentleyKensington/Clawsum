@@ -17,7 +17,7 @@
 | Gerald approves (tier 0–3) | [PAPERCLIP-OVERWATCH.md](./PAPERCLIP-OVERWATCH.md) + `ops.approvals` |
 | ChatGPT archive ≠ dump into Hermes | Designed; **not built yet** (Phase 6) |
 | Browser CEO cockpit | Hermes UI + cockpit plugin (Phase 1–2 of report UI path) |
-| Discord | Deferred (Telegram live first) |
+| Discord | Preferred mobile HQ (dual-write with Telegram until verified) — see [DISCORD-HQ.md](./DISCORD-HQ.md) |
 | Voice | Deferred |
 | Greenfield `apps/web` | Deferred until Hermes+Paperclip loop is proven |
 
@@ -34,7 +34,7 @@
 | §3.4 Browser UI (12 tabs) | 🔄 MVP | Brief / Approvals / Health + Chat; rest later |
 | §3.5 ChatGPT archive | ⬜ Not started | Phase 6 |
 | §4 Business cells | 🔄 Profiles seeded | Isolation / per-gateway later |
-| §5.1 Discord | ⬜ Deferred | After Telegram smoke + Hermes stable |
+| §5.1 Discord | 🔄 Live | HQ provision + OpenClaw 2-way + dual-write alerts |
 | §5.2 Telegram | ✅ Exists | Daily brief 7am CST fix; JARVIS DM later |
 | §5.4 Voice | ⬜ Deferred | Speech scaffold exists |
 | §6 UI Phase 1–2 | 🔄 | Hermes + theme/plugin |

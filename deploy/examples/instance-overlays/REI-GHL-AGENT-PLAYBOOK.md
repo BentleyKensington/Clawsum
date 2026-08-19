@@ -24,6 +24,7 @@ This document captures everything learned building and operating the first REI G
 | `mco-rei` | `ghl-mco-rei` | `GHL/MCO-REI/` | `ghl.mco_rei_*` |
 | `ave-rei` | `ghl-ave-rei` | `GHL/AVE-REI/` | `ghl.ave_rei_*` |
 | `wnn-rei` | `ghl-wnn-rei` | `GHL/WNN-REI/` | `ghl.wnn_rei_*` |
+| `dispo-dudes` | `ghl-dispo-dudes` | `GHL/DISPO-DUDES/` | `ghl.dispo_dudes_*` |
 
 Config source: `deploy/config/ghl-accounts.json`
 
@@ -358,6 +359,33 @@ python3 /docker/clawsum/scripts/test-ghl-mco-connection.py   # adapt per account
 
 ---
 
+## 17. Wholesaling knowledge pack (MCO + Avenou)
+
+Shared operating knowledge for both agents:
+
+| Asset | Path |
+|-------|------|
+| Knowledge pack (source) | `deploy/examples/instance-overlays/REI-WHOLESALE-KNOWLEDGE.md` |
+| Workspace (after provision / weekly cron) | `workspace-ghl-*-rei/KNOWLEDGE-REI.md` |
+| Obsidian | `GHL/{ACCOUNT}/Playbooks/REI-WHOLESALE-KNOWLEDGE.md` |
+
+Covers: GHL audit checklist, seller/buyer SMS banks, live MCO CRM examples, coaching cues, weekly KPI lens.
+
+## 18. Daily report cron (both accounts)
+
+```bash
+# Install: 22:00 generate + 07:30 send (America/Chicago)
+bash /docker/clawsum/scripts/install-ghl-weekly-report-cron.sh
+
+# Manual
+python3 /docker/clawsum/scripts/ghl-weekly-report.py --slugs mco-rei,ave-rei --audit --use-llm --no-notify
+python3 /docker/clawsum/scripts/ghl-weekly-report.py --slugs mco-rei,ave-rei --no-audit --notify
+```
+
+Outputs per account: Obsidian `Reports/LATEST-WEEKLY-REPORT.md`, workspace `WEEKLY.md`, Telegram/Discord digest at 07:30.
+
+---
+
 ## Related documents
 
 | Document | Location |
@@ -365,9 +393,11 @@ python3 /docker/clawsum/scripts/test-ghl-mco-connection.py   # adapt per account
 | MCP task catalog | `deploy/docs/GHL-AGENT-CAPABILITIES.md` |
 | Multi-account plan | `deploy/docs/GHL-MULTI-ACCOUNT-PLAN.md` |
 | Account config | `deploy/config/ghl-accounts.json` |
-| Agent templates | `deploy/templates/ghl-account/` |
+| Agent templates | `deploy/templates/ghl/` |
 | Strategic audit script | `deploy/scripts/ghl-strategic-audit.py` |
+| Weekly report | `deploy/scripts/ghl-weekly-report.py` |
+| Wholesaling knowledge | `deploy/examples/instance-overlays/REI-WHOLESALE-KNOWLEDGE.md` |
 
 ---
 
-*Last updated: 2026-07-01 — MCO REI production learnings. Update this doc when AVE or WNN audits surface account-specific differences.*
+*Last updated: 2026-08-06 — MCO + Avenou knowledge pack + weekly report cron. Update when AVE/WNN audits surface account-specific differences.*

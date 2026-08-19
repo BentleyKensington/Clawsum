@@ -44,6 +44,7 @@ ENV_FILE = ROOT / ".env"
 STRATEGIC_SQL = ROOT / "postgres-init" / "09-ghl-strategic-tables.sql"
 SMS_SQL = ROOT / "postgres-init" / "10-ghl-suggested-sms.sql"
 COACHING_SQL = ROOT / "postgres-init" / "11-ghl-coaching-columns.sql"
+BOSS_BRIEF_SQL = ROOT / "postgres-init" / "12-ghl-boss-brief.sql"
 AUDIT_SQL = ROOT / "postgres-init" / "08-ghl-audit-tables.sql"
 TZ = ZoneInfo("America/Chicago")
 
@@ -187,8 +188,44 @@ OUR_OUTBOUND_SCRIPT_PATTERNS = [
         r"are you still (?:looking|considering)",
         r"just checking in",
         r"this isn't something you're looking into",
+        # Acq warm-intro voicemail / live-answer scripts (never treat as seller speech)
+        r"it'?s roman\b",
+        r"\bthey said (?:to give you a call|you(?:'d| would) be expecting)",
+        r"\bI was supposed to (?:give you a )?call",
+        r"\btold me to (?:give you a )?call",
+        r"\bwe buy (?:houses?|homes?) (?:as-?is )?for cash\b",
     )
 ]
+
+# Raw fragments that must never become a "hook" or get pasted into SMS
+JUNK_HOOK_PATTERNS = [
+    re.compile(p, re.I)
+    for p in (
+        r"https?://",
+        r"storage\.googleapis\.com",
+        r"msgsndr/",
+        r"/v2/url",
+        r"\bcom/v2\b",
+        r"\[https?://",
+        r"\bmedia/[0-9a-f-]{8,}",
+        r"^[\W\d_]{0,12}$",
+    )
+]
+
+SITUATION_WARM_INTRO = re.compile(
+    r"it'?s roman\b|they said (?:to give you a call|you(?:'d| would) be expecting)"
+    r"|I was supposed to (?:give you a )?call|told me to (?:give you a )?call",
+    re.I,
+)
+SITUATION_DROPPED_CALL = re.compile(
+    r"connection (?:kind of )?sucks|got cut off|can(?:'|no)t hear|bad connection"
+    r"|breaking up|call (?:you )?back later|let me call you later",
+    re.I,
+)
+SITUATION_CALLBACK_ASK = re.compile(
+    r"call (?:me )?back|call you later|try (?:me )?again|hit me (?:back|up)|text me",
+    re.I,
+)
 
 DISPOSITION_LANDLINE = "landline_no_sms"
 DISPOSITION_MOVE_ON = "move_on"
@@ -215,7 +252,7 @@ def parse_ts(val: Any) -> datetime | None:
 def ensure_tables() -> None:
     import subprocess
 
-    for sql in (AUDIT_SQL, STRATEGIC_SQL, SMS_SQL, COACHING_SQL):
+    for sql in (AUDIT_SQL, STRATEGIC_SQL, SMS_SQL, COACHING_SQL, BOSS_BRIEF_SQL):
         p = sql if sql.exists() else Path(__file__).resolve().parent.parent / "postgres-init" / sql.name
         if p.exists():
             subprocess.run(
@@ -644,6 +681,150 @@ def message_direction(m: dict[str, Any]) -> str:
 
 def is_our_outbound_script(text: str) -> bool:
     return bool(text and any(p.search(text) for p in OUR_OUTBOUND_SCRIPT_PATTERNS))
+
+
+def is_junk_hook(text: str) -> bool:
+    raw = (text or "").strip()
+    if not raw or len(raw) < 8:
+        return True
+    if any(p.search(raw) for p in JUNK_HOOK_PATTERNS):
+        return True
+    if is_our_outbound_script(raw):
+        return True
+    # Mostly a URL / filename / tracking blob
+    words = re.findall(r"[A-Za-z]{3,}", raw)
+    if len(words) < 2:
+        return True
+    return False
+
+
+def classify_situation_kind(
+    inbound_bodies: list[str],
+    outbound_bodies: list[str],
+    *,
+    call_no_followup: bool = False,
+) -> str:
+    blob_in = " ".join(inbound_bodies or [])
+    blob_out = " ".join(outbound_bodies or [])
+    blob_all = f"{blob_in}\n{blob_out}"
+    if SITUATION_DROPPED_CALL.search(blob_in) or SITUATION_DROPPED_CALL.search(blob_all):
+        return "dropped_call"
+    if SITUATION_WARM_INTRO.search(blob_out) or SITUATION_WARM_INTRO.search(blob_all):
+        return "warm_intro"
+    if SITUATION_CALLBACK_ASK.search(blob_in):
+        return "callback_asked"
+    if call_no_followup:
+        return "missed_call"
+    if any(not is_junk_hook(b) for b in (inbound_bodies or [])):
+        return "unanswered_inbound"
+    return "followup_gap"
+
+
+def first_name_from(contact_name: str | None) -> str:
+    if not contact_name:
+        return "there"
+    parts = contact_name.strip().split()
+    skip = {"mr", "mrs", "ms", "miss", "dr", "sir", "madam"}
+    while parts and parts[0].lower().rstrip(".") in skip:
+        parts = parts[1:]
+    return parts[0].title() if parts else "there"
+
+
+def gap_hours(last_inbound: Any) -> int | None:
+    ts = last_inbound if isinstance(last_inbound, datetime) else parse_ts(last_inbound)
+    if not ts:
+        return None
+    now = datetime.now(timezone.utc)
+    if ts.tzinfo is None:
+        ts = ts.replace(tzinfo=timezone.utc)
+    hours = int((now - ts).total_seconds() // 3600)
+    return max(hours, 0)
+
+
+def explain_priority(
+    *,
+    priority: str,
+    situation_kind: str,
+    call_no_followup: bool,
+    missed: str,
+    hours: int | None,
+) -> str:
+    age = f" about {hours}h ago" if hours is not None else ""
+    if priority == "critical":
+        if situation_kind == "dropped_call":
+            return (
+                f"Critical because we were already on the phone and the call dropped{age}. "
+                "They asked to continue later and we never called back — that is a live conversation we abandoned."
+            )
+        if situation_kind == "warm_intro":
+            return (
+                f"Critical because this is a warm handoff (they were told we would call){age}. "
+                "Someone already did the hard part; if we do not call today the intro goes cold."
+            )
+        if call_no_followup or situation_kind == "missed_call":
+            return (
+                f"Critical because they called or we left a voicemail{age} and there was no callback or text-back. "
+                "Missed-call speed is the difference between a conversation and a dead number."
+            )
+        return (
+            f"Critical because there is an unanswered live thread{age}: {missed or 'follow-up gap'}. "
+            "Same-day human outreach."
+        )
+    if priority == "high":
+        return (
+            f"High because there is a real inbound or recent-lead gap{age} "
+            f"({missed or 'unanswered inbound'}) and we have not closed the loop."
+        )
+    return f"Medium: {missed or 'stale opportunity — re-qualify before spending more touches.'}"
+
+
+def compose_boss_brief(
+    *,
+    name: str,
+    priority: str,
+    priority_why: str,
+    situation_kind: str,
+    intent: str,
+    intent_summary: str,
+    hook: str,
+    hours: int | None,
+    suggested_action: str,
+) -> str:
+    first = first_name_from(name)
+    age = f"{hours}h ago" if hours is not None else "recently"
+    if situation_kind == "dropped_call":
+        story = (
+            f"{first} was already talking with us; the call quality failed and they said to continue later. "
+            f"Last inbound {age}. They deserve attention because this is not a cold lead — we left them hanging mid-conversation."
+        )
+    elif situation_kind == "warm_intro":
+        story = (
+            f"{first} was told to expect our call (warm intro / referral handoff). "
+            f"We reached out {age} and never completed a real conversation. "
+            "Worth your time because the trust was borrowed from whoever referred them — delay wastes that."
+        )
+    elif situation_kind == "callback_asked":
+        story = (
+            f"{first} asked us to call or text back. Last ask {age}. "
+            "They already told us the next step; we just have not taken it."
+        )
+    elif situation_kind == "missed_call":
+        story = (
+            f"{first} called or we missed them {age}. No callback / text-back yet. "
+            "Treat as a live inbound, not a drip candidate."
+        )
+    elif hook and not is_junk_hook(hook):
+        story = (
+            f"{first} — {intent_summary or intent}. Specific detail: {hook}. "
+            f"Gap started {age}. Follow up because we have something concrete to reference, not a generic blast."
+        )
+    else:
+        story = (
+            f"{first} is on the list because {intent_summary or 'there is an unanswered inbound'}, "
+            f"last activity {age}. Qualify motivation and timeline on the call — do not send a generic drip."
+        )
+    action = suggested_action or "Call today; if no answer, send the suggested SMS and set a callback task."
+    return f"{story} Next: {action}"
 
 
 def detect_landline(
@@ -1205,14 +1386,54 @@ def build_reengage_leads(
 
         intent_label = (profile or {}).get("intent") or INTENT_UNCLEAR
         cr = conv_by_contact.get(cid)
+        intel = extract_contact_intel(
+            (profile or {}).get("transcript_excerpt") or "",
+            (profile or {}).get("inbound_bodies"),
+            (profile or {}).get("outbound_bodies"),
+        )
+        situation_kind = classify_situation_kind(
+            (profile or {}).get("inbound_bodies") or [],
+            (profile or {}).get("outbound_bodies") or [],
+            call_no_followup=bool((cr or {}).get("call_no_followup")),
+        )
+        hours = gap_hours((profile or {}).get("last_inbound_at") or (cr or {}).get("last_inbound_at"))
+        name = c.get("contactName") or f"{c.get('firstName', '')} {c.get('lastName', '')}".strip()
+        hook = (cr or {}).get("contact_specific_hook") or intel.get("specific_hook") or ""
+        if hook and is_junk_hook(hook) and situation_kind not in (
+            "dropped_call",
+            "warm_intro",
+            "callback_asked",
+        ):
+            hook = intel.get("specific_hook") or ""
+        priority_why = explain_priority(
+            priority=priority,
+            situation_kind=situation_kind,
+            call_no_followup=bool((cr or {}).get("call_no_followup")),
+            missed="; ".join(reasons),
+            hours=hours,
+        )
+        boss_brief = compose_boss_brief(
+            name=name,
+            priority=priority,
+            priority_why=priority_why,
+            situation_kind=situation_kind,
+            intent=intent_label,
+            intent_summary=viability_note,
+            hook=hook,
+            hours=hours,
+            suggested_action=action,
+        )
         leads[cid] = {
             "contact_id": cid,
-            "contact_name": c.get("contactName") or f"{c.get('firstName', '')} {c.get('lastName', '')}".strip(),
+            "contact_name": name,
             "phone": c.get("phone"),
             "email": c.get("email"),
             "date_added": date_added,
             "last_activity": last_act,
             "priority": priority,
+            "priority_why": priority_why,
+            "boss_brief": boss_brief,
+            "situation_kind": situation_kind,
             "reason": "; ".join(reasons),
             "suggested_action": action,
             "pipeline_name": None,
@@ -1225,7 +1446,7 @@ def build_reengage_leads(
             "transcript_excerpt": (profile or {}).get("transcript_excerpt"),
             "what_went_wrong": (cr or {}).get("what_went_wrong"),
             "process_improvement": (cr or {}).get("process_improvement"),
-            "contact_specific_hook": (cr or {}).get("contact_specific_hook"),
+            "contact_specific_hook": hook,
         }
 
     for o in opps:
@@ -1240,15 +1461,37 @@ def build_reengage_leads(
         if updated and (now - updated).days >= 14 and (o.get("status") or "").lower() not in ("won", "lost"):
             stage = stage_map.get(o.get("pipelineStageId"), "?")
             pipe = pipe_names.get(o.get("pipelineId"), "?")
+            stale_reason = f"Open opportunity stale {(now - updated).days}d in {stage}"
+            opp_name = o.get("name") or ""
+            opp_why = explain_priority(
+                priority="medium",
+                situation_kind="followup_gap",
+                call_no_followup=False,
+                missed=stale_reason,
+                hours=None,
+            )
             leads[cid] = {
                 "contact_id": cid,
-                "contact_name": o.get("name"),
+                "contact_name": opp_name,
                 "phone": None,
                 "email": None,
                 "date_added": parse_ts(o.get("createdAt")),
                 "last_activity": updated,
                 "priority": "medium",
-                "reason": f"Open opportunity stale {(now - updated).days}d in {stage}",
+                "priority_why": opp_why,
+                "boss_brief": compose_boss_brief(
+                    name=opp_name,
+                    priority="medium",
+                    priority_why=opp_why,
+                    situation_kind="followup_gap",
+                    intent=(profile or {}).get("intent") or INTENT_UNCLEAR,
+                    intent_summary=viability_note if profile else "Open opp — verify seller intent on call",
+                    hook="",
+                    hours=None,
+                    suggested_action="Review deal; call to re-qualify; move stage or mark dead.",
+                ),
+                "situation_kind": "followup_gap",
+                "reason": stale_reason,
                 "suggested_action": "Review deal; call to re-qualify; move stage or mark dead.",
                 "pipeline_name": pipe,
                 "stage_name": stage,
@@ -1275,13 +1518,6 @@ def build_reengage_leads(
         key=lambda x: (x.get("contact_name") or "").lower(),
     )
     return result, excluded
-
-
-def first_name_from(contact_name: str | None) -> str:
-    if not contact_name:
-        return "there"
-    parts = contact_name.strip().split()
-    return parts[0] if parts else "there"
 
 
 def _shorten_phrase(text: str, max_len: int = 85) -> str:
@@ -1343,17 +1579,20 @@ def extract_contact_intel(
             elif "[outbound" in lower or "outgoing" in lower:
                 outbounds.append(body)
 
-    all_inbound = " ".join(inbounds)
+    usable_inbounds = [
+        b for b in inbounds if b and not is_junk_hook(b) and not is_our_outbound_script(b)
+    ]
+    all_inbound = " ".join(usable_inbounds)
     situations: list[str] = []
     for label, pattern in SITUATION_PATTERNS:
-        if pattern.search(all_inbound):
+        if pattern.search(all_inbound or " ".join(inbounds)):
             situations.append(label)
 
     questions: list[str] = []
-    for body in inbounds:
+    for body in usable_inbounds:
         for match in re.finditer(r"[^.?!]{8,}[?]", body):
             q = match.group(0).strip()
-            if is_our_outbound_script(q):
+            if is_junk_hook(q) or is_our_outbound_script(q):
                 continue
             if q not in questions:
                 questions.append(q)
@@ -1368,10 +1607,17 @@ def extract_contact_intel(
         timeline = tm.group(0).strip()
 
     property_hint = extract_property_hint(all_inbound or transcript)
-    last_inbound = inbounds[-1] if inbounds else ""
+    last_inbound = usable_inbounds[-1] if usable_inbounds else ""
+    situation_kind = classify_situation_kind(inbounds, outbounds)
 
     specific_hook = ""
-    if questions:
+    if situation_kind == "dropped_call":
+        specific_hook = "call dropped — they asked to continue later"
+    elif situation_kind == "warm_intro":
+        specific_hook = "warm intro — they were told we would call"
+    elif situation_kind == "callback_asked":
+        specific_hook = "they asked us to call back"
+    elif questions:
         specific_hook = questions[-1]
     elif situations and property_hint:
         specific_hook = f"{situations[0]} at {property_hint}"
@@ -1383,25 +1629,34 @@ def extract_contact_intel(
         specific_hook = timeline
     elif property_hint:
         specific_hook = property_hint
-    elif last_inbound and len(last_inbound) > 20:
+    elif last_inbound and not is_junk_hook(last_inbound):
         specific_hook = last_inbound
+
+    if specific_hook and is_junk_hook(specific_hook) and situation_kind not in (
+        "dropped_call",
+        "warm_intro",
+        "callback_asked",
+    ):
+        specific_hook = ""
 
     has_actionable_intel = bool(
         property_hint
         or situations
         or questions
         or timeline
-        or (last_inbound and len(last_inbound) > 35)
+        or situation_kind in ("dropped_call", "warm_intro", "callback_asked", "missed_call")
     )
 
     return {
         "inbound_messages": inbounds,
         "outbound_messages": outbounds,
+        "usable_inbounds": usable_inbounds,
         "property_hint": property_hint,
         "situations": situations,
         "timeline": timeline,
         "questions": questions,
         "last_inbound": last_inbound,
+        "situation_kind": situation_kind,
         "specific_hook": _shorten_phrase(specific_hook, 120) if specific_hook else "",
         "has_actionable_intel": has_actionable_intel,
     }
@@ -1546,6 +1801,10 @@ def build_sms_context(
         "last_inbound_snippet": _shorten_phrase(intel.get("last_inbound") or "", 90),
         "property_hint": intel.get("property_hint") or "",
         "specific_hook": (conv_review or {}).get("contact_specific_hook") or intel.get("specific_hook") or "",
+        "situation_kind": intel.get("situation_kind")
+        or (conv_review or {}).get("situation_kind")
+        or lead.get("situation_kind")
+        or "",
         "has_actionable_intel": intel.get("has_actionable_intel", False),
         "missed_opportunity": (conv_review or {}).get("missed_opportunity") or lead.get("reason"),
         "what_went_wrong": (conv_review or {}).get("what_went_wrong") or "",
@@ -1556,83 +1815,68 @@ def build_sms_context(
 
 
 def compose_followup_sms_rule(ctx: dict[str, Any]) -> str:
-    """Rule-based SMS — specific to contact intel; generic only when nothing else available."""
-    name = ctx["first_name"]
+    """Interpret the situation. Never paste raw transcript junk into the SMS."""
+    name = first_name_from(ctx.get("first_name") or ctx.get("full_name"))
     intel = ctx.get("intel") or {}
-    hook = ctx.get("specific_hook") or intel.get("specific_hook") or ""
+    kind = ctx.get("situation_kind") or intel.get("situation_kind") or ""
     prop = intel.get("property_hint") or ctx.get("property_hint") or ""
+    about = f" about {prop}" if prop else ""
     intent = ctx.get("intent")
-    call = ctx.get("call_no_followup")
-    has_intel = ctx.get("has_actionable_intel", False)
-    questions = intel.get("questions") or []
+    questions = [q for q in (intel.get("questions") or []) if not is_junk_hook(q)]
     situations = intel.get("situations") or []
     timeline = intel.get("timeline") or ""
 
-    if has_intel:
-        if intent == INTENT_BONAFIDE_REFERRAL:
-            if hook:
-                ref = _shorten_phrase(hook, 70)
-                return (
-                    f"Hi {name}, thanks again — you mentioned {ref}. "
-                    "If the owner wants a no-pressure cash offer, I can reach out directly. "
-                    "Would you be open to a quick intro this week?"
-                )
-            if prop:
-                return (
-                    f"Hi {name}, following up on the property at {prop} you mentioned. "
-                    "Happy to connect with the owner directly if they're open to an offer. "
-                    "Reply YES and I'll send our referral next steps."
-                )
-
-        if questions:
-            q = _shorten_phrase(questions[-1], 75)
-            return (
-                f"Hi {name}, sorry for the delay — you asked \"{q}\" "
-                "Happy to answer that and see if we're a fit. Still interested in chatting?"
-            )
-
-        if situations and prop:
-            return (
-                f"Hi {name}, circling back on {prop} and your {situations[0]} situation. "
-                "We buy as-is for cash with a flexible close. "
-                "Are you still looking for options? I can call today if easier."
-            )
-
-        if timeline and prop:
-            return (
-                f"Hi {name}, wanted to follow up on {prop} — you mentioned {timeline.lower()}. "
-                "We may still be able to help with a fast cash close. Worth a quick call?"
-            )
-
-        if hook:
-            ref = _shorten_phrase(hook, 80)
-            return (
-                f"Hi {name}, following up on what you shared: {ref}. "
-                "We buy locally for cash, as-is. Are you still exploring options?"
-            )
-
-        if prop:
-            return (
-                f"Hi {name}, checking back on {prop}. "
-                "We're still buying in the area for cash — want a no-obligation ballpark offer?"
-            )
-
-        if call:
-            return (
-                f"Hi {name}, sorry I missed you after your call"
-                + (f" about {prop}" if prop else "")
-                + ". Still happy to talk through options — reply with a good time to call."
-            )
-
-    # Generic fallback — only when intel is name/address-level at best
+    if kind == "dropped_call":
+        return (
+            f"Hi {name} — last time the call dropped on us. "
+            "Want me to try you again today, or is tomorrow better?"
+        )
+    if kind == "warm_intro":
+        return (
+            f"Hi {name}, this is Roman — I was supposed to reach you{about}. "
+            "Sorry for the delay. Still a good time for a quick call today or tomorrow?"
+        )
+    if kind == "callback_asked":
+        return (
+            f"Hi {name}, circling back like you asked. "
+            f"What's a good time to call{about}?"
+        )
+    if kind == "missed_call" or ctx.get("call_no_followup"):
+        return (
+            f"Hi {name}, sorry I missed you{about}. "
+            "Happy to talk or text — when works for a 5-minute call?"
+        )
+    if intent == INTENT_BONAFIDE_REFERRAL:
+        target = prop or "the property you mentioned"
+        return (
+            f"Hi {name}, thanks again for thinking of us on {target}. "
+            "If the owner is open to a no-pressure cash conversation, "
+            "reply YES and I'll take it from there."
+        )
+    if questions:
+        topic = _shorten_phrase(questions[-1], 50)
+        return (
+            f"Hi {name}, sorry for the delay — you asked about {topic}. "
+            "I can answer that on a quick call. Today or tomorrow better?"
+        )
+    if situations and prop:
+        return (
+            f"Hi {name}, circling back on {prop} ({situations[0]}). "
+            "We can buy as-is with a flexible close. Still want options?"
+        )
+    if timeline and prop:
+        return (
+            f"Hi {name}, following up on {prop} — you mentioned {timeline.lower()}. "
+            "We may still be able to help with a cash close. Worth a quick call?"
+        )
     if prop:
         return (
             f"Hi {name}, checking back on {prop}. "
-            "We buy for cash as-is — reply YES if you'd like a ballpark offer."
+            "We buy as-is for cash — want a no-obligation ballpark, or prefer a call?"
         )
     return (
-        f"Hi {name}, wanted to reconnect about selling your property. "
-        "We buy homes as-is for cash — reply YES if you'd like to chat."
+        f"Hi {name}, circling back on your property. "
+        "We buy houses as-is for cash. What's a good time for a 5-minute call?"
     )
 
 
@@ -1641,6 +1885,20 @@ def _trim_sms(text: str, max_len: int = 320) -> str:
     if len(text) <= max_len:
         return text
     return text[: max_len - 3].rsplit(" ", 1)[0] + "..."
+
+
+def _sms_is_bad_draft(sms: str) -> bool:
+    """Reject drafts that paste junk or our own script back at the seller."""
+    if not sms:
+        return True
+    low = sms.lower()
+    if "following up on what you shared" in low:
+        return True
+    if any(p.search(sms) for p in JUNK_HOOK_PATTERNS):
+        return True
+    if re.search(r"you asked [\"'][^\"']{0,40}(?:https?://|msgsndr|/v2/url)", sms, re.I):
+        return True
+    return False
 
 
 def _sms_references_intel(sms: str, ctx: dict[str, Any]) -> bool:
@@ -1663,6 +1921,13 @@ def _sms_references_intel(sms: str, ctx: dict[str, Any]) -> bool:
         qwords = re.findall(r"[a-z]{5,}", intel["questions"][-1].lower())
         if qwords and sum(1 for w in qwords[:4] if w in sms_lower) >= 2:
             return True
+    kind = ctx.get("situation_kind") or intel.get("situation_kind") or ""
+    if kind == "dropped_call" and any(w in sms_lower for w in ("drop", "cut off", "connection", "again")):
+        return True
+    if kind == "warm_intro" and any(w in sms_lower for w in ("supposed", "reach", "sorry", "call")):
+        return True
+    if kind in ("callback_asked", "missed_call") and "call" in sms_lower:
+        return True
     return not ctx.get("has_actionable_intel")
 
 
@@ -1704,15 +1969,21 @@ def llm_enrich_gap_leads_batch(
     prompt = (
         coach
         + "For EACH contact, return:\n"
-        "1. suggested_sms — ONE follow-up SMS under 300 chars that MUST reference something "
-        "specific the CONTACT said (their question, situation, property detail, timeline, address). "
-        "Quote or paraphrase their words. Generic 'still interested in selling?' is ONLY allowed "
-        "when has_actionable_intel is false.\n"
-        "2. process_improvement — what went wrong in OUR handling and a concrete future fix "
-        "(automation, script, training). Be specific to this thread.\n"
-        "3. contact_specific_hook — the exact phrase/detail the SMS references (for audit trail).\n\n"
+        "1. suggested_sms — ONE SMS under 280 chars. INTERPRET the situation; do NOT paste raw "
+        "transcript fragments. Forbidden: 'following up on what you shared:', media URLs, "
+        "googleapis/msgsndr links, our own voicemail script ('it's Roman', 'they said you'd be expecting'), "
+        "or quoting 'connection kind of sucks'. "
+        "If the call dropped: apologize and offer a callback window. "
+        "If it was a warm intro: own the missed call and ask for a time. "
+        "If they asked a real question: answer the topic in plain words, then ask for a call time. "
+        "Never invent a price or address.\n"
+        "2. process_improvement — what WE did poorly + a concrete automation/script fix.\n"
+        "3. contact_specific_hook — a short HUMAN situation label (e.g. 'call dropped, asked to continue'), "
+        "never a URL or our outbound script.\n"
+        "4. boss_brief — 2 sentences for the operator: who this is, why they deserve attention today.\n"
+        "5. priority_why — one sentence explaining the critical/high/medium label.\n\n"
         "Return ONLY JSON: {\"leads\": [{\"contact_id\", \"suggested_sms\", \"process_improvement\", "
-        "\"contact_specific_hook\"}, ...]}\n\n"
+        "\"contact_specific_hook\", \"boss_brief\", \"priority_why\"}, ...]}\n\n"
         + json.dumps(payload, default=str)
     )
     body = {
@@ -1748,6 +2019,8 @@ def llm_enrich_gap_leads_batch(
                     "suggested_sms": _trim_sms(item.get("suggested_sms") or item.get("sms") or ""),
                     "process_improvement": (item.get("process_improvement") or "").strip(),
                     "contact_specific_hook": (item.get("contact_specific_hook") or "").strip(),
+                    "boss_brief": (item.get("boss_brief") or "").strip(),
+                    "priority_why": (item.get("priority_why") or "").strip(),
                 }
             return out
     except (urllib.error.HTTPError, KeyError, TimeoutError, json.JSONDecodeError, ValueError) as e:
@@ -1791,19 +2064,32 @@ def enrich_with_followup_sms(
         enriched = llm_enrich.get(cid) or {}
         rule_sms = compose_followup_sms_rule(ctx)
         sms = enriched.get("suggested_sms") or rule_sms
-        if enriched.get("suggested_sms") and not _sms_references_intel(sms, ctx):
+        if enriched.get("suggested_sms") and (
+            _sms_is_bad_draft(sms) or not _sms_references_intel(sms, ctx)
+        ):
+            sms = rule_sms
+        if _sms_is_bad_draft(sms):
             sms = rule_sms
         lead["suggested_sms"] = _trim_sms(sms)
-        lead["contact_specific_hook"] = (
+        hook = (
             enriched.get("contact_specific_hook")
             or ctx.get("specific_hook")
             or lead.get("contact_specific_hook")
             or ""
         )
+        if hook and is_junk_hook(hook) and (lead.get("situation_kind") or "") not in (
+            "dropped_call",
+            "warm_intro",
+            "callback_asked",
+        ):
+            hook = ctx.get("specific_hook") or ""
+        lead["contact_specific_hook"] = hook
         if enriched.get("process_improvement"):
             lead["process_improvement"] = enriched["process_improvement"]
         elif not lead.get("process_improvement") and conv_by_contact.get(lead.get("contact_id")):
             lead["process_improvement"] = conv_by_contact[lead["contact_id"]].get("process_improvement", "")
+        # Keep rule-based why/brief — LLM tends to flatten the label into "High priority".
+        lead.setdefault("situation_kind", ctx.get("situation_kind") or "")
 
     for review in conv_reviews:
         cid = review.get("contact_id")
@@ -1889,6 +2175,39 @@ RETURNING id;
     return int(run_id_s.strip().splitlines()[0])
 
 
+def ensure_account_brief_columns(account: dict[str, Any], password: str) -> None:
+    import subprocess
+
+    schema = account["schema_prefix"]
+    sql = []
+    for table, cols in (
+        ("reengage_leads", ("priority_why", "boss_brief", "situation_kind")),
+        ("conversation_reviews", ("priority_why", "boss_brief")),
+    ):
+        for col in cols:
+            sql.append(
+                f"ALTER TABLE {schema}.{table} ADD COLUMN IF NOT EXISTS {col} text;"
+            )
+    subprocess.run(
+        [
+            "docker",
+            "exec",
+            "-i",
+            "clawsum-postgres-1",
+            "psql",
+            "-U",
+            "clawsum",
+            "-d",
+            "ghl",
+            "-v",
+            "ON_ERROR_STOP=1",
+        ],
+        input="\n".join(sql).encode(),
+        check=False,
+    )
+    _ = password
+
+
 def persist_leads(account: dict[str, Any], password: str, run_id: int, leads: list[dict[str, Any]]) -> None:
     schema = account["schema_prefix"]
     for L in leads:
@@ -1899,7 +2218,8 @@ def persist_leads(account: dict[str, Any], password: str, run_id: int, leads: li
 INSERT INTO {schema}.reengage_leads (
   audit_run_id, contact_id, contact_name, phone, email, date_added, last_activity,
   priority, reason, suggested_action, suggested_sms, contact_specific_hook,
-  what_went_wrong, process_improvement, pipeline_name, stage_name, tags
+  what_went_wrong, process_improvement, pipeline_name, stage_name, tags,
+  priority_why, boss_brief, situation_kind
 ) VALUES (
   {run_id}, {sql_quote(L.get('contact_id'))}, {sql_quote(L.get('contact_name'))},
   {sql_quote(L.get('phone'))}, {sql_quote(L.get('email'))},
@@ -1910,7 +2230,9 @@ INSERT INTO {schema}.reengage_leads (
   {sql_quote(L.get('contact_specific_hook'))}, {sql_quote(L.get('what_went_wrong'))},
   {sql_quote(L.get('process_improvement'))},
   {sql_quote(L.get('pipeline_name'))},
-  {sql_quote(L.get('stage_name'))}, {sql_quote(L.get('tags'))}
+  {sql_quote(L.get('stage_name'))}, {sql_quote(L.get('tags'))},
+  {sql_quote(L.get('priority_why'))}, {sql_quote(L.get('boss_brief'))},
+  {sql_quote(L.get('situation_kind'))}
 );
 """,
         )
@@ -2135,33 +2457,38 @@ def write_reports(
         "",
         "Only contacts with **bonafide seller/referral intent** and a **real follow-up gap** appear below.",
         "",
-        "Each lead includes a **suggested SMS** customized from transcript and contact context.",
+        "Each lead includes **why the priority label**, a **plain-language brief**, and an SMS that "
+        "interprets the situation (not a raw transcript paste).",
         "",
-        "| Priority | Name | Phone | Intent | Suggested SMS |",
-        "|----------|------|-------|--------|---------------|",
+        "| Priority | Name | Phone | Situation | Why this label |",
+        "|----------|------|-------|-----------|----------------|",
     ]
     for L in leads[:150]:
-        sms = (L.get("suggested_sms") or "—").replace("|", "/")
+        why = (L.get("priority_why") or L.get("reason") or "—").replace("|", "/")
         rg.append(
             f"| {L.get('priority')} | {L.get('contact_name') or '?'} | {L.get('phone') or '—'} | "
-            f"{L.get('intent') or '?'} | {sms[:120]} |"
+            f"{L.get('situation_kind') or '—'} | {why[:140]} |"
         )
-    rg.extend(["", "## Full suggested SMS (copy-paste ready)", ""])
+    rg.extend(["", "## Full briefs + suggested SMS (copy-paste ready)", ""])
     for L in leads[:50]:
+        rg.extend(
+            [
+                f"### [{L.get('priority')}] {L.get('contact_name') or L.get('contact_id')} ({L.get('phone') or 'no phone'})",
+                f"**Why {L.get('priority')}:** {L.get('priority_why') or L.get('reason') or '—'}",
+                f"**Need to know:** {L.get('boss_brief') or L.get('intent_summary') or '—'}",
+                f"**Situation:** {L.get('situation_kind') or '—'} · **Intent:** {L.get('intent') or '?'}",
+            ]
+        )
+        if L.get("contact_specific_hook"):
+            rg.append(f"**Situation hook (not raw transcript):** {L.get('contact_specific_hook')}")
+        if L.get("what_went_wrong"):
+            rg.append(f"**What went wrong:** {L.get('what_went_wrong')}")
+        if L.get("process_improvement"):
+            rg.append(f"**Future fix:** {L.get('process_improvement')}")
         if L.get("suggested_sms"):
-            rg.extend(
-                [
-                    f"### {L.get('contact_name') or L.get('contact_id')} ({L.get('phone') or 'no phone'})",
-                    f"**Intent:** {L.get('intent')} — {L.get('reason', '')[:100]}",
-                ]
-            )
-            if L.get("contact_specific_hook"):
-                rg.append(f"**References:** {L.get('contact_specific_hook')}")
-            if L.get("what_went_wrong"):
-                rg.append(f"**What went wrong:** {L.get('what_went_wrong')}")
-            if L.get("process_improvement"):
-                rg.append(f"**Future fix:** {L.get('process_improvement')}")
             rg.extend(["", f"> {L.get('suggested_sms')}", ""])
+        else:
+            rg.append("")
     reengage_path.write_text("\n".join(rg), encoding="utf-8")
 
     with csv_path.open("w", newline="", encoding="utf-8") as f:
@@ -2170,7 +2497,8 @@ def write_reports(
             fieldnames=[
                 "priority", "contact_id", "contact_name", "phone", "email",
                 "date_added", "last_activity", "intent", "viability", "intent_summary",
-                "reason", "suggested_action", "contact_specific_hook", "suggested_sms",
+                "reason", "priority_why", "boss_brief", "situation_kind",
+                "suggested_action", "contact_specific_hook", "suggested_sms",
                 "what_went_wrong", "process_improvement",
                 "pipeline_name", "stage_name", "tags",
             ],
@@ -2219,14 +2547,15 @@ def write_telegram_reengage_summary(
         phone = L.get("phone") or "—"
         pri = L.get("priority") or "?"
         intent = L.get("intent") or "?"
-        hook = (L.get("contact_specific_hook") or "")[:80]
-        sms = (L.get("suggested_sms") or "")[:200]
+        hook = (L.get("contact_specific_hook") or "")[:100]
+        sms = (L.get("suggested_sms") or "")[:240]
         lines.extend(
             [
                 f"### {i}. [{pri}] {name} ({phone})",
-                f"- **Intent:** {intent}",
+                f"- **Why {pri}:** {(L.get('priority_why') or L.get('reason') or '—')[:220]}",
+                f"- **Need to know:** {(L.get('boss_brief') or '')[:280] or '—'}",
+                f"- **Situation:** {L.get('situation_kind') or '—'} · **Intent:** {intent}",
                 f"- **Hook:** {hook or '—'}",
-                f"- **Gap:** {(L.get('reason') or '')[:100]}",
                 f"- **SMS:** {sms or '—'}",
                 "",
             ]
@@ -2315,6 +2644,7 @@ def main() -> None:
     print(f"=== Strategic audit: {account['display_name']} (vertical={vertical}) ===\n")
     ensure_tables()
     password = sync_db_password(account, env)
+    ensure_account_brief_columns(account, password)
 
     available, tool_names = mcp_tools_list(pit, location_id)
     print(f"MCP tools: {len(available)}")

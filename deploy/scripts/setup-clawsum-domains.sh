@@ -11,10 +11,12 @@ MARKETING_PORT="${MARKETING_PORT:-8088}"
 
 DOMAIN="${CLAWSUM_DOMAIN:-clawsum.com}"
 # Prefer clawsum.com map; allow override only if already on this domain
-BOSS_HOST="boss.${DOMAIN}"
+BOSS_HOST="boss.${DOMAIN}"                 # Hermes CEO UI
+PAPERCLIP_HOST="paperclip.${DOMAIN}"       # Paperclip tasks UI
+HERMES_LEGACY_HOST="hermes.${DOMAIN}"      # redirect → boss
 OPENCLAW_HOST="openclaw.${DOMAIN}"
 GRAFANA_HOST="grafana.${DOMAIN}"
-HERMES_HOST="hermes.${DOMAIN}"
+ARCADE_HOST="arcade.${DOMAIN}"
 LOGIN_HOST="login.${DOMAIN}"
 CONNECT_HOST="connect.${DOMAIN}"
 WWW_HOST="www.${DOMAIN}"
@@ -39,16 +41,19 @@ if [[ -f "$ENV_FILE" ]]; then
   # Keep ports/auth from .env; force clawsum.com hostnames unless FORCE_LEGACY_HOSTS=1
   if [[ "${FORCE_LEGACY_HOSTS:-}" != "1" ]]; then
     BOSS_HOST="boss.${DOMAIN}"
+    PAPERCLIP_HOST="paperclip.${DOMAIN}"
+    HERMES_LEGACY_HOST="hermes.${DOMAIN}"
     OPENCLAW_HOST="openclaw.${DOMAIN}"
     GRAFANA_HOST="grafana.${DOMAIN}"
-    HERMES_HOST="hermes.${DOMAIN}"
+    ARCADE_HOST="arcade.${DOMAIN}"
     LOGIN_HOST="login.${DOMAIN}"
     CONNECT_HOST="connect.${DOMAIN}"
   else
     BOSS_HOST="${BOSS_UI_HOST:-$BOSS_HOST}"
+    PAPERCLIP_HOST="${PAPERCLIP_UI_HOST:-$PAPERCLIP_HOST}"
     OPENCLAW_HOST="${OPENCLAW_UI_HOST:-$OPENCLAW_HOST}"
     GRAFANA_HOST="${GRAFANA_UI_HOST:-$GRAFANA_HOST}"
-    HERMES_HOST="${HERMES_UI_HOST:-$HERMES_HOST}"
+    ARCADE_HOST="${ARCADE_UI_HOST:-$ARCADE_HOST}"
     LOGIN_HOST="${LOGIN_UI_HOST:-$LOGIN_HOST}"
     CONNECT_HOST="${CONNECT_UI_HOST:-$CONNECT_HOST}"
   fi
@@ -97,6 +102,8 @@ curl -sf "${MARKETING_URL}/" >/dev/null || {
 }
 
 mkdir -p "${TRAEFIK_DIR}/dynamic"
+# Prefer Authelia SSO cutover file if present; otherwise write baseline (basicAuth),
+# then re-run setup-authelia.sh / cutover-boss-paperclip-domains.sh for SSO.
 cat > "${TRAEFIK_DIR}/dynamic/clawsum-com.yml" <<EOF
 http:
   middlewares:
@@ -111,6 +118,12 @@ http:
       headers:
         customRequestHeaders:
           Host: "127.0.0.1:${HERMES_PORT}"
+          Origin: "http://127.0.0.1:${HERMES_PORT}"
+    hermes-to-boss-redirect:
+      redirectRegex:
+        regex: "^https?://[^/]+(.*)"
+        replacement: "https://${BOSS_HOST}\${1}"
+        permanent: true
 
   routers:
     clawsum-marketing:
@@ -129,6 +142,7 @@ http:
       service: clawsum-marketing
       middlewares:
         - clawsum-ops-auth
+        - clawsum-ops-user-header
       tls:
         certResolver: letsencrypt
 
@@ -139,6 +153,7 @@ http:
       service: clawsum-marketing
       middlewares:
         - clawsum-ops-auth
+        - clawsum-ops-user-header
       tls:
         certResolver: letsencrypt
 
@@ -146,9 +161,32 @@ http:
       rule: Host(\`${BOSS_HOST}\`)
       entryPoints:
         - websecure
-      service: clawsum-boss
+      service: clawsum-hermes
       middlewares:
         - clawsum-ops-auth
+        - clawsum-ops-user-header
+        - hermes-host-rewrite
+      tls:
+        certResolver: letsencrypt
+
+    clawsum-paperclip:
+      rule: Host(\`${PAPERCLIP_HOST}\`)
+      entryPoints:
+        - websecure
+      service: clawsum-paperclip
+      middlewares:
+        - clawsum-ops-auth
+        - clawsum-ops-user-header
+      tls:
+        certResolver: letsencrypt
+
+    clawsum-hermes-legacy:
+      rule: Host(\`${HERMES_LEGACY_HOST}\`)
+      entryPoints:
+        - websecure
+      service: clawsum-hermes
+      middlewares:
+        - hermes-to-boss-redirect
       tls:
         certResolver: letsencrypt
 
@@ -171,17 +209,18 @@ http:
       service: clawsum-grafana
       middlewares:
         - clawsum-ops-auth
+        - clawsum-ops-user-header
       tls:
         certResolver: letsencrypt
 
-    clawsum-hermes:
-      rule: Host(\`${HERMES_HOST}\`)
+    clawsum-arcade:
+      rule: Host(\`${ARCADE_HOST}\`)
       entryPoints:
         - websecure
-      service: clawsum-hermes
+      service: clawsum-arcade
       middlewares:
         - clawsum-ops-auth
-        - hermes-host-rewrite
+        - clawsum-ops-user-header
       tls:
         certResolver: letsencrypt
 
@@ -190,7 +229,11 @@ http:
       loadBalancer:
         servers:
           - url: ${MARKETING_URL}
-    clawsum-boss:
+    clawsum-hermes:
+      loadBalancer:
+        servers:
+          - url: http://127.0.0.1:${HERMES_PORT}
+    clawsum-paperclip:
       loadBalancer:
         servers:
           - url: http://127.0.0.1:3100
@@ -202,10 +245,10 @@ http:
       loadBalancer:
         servers:
           - url: http://127.0.0.1:3000
-    clawsum-hermes:
+    clawsum-arcade:
       loadBalancer:
         servers:
-          - url: http://127.0.0.1:${HERMES_PORT}
+          - url: http://127.0.0.1:2480
 EOF
 
 rm -f "${TRAEFIK_DIR}/dynamic/boss-ui.yml"
@@ -217,16 +260,19 @@ touch "$ENV_FILE"
 for kv in \
   "TRAEFIK_HOST=${DOMAIN}" \
   "BOSS_UI_HOST=${BOSS_HOST}" \
+  "PAPERCLIP_UI_HOST=${PAPERCLIP_HOST}" \
+  "HERMES_UI_HOST=${BOSS_HOST}" \
   "OPENCLAW_UI_HOST=${OPENCLAW_HOST}" \
   "GRAFANA_UI_HOST=${GRAFANA_HOST}" \
-  "HERMES_UI_HOST=${HERMES_HOST}" \
+  "ARCADE_UI_HOST=${ARCADE_HOST}" \
+  "CLAWSUM_ARCADE_URL=https://${ARCADE_HOST}" \
   "LOGIN_UI_HOST=${LOGIN_HOST}" \
   "CONNECT_UI_HOST=${CONNECT_HOST}" \
-  "PAPERCLIP_PUBLIC_URL=https://${BOSS_HOST}" \
-  "CLAWSUM_BOSS_URL=https://${BOSS_HOST}" \
+  "PAPERCLIP_PUBLIC_URL=https://${PAPERCLIP_HOST}" \
+  "CLAWSUM_BOSS_URL=https://${PAPERCLIP_HOST}" \
   "CLAWSUM_OPENCLAW_URL=https://${OPENCLAW_HOST}" \
   "CLAWSUM_GRAFANA_URL=https://${GRAFANA_HOST}" \
-  "CLAWSUM_HERMES_URL=https://${HERMES_HOST}"; do
+  "CLAWSUM_HERMES_URL=https://${BOSS_HOST}"; do
   key="${kv%%=*}"
   if grep -q "^${key}=" "$ENV_FILE" 2>/dev/null; then
     sed -i "s|^${key}=.*|${kv}|" "$ENV_FILE"
@@ -246,13 +292,16 @@ bash scripts/hermes-dashboard.sh start 2>/dev/null || true
 
 echo ""
 echo "=== clawsum.com hosts configured ==="
-echo "Funnel:    https://${DOMAIN}  https://${WWW_HOST}"
-echo "Login:     https://${LOGIN_HOST}"
-echo "Connect:   https://${CONNECT_HOST}"
-echo "Hermes:    https://${HERMES_HOST}"
-echo "Boss:      https://${BOSS_HOST}"
-echo "OpenClaw:  https://${OPENCLAW_HOST}"
-echo "Grafana:   https://${GRAFANA_HOST}"
-echo "Auth user: ${AUTH_USER}"
-echo "Marketing: ${MARKETING_URL}"
+echo "Funnel:     https://${DOMAIN}  https://${WWW_HOST}"
+echo "Login:      https://${LOGIN_HOST}"
+echo "Connect:    https://${CONNECT_HOST}"
+echo "Boss:       https://${BOSS_HOST}  (Hermes CEO)"
+echo "Paperclip:  https://${PAPERCLIP_HOST}"
+echo "Legacy:     https://${HERMES_LEGACY_HOST} → ${BOSS_HOST}"
+echo "OpenClaw:   https://${OPENCLAW_HOST}"
+echo "Grafana:    https://${GRAFANA_HOST}"
+echo "Arcade:     https://${ARCADE_HOST}"
+echo "Auth user:  ${AUTH_USER}"
+echo "Marketing:  ${MARKETING_URL}"
 echo "DNS A records must point at this VPS before certs issue."
+echo "For Authelia SSO: bash scripts/cutover-boss-paperclip-domains.sh"

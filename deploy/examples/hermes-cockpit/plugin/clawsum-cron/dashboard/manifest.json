@@ -1,0 +1,11 @@
+{
+  "name": "clawsum-cron",
+  "label": "Cron",
+  "description": "Clawsum host crontab — live scheduled jobs",
+  "icon": "Clock",
+  "version": "1.4.1",
+  "tab": { "path": "/cron", "override": "/cron", "position": "after:skills" },
+  "slots": [],
+  "entry": "dist/index.js",
+  "css": "dist/style.css"
+}

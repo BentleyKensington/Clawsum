@@ -54,6 +54,14 @@ HERMES_HOST=hermes.yourdomain.com bash /docker/clawsum/scripts/setup-ops-portal-
 
 Never expose `:9119` on `0.0.0.0` without Traefik auth.
 
+**Keepalive (required):** `hermes dashboard` ≠ `hermes gateway`. Dashboard start must also start the gateway. Install:
+
+```bash
+bash /docker/clawsum/scripts/install-hermes-keepalive-cron.sh
+```
+
+That cron (`/etc/cron.d/clawsum-hermes-dashboard`, every 2 min) + systemd `clawsum-hermes-runtime.service` (After=docker) restart both after Paperclip recreate. `hermes-config-safe.py --repair` restores `config.yaml` from `config.yaml.ok` if a write corrupts it. Do **not** clobber `config.yaml` with a full rewrite.
+
 **Clawsum cockpit skin:** theme + plugin overlay — see [../examples/hermes-cockpit/README.md](../examples/hermes-cockpit/README.md) and `bash scripts/install-hermes-cockpit.sh`.
 
 ---

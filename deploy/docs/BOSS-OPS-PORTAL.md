@@ -2,9 +2,9 @@
 
 One secure HTTPS entry for **Hermes UI** (CEO chat), **Boss UI**, **OpenClaw Control UI**, and **Grafana** — without exposing Postgres, Prometheus, or raw gateway ports.
 
-**Primary browser face (preferred):** Hermes UI at `hermes.${DOMAIN}` — see [CEO-COCKPIT.md](./CEO-COCKPIT.md) and [HERMES-POLICY.md](./HERMES-POLICY.md).
+**Primary browser face:** Hermes UI at `boss.clawsum.com` — see [CEO-COCKPIT.md](./CEO-COCKPIT.md) and [HERMES-POLICY.md](./HERMES-POLICY.md).
 
-**Paperclip Boss UI** remains the task / approval control plane. **Clawsum Hermes** (assignee) is still headless via OpenClaw (`paperclip:hermes`) for long jobs only.
+**Paperclip** (`paperclip.clawsum.com`) remains the task / approval control plane. **Clawsum Hermes** (assignee) is still headless via OpenClaw (`paperclip:hermes`) for long jobs only.
 
 ---
 
@@ -44,20 +44,20 @@ Pick one:
 
 | Method | Best for | One login? |
 |--------|----------|------------|
-| **Traefik basic auth** | Fastest; Boss-only team | Same password per subdomain (one prompt each) |
+| **Traefik basic auth** | Fastest; Boss-only team | **One wall** — `boss` / `BOSS_OPS_AUTH_PASSWORD` on all ops hosts |
 | **Authelia** | Email + 2FA; production | Yes — session cookie across subdomains |
 | **Cloudflare Access** | No VPS auth service | Yes — at Cloudflare edge |
 
-Use `deploy/scripts/setup-ops-portal-traefik.sh` for **basic auth** (Tier 1).
+Use `deploy/scripts/setup-clawsum-domains.sh` (or `unify-ops-single-login.sh`) for **basic auth** (Tier 1). Grafana password is synced to the same ops password; auth-proxy auto-logs you in via `X-Forwarded-User`.
 
 ### Layer 2 — App auth (inside the wall)
 
 | App | What Boss still does |
 |-----|----------------------|
-| **Hermes UI** | Chat as JARVIS; do not paste secrets into chat |
-| **Boss UI** | Sign in with Paperclip user. Set `PAPERCLIP_PUBLIC_URL=https://boss…` |
-| **OpenClaw** | With **trusted-proxy**: no gateway token. Without: paste `OPENCLAW_GATEWAY_TOKEN` once |
-| **Grafana** | `admin` + `GRAFANA_ADMIN_PASSWORD` unless auth proxy |
+| **Hermes UI** | No second password (inner basic_auth off). Chat as JARVIS; do not paste secrets |
+| **Boss UI** | `PAPERCLIP_DEPLOYMENT_MODE=local_trusted` — no second Paperclip login behind Traefik |
+| **OpenClaw** | Trusted-proxy + `X-Forwarded-User` — no gateway token paste |
+| **Grafana** | Auth proxy on — no Grafana form; same Traefik `boss` password only |
 
 ---
 
@@ -130,17 +130,24 @@ Browser order: **Hermes** (chat) → **Boss** (CLA-41 / tasks) → **Grafana** (
 
 ---
 
-## Production: Authelia (single sign-on)
+## Production: Authelia (single sign-on) — **live**
 
-For one login across all subdomains:
+One login across ops subdomains (no basic-auth prompt per hop):
 
-1. Deploy [Authelia](https://www.authelia.com/) on the VPS (or use Cloudflare Access).
-2. Replace `boss-ops-auth` basic auth middleware with `forwardAuth` → Authelia.
-3. Authelia sets `Remote-User` → Traefik copies to `X-Forwarded-User`.
-4. Run `patch-control-ui-trusted-proxy.py`.
-5. Configure Paperclip Better Auth separately — or rely on Traefik + `local_trusted` if threat model allows.
+```bash
+# On VPS (after DNS A for auth.clawsum.com → VPS IP)
+bash /docker/clawsum/scripts/setup-authelia.sh
+```
 
-Authelia is **not** in compose today; treat as instance overlay when you outgrow basic auth.
+| Piece | Where |
+|-------|--------|
+| Authelia | `/docker/authelia` — `http://127.0.0.1:9091`, portal `https://auth.clawsum.com` |
+| Users | file DB; user `boss` = `BOSS_OPS_AUTH_PASSWORD` |
+| Traefik | `clawsum-ops-auth` = `forwardAuth` → `/api/authz/forward-auth` |
+| Cookie | `clawsum_session` domain `.clawsum.com` — 14d / 3d inactivity |
+| Marketing | `clawsum.com` / `www` stay `bypass` (public) |
+
+Login once at Authelia (or any ops host redirect), then hermes / boss / grafana / login share the cookie. Grafana still gets `X-Forwarded-User: boss` from the outer wall path where configured.
 
 ---
 

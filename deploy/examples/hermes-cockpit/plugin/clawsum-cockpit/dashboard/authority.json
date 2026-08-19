@@ -1,0 +1,1838 @@
+{
+  "source": "sync-cockpit-authority.py + deploy/skills/*/SKILL.md",
+  "agents": [
+    {
+      "id": "admin",
+      "name": "Clawsum Admin",
+      "cells": [
+        "clawsum-platform",
+        "personal-admin"
+      ],
+      "domains": "Brief, inbox, approvals, reminders",
+      "blurb": "Command liaison."
+    },
+    {
+      "id": "hermes",
+      "name": "Clawsum",
+      "cells": [
+        "clawsum-platform",
+        "personal-admin"
+      ],
+      "domains": "CEO face, daily alerts, archive",
+      "blurb": "Jarvis \u2014 talks, alerts, escalates."
+    },
+    {
+      "id": "paperclip",
+      "name": "Clawsum Paperclip",
+      "cells": [
+        "clawsum-platform"
+      ],
+      "domains": "Board hygiene",
+      "blurb": "Tasks and gates."
+    },
+    {
+      "id": "coding",
+      "name": "Clawsum Coding",
+      "cells": [
+        "clawsum-platform",
+        "hardware-local-ai",
+        "vocalitic"
+      ],
+      "domains": "VPS, cockpit, OpenClaw",
+      "blurb": "Platform engineer."
+    },
+    {
+      "id": "data",
+      "name": "Clawsum Data",
+      "cells": [
+        "clawsum-platform"
+      ],
+      "domains": "Postgres, ETL, scraper, OSINT, Graphify",
+      "blurb": "Data plane + collection tools."
+    },
+    {
+      "id": "ghl",
+      "name": "Clawsum GHL",
+      "cells": [
+        "wnn-client"
+      ],
+      "domains": "CRM pipelines",
+      "blurb": "GoHighLevel ops."
+    },
+    {
+      "id": "realestate",
+      "name": "Clawsum RE",
+      "cells": [
+        "real-estate",
+        "roofing-os"
+      ],
+      "domains": "Deals, storm intel",
+      "blurb": "RE + roofing research."
+    },
+    {
+      "id": "comms",
+      "name": "Clawsum Comms",
+      "cells": [
+        "acceptai-fastbuy"
+      ],
+      "domains": "Outbound drafts",
+      "blurb": "Drafts only; send Tier 2."
+    },
+    {
+      "id": "research",
+      "name": "Clawsum Research",
+      "cells": [
+        "*"
+      ],
+      "domains": "Competitive briefs",
+      "blurb": "Read-heavy research."
+    },
+    {
+      "id": "planning",
+      "name": "Clawsum Planning",
+      "cells": [
+        "techtasia",
+        "clawsum-platform"
+      ],
+      "domains": "Roadmap",
+      "blurb": "Priorities and cells."
+    },
+    {
+      "id": "media",
+      "name": "Clawsum Media",
+      "cells": [
+        "media-production",
+        "hardware-local-ai"
+      ],
+      "domains": "Studio render/publish",
+      "blurb": "Video factory; publish Tier 2."
+    },
+    {
+      "id": "pentest",
+      "name": "Clawsum Pentest",
+      "cells": [
+        "clawsum-platform"
+      ],
+      "domains": "Defensive security",
+      "blurb": "Scans and reports; no exploits."
+    },
+    {
+      "id": "legal",
+      "name": "Clawsum Legal",
+      "cells": [
+        "clawsum-platform",
+        "personal-admin"
+      ],
+      "domains": "Contracts, terms, privilege",
+      "blurb": "Draft/review only; file/sign Tier 3."
+    },
+    {
+      "id": "content",
+      "name": "Clawsum Content",
+      "cells": [
+        "media-production",
+        "clawsum-platform"
+      ],
+      "domains": "Repurpose longform \u2192 shorts/posts",
+      "blurb": "Cuts and drafts; post via Social."
+    },
+    {
+      "id": "ads",
+      "name": "Clawsum Ads",
+      "cells": [
+        "acceptai-fastbuy",
+        "wnn-client"
+      ],
+      "domains": "PPC / paid media",
+      "blurb": "Budgets and ads; spend Tier 2."
+    },
+    {
+      "id": "bookkeeper",
+      "name": "Clawsum Bookkeeper",
+      "cells": [
+        "clawsum-platform",
+        "personal-admin"
+      ],
+      "domains": "Books, invoices, receipts",
+      "blurb": "Ledger hygiene; pay/wire Tier 3."
+    },
+    {
+      "id": "seo",
+      "name": "Clawsum SEO",
+      "cells": [
+        "clawsum-platform",
+        "media-production"
+      ],
+      "domains": "SEO/AEO/GEO, GSC, GMB, knowledge panel",
+      "blurb": "Rankings and entities."
+    },
+    {
+      "id": "funnel",
+      "name": "Clawsum Funnel",
+      "cells": [
+        "clawsum-platform",
+        "acceptai-fastbuy"
+      ],
+      "domains": "Offers, pages, CRO",
+      "blurb": "Funnel builder."
+    },
+    {
+      "id": "calendar",
+      "name": "Clawsum Calendar",
+      "cells": [
+        "personal-admin",
+        "clawsum-platform"
+      ],
+      "domains": "Scheduling across cells",
+      "blurb": "Holds and invites; send Tier 2."
+    },
+    {
+      "id": "social",
+      "name": "Clawsum Social",
+      "cells": [
+        "media-production",
+        "clawsum-platform"
+      ],
+      "domains": "Post, schedule, reply",
+      "blurb": "Public voice; post/reply Tier 2."
+    },
+    {
+      "id": "llm-lab",
+      "name": "Clawsum LLM Lab",
+      "cells": [
+        "clawsum-platform"
+      ],
+      "domains": "Model bake-offs + weekly vendor watch",
+      "blurb": "Tests and compares LLMs; no silent spend."
+    },
+    {
+      "id": "closebot",
+      "name": "CloseBot",
+      "cells": [
+        "wnn-client"
+      ],
+      "domains": "CloseBot agency API",
+      "blurb": "Leads/bots; send = Tier 2."
+    },
+    {
+      "id": "printful",
+      "name": "Printful",
+      "cells": [
+        "acceptai-fastbuy"
+      ],
+      "domains": "Printful catalog / fulfill",
+      "blurb": "Live catalog = Tier 2."
+    },
+    {
+      "id": "shopify",
+      "name": "Shopify",
+      "cells": [
+        "acceptai-fastbuy"
+      ],
+      "domains": "Shopify admin",
+      "blurb": "Theme/payments = Tier 2."
+    },
+    {
+      "id": "acceptai",
+      "name": "AcceptAI",
+      "cells": [
+        "acceptai-fastbuy"
+      ],
+      "domains": "AcceptAI product runtime",
+      "blurb": "SSH/API; deploy = Tier 2."
+    },
+    {
+      "id": "vocalitic",
+      "name": "Vocalitic",
+      "cells": [
+        "vocalitic",
+        "hardware-local-ai"
+      ],
+      "domains": "Vocalitic product",
+      "blurb": "v1m12 + SSH; deploy = Tier 2."
+    },
+    {
+      "id": "vapi",
+      "name": "VAPI",
+      "cells": [
+        "vocalitic",
+        "clawsum-platform"
+      ],
+      "domains": "VAPI org",
+      "blurb": "Outbound/buy number = Tier 2."
+    },
+    {
+      "id": "sellthebizfast",
+      "name": "SellTheBizFast",
+      "cells": [
+        "sellthebizfast"
+      ],
+      "domains": "Buy-side acquisitions",
+      "blurb": "Outbound/LOI gated."
+    },
+    {
+      "id": "rocco",
+      "name": "Rocco Secure",
+      "cells": [
+        "clawsum-platform"
+      ],
+      "domains": "Sentry + official Ring",
+      "blurb": "No exploits; Ring official API only."
+    }
+  ],
+  "skills": [
+    {
+      "id": "acceptai-product-ops",
+      "agents": [
+        "acceptai",
+        "coding",
+        "comms"
+      ],
+      "cells": [
+        "acceptai-fastbuy"
+      ],
+      "tier": 1,
+      "credentials": [
+        "ACCEPTAI_SSH_*",
+        "ACCEPTAI_API_*",
+        "ACCEPTAI_CODEBASE_PATH"
+      ],
+      "description": "Operate AcceptAI / FastBuy as a product \u2014 codebase + SSH/API; recommend changes for approval. Not bulk ads or refunds."
+    },
+    {
+      "id": "agent-daily-review",
+      "agents": [
+        "hermes",
+        "admin",
+        "planning"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 1,
+      "credentials": [
+        "PAPERCLIP_*",
+        "POSTGRES_*"
+      ],
+      "description": "Each agent reviews memory, tasks, research; suggests skills; feeds morning brief."
+    },
+    {
+      "id": "audit-log-review",
+      "agents": [
+        "admin",
+        "paperclip"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 0,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "Reviews ops.audit_logs and approval history for governed actions. Use for compliance spot-checks or incident reconstruction."
+    },
+    {
+      "id": "bookkeeper-ledger",
+      "agents": [
+        "bookkeeper",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 0,
+      "credentials": [],
+      "description": "Invoices, receipts, books. Pay/wire = Tier 3."
+    },
+    {
+      "id": "browser-research-deep",
+      "agents": [
+        "research",
+        "llm-lab",
+        "sellthebizfast",
+        "hermes"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 0,
+      "credentials": [
+        "OPENROUTER_*",
+        "OPENAI_*"
+      ],
+      "description": "Deep research with OpenClaw browser + cheap LLM first; escalate to research/frontier models only when the cheap pass is thin or Boss says escalate."
+    },
+    {
+      "id": "calendar-ops",
+      "agents": [
+        "calendar",
+        "admin"
+      ],
+      "cells": [
+        "personal-admin",
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [],
+      "description": "Holds and scheduling. Invite send = Tier 2."
+    },
+    {
+      "id": "cell-isolation-check",
+      "agents": [
+        "admin",
+        "coding",
+        "planning"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 0,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "Verifies business cell boundaries \u2014 credentials, memory namespaces, and cross-cell leakage. Use before enabling a cell agent or after adding a new business."
+    },
+    {
+      "id": "ceo-daily-brief",
+      "agents": [
+        "admin",
+        "hermes",
+        "paperclip"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 0,
+      "credentials": [
+        "PAPERCLIP_*",
+        "POSTGRES_*",
+        "TELEGRAM_*"
+      ],
+      "description": "Builds the CEO morning brief from Paperclip, approvals, inbox heat, and reminders. Use when Boss asks for daily brief, 7am report context, or overwatch priorities."
+    },
+    {
+      "id": "chatgpt-archive",
+      "agents": [
+        "admin",
+        "data",
+        "hermes"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "personal-admin"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*"
+      ],
+      "description": "Imports ChatGPT exports, classifies personal vs business, links Paperclip issues, and builds proactive briefs. Use for Gerald history archive \u2014 never dump into Hermes memory."
+    },
+    {
+      "id": "clawsum-com-funnel",
+      "agents": [
+        "coding",
+        "comms",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "SSH",
+        "VPS",
+        "PORKBUN_*"
+      ],
+      "description": "Updates and deploys clawsum.com marketing funnel, Founding Operator offer, logos, and SEO assets. Use for site copy, pricing, or marketing publish."
+    },
+    {
+      "id": "closebot-api-operator",
+      "agents": [
+        "closebot",
+        "ghl",
+        "admin"
+      ],
+      "cells": [
+        "wnn-client"
+      ],
+      "tier": 1,
+      "credentials": [
+        "CLOSEBOT_API_KEY"
+      ],
+      "description": "Operate CloseBot agency via REST (X-CB-KEY). List bots, sources, leads, metrics. Send/publish/billing = Tier 2."
+    },
+    {
+      "id": "cockpit-hud",
+      "agents": [
+        "coding",
+        "hermes",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [],
+      "description": "CEO cockpit HUD \u2014 gauges, marquee, live tiles."
+    },
+    {
+      "id": "commerce-fastbuy",
+      "agents": [
+        "comms",
+        "planning",
+        "admin"
+      ],
+      "cells": [
+        "acceptai-fastbuy"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "Summarizes AcceptAI / FastBuy funnel and draft customer communications. Use for commerce cell reporting \u2014 not bulk refunds."
+    },
+    {
+      "id": "content-daily-factory",
+      "agents": [
+        "content",
+        "media",
+        "research",
+        "social",
+        "hermes"
+      ],
+      "cells": [
+        "media-production"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*",
+        "FFMPEG_BIN"
+      ],
+      "description": "Daily evergreen production \u2014 seed one idea, pack, produce, queue for Social. Use for the morning factory cron or \"run today's content\"."
+    },
+    {
+      "id": "content-evergreen-research",
+      "agents": [
+        "research",
+        "content",
+        "hermes",
+        "media"
+      ],
+      "cells": [
+        "media-production"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*",
+        "LLM"
+      ],
+      "description": "Turns a seed (Boss or daily bank) into a clever evergreen angle using trend signals that will still work next year. Does not publish."
+    },
+    {
+      "id": "content-idea-intake",
+      "agents": [
+        "hermes",
+        "content",
+        "research",
+        "admin"
+      ],
+      "cells": [
+        "media-production",
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*"
+      ],
+      "description": "Capture a Boss or Hermes idea into the evergreen content factory. Use when Gerald sends a topic, hook, or \"make content about\u2026\"."
+    },
+    {
+      "id": "content-pack",
+      "agents": [
+        "content",
+        "research",
+        "media",
+        "hermes"
+      ],
+      "cells": [
+        "media-production"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*"
+      ],
+      "description": "Builds the full creative pack \u2014 topic, flyer copy, image prompts, social story, production script, SEO titles. Use after research."
+    },
+    {
+      "id": "content-produce",
+      "agents": [
+        "media",
+        "content"
+      ],
+      "cells": [
+        "media-production",
+        "hardware-local-ai"
+      ],
+      "tier": 1,
+      "credentials": [
+        "FFMPEG_BIN",
+        "MINIO_*",
+        "POSTGRES_*"
+      ],
+      "description": "Renders flyer card, first-frame, thumbnail, and draft Shorts video from a content pack. Use after content-pack."
+    },
+    {
+      "id": "content-repurpose",
+      "agents": [
+        "content",
+        "media"
+      ],
+      "cells": [
+        "media-production"
+      ],
+      "tier": 1,
+      "credentials": [
+        "MINIO_*",
+        "PAPERCLIP_*",
+        "FFMPEG_BIN"
+      ],
+      "description": "Cuts a long-form asset into extra shorts/posts for the content factory. Use after a master video or transcript exists."
+    },
+    {
+      "id": "credential-hygiene",
+      "agents": [
+        "admin",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 0,
+      "credentials": [],
+      "description": "Audits credential exposure, rotation needs, and secret-handling rules across cells. Use after paste incidents, onboarding, or security review."
+    },
+    {
+      "id": "data-chat-extract",
+      "agents": [
+        "data",
+        "hermes"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "Pull durable facts from chat/archive into memory (skip personal)."
+    },
+    {
+      "id": "data-osint",
+      "agents": [
+        "data",
+        "pentest"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 0,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "OSINT + global monitoring; extract pertinent public details."
+    },
+    {
+      "id": "data-scraper",
+      "agents": [
+        "data"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "BRIGHTDATA_*",
+        "POSTGRES_*"
+      ],
+      "description": "Run the in-house scraper as a Data tool \u2014 not its own agent."
+    },
+    {
+      "id": "deepgram-voice-eval",
+      "agents": [
+        "llm-lab",
+        "vocalitic",
+        "vapi",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "vocalitic"
+      ],
+      "tier": 1,
+      "credentials": [
+        "DEEPGRAM_*",
+        "ELEVENLABS_*",
+        "OPENAI_*",
+        "VAPI_*"
+      ],
+      "description": "Compare Deepgram Flux STT/TTS vs Nova, Aura, ElevenLabs, OpenAI TTS for Vocalitic/VAPI. Hosted API first; no unofficial RE."
+    },
+    {
+      "id": "discord-hq",
+      "agents": [
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [],
+      "description": ""
+    },
+    {
+      "id": "domain-traefik-ops",
+      "agents": [
+        "coding",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "PORKBUN_*",
+        "BOSS_OPS_*",
+        "TRAEFIK"
+      ],
+      "description": "Manages clawsum.com DNS map and Traefik routes for marketing and ops hosts. Use for subdomain setup, auth wall, or marketing publish routing."
+    },
+    {
+      "id": "draft-comms-approval-gated",
+      "agents": [
+        "comms",
+        "ghl",
+        "admin",
+        "hermes"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 1,
+      "credentials": [],
+      "description": "Drafts email/SMS/outreach for a cell and stops before send pending Gerald approval. Use whenever outbound messaging is requested."
+    },
+    {
+      "id": "funnel-builder",
+      "agents": [
+        "funnel",
+        "comms",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "SSH"
+      ],
+      "description": "Offers, landing pages, CRO. Prod publish = Tier 2."
+    },
+    {
+      "id": "ghl-lead-ops",
+      "agents": [
+        "ghl",
+        "admin"
+      ],
+      "cells": [
+        "wnn-client"
+      ],
+      "tier": 1,
+      "credentials": [
+        "GHL_*",
+        "POSTGRES_*"
+      ],
+      "description": "GHL CRM lead qualify, conversation review, and pipeline reads for a single business cell. Use for WNN or instance GHL accounts \u2014 never cross-location."
+    },
+    {
+      "id": "ghl-reengage",
+      "agents": [
+        "ghl",
+        "admin"
+      ],
+      "cells": [
+        "wnn-client"
+      ],
+      "tier": 1,
+      "credentials": [
+        "GHL_*"
+      ],
+      "description": "Summarizes and executes re-engage lists from REENGAGE.md for GHL contacts. Use when Boss asks for re-engage summary or follow-up batch."
+    },
+    {
+      "id": "ghl-weekly-rei-report",
+      "agents": [
+        "ghl",
+        "admin"
+      ],
+      "cells": [
+        "wnn-client"
+      ],
+      "tier": 1,
+      "credentials": [
+        "GHL_*",
+        "POSTGRES_*"
+      ],
+      "description": "Nightly REI ops report for GHL MCO and Avenou (AVE). Audit at 22:00 Chicago; digest sent 07:30. Use when Boss asks for daily/weekly GHL report or cron install."
+    },
+    {
+      "id": "gmail-inbox-review",
+      "agents": [
+        "admin",
+        "hermes",
+        "data"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "personal-admin"
+      ],
+      "tier": 1,
+      "credentials": [
+        "GMAIL_*",
+        "POSTGRES_*",
+        "PAPERCLIP_COMPANY_ID"
+      ],
+      "description": "Reviews every clawsums@gmail.com message with per-email analysis, cell/person linking, local tasks, and Boss questions. Use for inbox review, email triage reports, or CRM from mail."
+    },
+    {
+      "id": "gmail-sync-triage",
+      "agents": [
+        "admin",
+        "data"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "GMAIL_*",
+        "POSTGRES_*",
+        "PAPERCLIP_*",
+        "OPENAI_API_KEY"
+      ],
+      "description": "Syncs Gmail API into ops.emails and classifies pending messages into Paperclip tasks by domain. Use for cron repair, backfill, or triage backlog."
+    },
+    {
+      "id": "google-photos-picker",
+      "agents": [
+        "printful",
+        "media",
+        "shopify",
+        "admin"
+      ],
+      "cells": [
+        "media-production",
+        "acceptai-fastbuy",
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "GMAIL_*",
+        "GOG_*",
+        "GOOGLE_PHOTOS_ACCOUNT"
+      ],
+      "description": "Let Gerald pick photos from clawsums@gmail.com via Google Photos Picker API. No full-library sync."
+    },
+    {
+      "id": "grafana-health",
+      "agents": [
+        "admin",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "hardware-local-ai",
+        "vocalitic"
+      ],
+      "tier": 0,
+      "credentials": [
+        "GRAFANA_*",
+        "CLAWSUM_GRAFANA_*"
+      ],
+      "description": "Checks Grafana/Prometheus health and prepares CEO-readable uptime summaries. Use for server health, embed URLs, or incident triage."
+    },
+    {
+      "id": "graphify-obsidian",
+      "agents": [
+        "data",
+        "research",
+        "hermes"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "ARCADEDB_*"
+      ],
+      "description": "Graphify / 3D Obsidian memory visualizer."
+    },
+    {
+      "id": "hardware-local-ai",
+      "agents": [
+        "coding",
+        "admin",
+        "media"
+      ],
+      "cells": [
+        "hardware-local-ai",
+        "vocalitic"
+      ],
+      "tier": 0,
+      "credentials": [],
+      "description": "Diagnostics for local GPU / model servers supporting Vocalitic and local inference. Use for VRAM, uptime, Ollama/vLLM issues."
+    },
+    {
+      "id": "hermes-cockpit-install",
+      "agents": [
+        "coding",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "OPENCLAW_*",
+        "P",
+        "POSTGRES_*"
+      ],
+      "description": "Installs Clawsum Hermes theme, cockpit plugin, and SOUL proactive instructions. Use when setting up or refreshing the CEO Hermes UI face."
+    },
+    {
+      "id": "hermes-daily-alert",
+      "agents": [
+        "hermes",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "TELEGRAM_*",
+        "DISCORD_*",
+        "POSTGRES_*"
+      ],
+      "description": "Hermes daily sweep \u2014 money saved, leverage, must-know alerts."
+    },
+    {
+      "id": "hermes-proactive-drive",
+      "agents": [
+        "hermes",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "personal-admin"
+      ],
+      "tier": 1,
+      "credentials": [
+        "PAPERCLIP_*",
+        "POSTGRES_*"
+      ],
+      "description": "Instructs Hermes to read Paperclip tasks, link archive/inbox items, infer intent, and ask one sharp clarifying question per stuck item. Use for JARVIS proactive sessions."
+    },
+    {
+      "id": "inbound-adopt-evaluate",
+      "agents": [
+        "research",
+        "planning",
+        "hermes",
+        "admin",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "techtasia"
+      ],
+      "tier": 1,
+      "credentials": [
+        "OPENAI_*",
+        "POSTGRES_*",
+        "PAPERCLIP_API"
+      ],
+      "description": "Evaluate inbound email, repos, mockups, and tools for Clawsum adoption. Compare layer-by-layer (UI vs board vs runtime vs skill factory). Never dismiss useful overlap."
+    },
+    {
+      "id": "legal-review",
+      "agents": [
+        "legal",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 0,
+      "credentials": [],
+      "description": "Contract/terms review. File/sign = Tier 3."
+    },
+    {
+      "id": "llm-compare",
+      "agents": [
+        "llm-lab",
+        "coding",
+        "research"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "OPENAI_*",
+        "OPENROUTER_*"
+      ],
+      "description": "Bake-off models on a frozen prompt set; write scorecard. Paid eval = notify Boss."
+    },
+    {
+      "id": "llm-free-vs-paid",
+      "agents": [
+        "llm-lab",
+        "hermes",
+        "coding",
+        "research"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "OPENROUTER_*",
+        "OPENAI_*"
+      ],
+      "description": "Choose free/cheap vs paid frontier for a task. Default cheap; paid only on escalate, llm:frontier, or provider failure."
+    },
+    {
+      "id": "llm-research-watch",
+      "agents": [
+        "llm-lab",
+        "research",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "OPENROUTER_*",
+        "NVIDIA_NIM_*",
+        "DEEPGRAM_*"
+      ],
+      "description": "Weekly or on-demand scan of OpenRouter free models, NVIDIA NIM, Deepgram Flux/TTS, and other releases that change Clawsum routing."
+    },
+    {
+      "id": "media-generative-broll",
+      "agents": [
+        "media"
+      ],
+      "cells": [
+        "media-production",
+        "hardware-local-ai"
+      ],
+      "tier": 1,
+      "credentials": [
+        "COMFY_*",
+        "MINIO_*"
+      ],
+      "description": "Generates B-roll, thumbnails, intros via ComfyUI / Velorn (local). Use when source footage is thin or thumbnails are needed."
+    },
+    {
+      "id": "media-ingest-watch",
+      "agents": [
+        "media",
+        "coding"
+      ],
+      "cells": [
+        "media-production",
+        "hardware-local-ai"
+      ],
+      "tier": 1,
+      "credentials": [
+        "MINIO_*",
+        "POSTGRES_*",
+        "YTDLP_*",
+        "FFMPEG_BIN"
+      ],
+      "description": "Detects and ingests new local folders, NAS drops, and webhosted video/audio URLs into MinIO with Postgres index. Use for Media Phase 0 intake."
+    },
+    {
+      "id": "media-longform-resolve",
+      "agents": [
+        "media"
+      ],
+      "cells": [
+        "media-production",
+        "hardware-local-ai"
+      ],
+      "tier": 1,
+      "credentials": [
+        "RESOLVE_*",
+        "FFMPEG_BIN",
+        "MINIO_*"
+      ],
+      "description": "Polishes long-form projects in DaVinci Resolve Studio (scripting/dvr MCP) with FFmpeg deliverables. Use for flagship episodes after Shorts drafts or instead of Shorts-only."
+    },
+    {
+      "id": "media-package-seo",
+      "agents": [
+        "media",
+        "research",
+        "hermes"
+      ],
+      "cells": [
+        "media-production"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*",
+        "LLM"
+      ],
+      "description": "Builds chapters, titles, descriptions, tags, FAQ/schema, show notes, and social copy packs from transcripts for SEO/AEO/GEO. Use after transcription."
+    },
+    {
+      "id": "media-publish",
+      "agents": [
+        "media",
+        "admin"
+      ],
+      "cells": [
+        "media-production"
+      ],
+      "tier": 1,
+      "credentials": [
+        "YOUTUBE_*",
+        "PAPERCLIP_*",
+        "POSTGRES_*"
+      ],
+      "description": "Publishes or schedules ready media packages to YouTube (and other platforms when APIs approved). Always approval-gated like outbound send."
+    },
+    {
+      "id": "media-shorts-factory",
+      "agents": [
+        "media"
+      ],
+      "cells": [
+        "media-production",
+        "hardware-local-ai"
+      ],
+      "tier": 1,
+      "credentials": [
+        "FFMPEG_BIN",
+        "WHISPER_*",
+        "MINIO_*"
+      ],
+      "description": "Cuts short-form clips with auto-editor and FFmpeg (crop, captions, NVENC). Optional Cut/Storm UI. Use after media-package-seo hook list exists."
+    },
+    {
+      "id": "media-transcribe",
+      "agents": [
+        "media"
+      ],
+      "cells": [
+        "media-production",
+        "hardware-local-ai"
+      ],
+      "tier": 1,
+      "credentials": [
+        "WHISPER_*",
+        "MINIO_*",
+        "POSTGRES_*"
+      ],
+      "description": "Transcribes ingested media with Faster Whisper, writing word-level timestamps and searchable text. Use after media-ingest-watch."
+    },
+    {
+      "id": "media-trends-brief",
+      "agents": [
+        "media",
+        "research",
+        "hermes"
+      ],
+      "cells": [
+        "media-production"
+      ],
+      "tier": 0,
+      "credentials": [
+        "LLM"
+      ],
+      "description": "Researches niche video/audio trends and formats for social + AEO/GEO visibility. Use when Boss or Hermes wants trend signals without auto-publishing."
+    },
+    {
+      "id": "minio-archive-store",
+      "agents": [
+        "data",
+        "coding",
+        "admin",
+        "media"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "media-production"
+      ],
+      "tier": 1,
+      "credentials": [
+        "MINIO_*",
+        "POSTGRES_*"
+      ],
+      "description": "Stores large ChatGPT exports and email attachments in MinIO with keys recorded in Postgres. Use when raw archives must not live only on local disk."
+    },
+    {
+      "id": "openclaw-agent-config",
+      "agents": [
+        "coding",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "OPENCLAW_*",
+        "GOG_*",
+        "GMAIL_*"
+      ],
+      "description": "Configures OpenClaw gateway agents, skills (e.g. gog), and session bindings for Paperclip assignees. Use when wiring agents or enabling Gmail tools in Control UI."
+    },
+    {
+      "id": "overwatch-approvals",
+      "agents": [
+        "admin",
+        "paperclip",
+        "hermes"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 0,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "Create and decide risk-tiered ops.approvals for governed actions. Use when an agent needs Gerald approval before send, deploy, spend, or credential change."
+    },
+    {
+      "id": "paperclip-task-routing",
+      "agents": [
+        "admin",
+        "paperclip",
+        "hermes",
+        "planning"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 1,
+      "credentials": [
+        "PAPERCLIP_API",
+        "PAPERCLIP_COMPANY_ID"
+      ],
+      "description": "Creates and assigns Paperclip issues to the correct cell agent with acceptance criteria. Use when Hermes or Admin turns intent into governed work."
+    },
+    {
+      "id": "pentest-notify",
+      "agents": [
+        "pentest",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "DISCORD_*",
+        "TELEGRAM_*",
+        "NOTIFY_CHANNELS"
+      ],
+      "description": "Notify Boss on security events and High/Critical pentest findings via Discord/Telegram dual-write."
+    },
+    {
+      "id": "pentest-report",
+      "agents": [
+        "pentest",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*",
+        "MINIO_*"
+      ],
+      "description": "Write structured Clawsum security findings reports to disk, Postgres notes, and Paperclip comments."
+    },
+    {
+      "id": "pentest-surface-scan",
+      "agents": [
+        "pentest",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*",
+        "GRAFANA_*"
+      ],
+      "description": "Read-only security surface scan of Clawsum edge, agent API paths, chat plugins, MinIO, and backup signals. Produces findings; does not exploit."
+    },
+    {
+      "id": "pentest-threat-model",
+      "agents": [
+        "pentest",
+        "admin",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 0,
+      "credentials": [
+        "POSTGRES_*",
+        "PAPERCLIP_*"
+      ],
+      "description": "Maintain Clawsum threat register from AUTHORITY + CLAWSUM-SECURITY-QA. Use when reviewing risks or onboarding security work."
+    },
+    {
+      "id": "people-places-crm",
+      "agents": [
+        "admin",
+        "data"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "Seeds and maintains ops.people, ops.places, and person_places linked to business cells. Use when onboarding contacts from email or mapping offices/regions."
+    },
+    {
+      "id": "personal-admin",
+      "agents": [
+        "admin",
+        "hermes"
+      ],
+      "cells": [
+        "personal-admin"
+      ],
+      "tier": 1,
+      "credentials": [
+        "GMAIL_*",
+        "POSTGRES_*"
+      ],
+      "description": "Handles Gerald personal-admin cell work \u2014 calendar summaries, personal inbox flags, private reminders \u2014 never mixed into client CRM agents."
+    },
+    {
+      "id": "postgres-ops-schema",
+      "agents": [
+        "coding",
+        "data",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "Applies and verifies Clawsum ops Postgres schemas (overwatch, email, reminders, archive, CRM). Use when bootstrapping DB or after new migrations."
+    },
+    {
+      "id": "ppc-ads-ops",
+      "agents": [
+        "ads",
+        "comms"
+      ],
+      "cells": [
+        "acceptai-fastbuy",
+        "wnn-client"
+      ],
+      "tier": 1,
+      "credentials": [],
+      "description": "PPC campaigns. Spend = Tier 2."
+    },
+    {
+      "id": "printful-ops",
+      "agents": [
+        "printful",
+        "shopify",
+        "media"
+      ],
+      "cells": [
+        "acceptai-fastbuy",
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "PRINTFUL_API_TOKEN"
+      ],
+      "description": "Printful catalog, orders, fulfillment via API. Live product/price changes = Tier 2. Can request Google Photos Picker for mockups."
+    },
+    {
+      "id": "product-ssh-ops",
+      "agents": [
+        "vocalitic",
+        "acceptai",
+        "coding",
+        "rocco"
+      ],
+      "cells": [
+        "vocalitic",
+        "acceptai-fastbuy",
+        "hardware-local-ai"
+      ],
+      "tier": 0,
+      "credentials": [
+        "VOCALITIC_SSH_*",
+        "ACCEPTAI_SSH_*"
+      ],
+      "description": "SSH to a product host (Vocalitic v1m12, AcceptAI) for read-only inspect. Recommend changes; do not apply without Tier 2."
+    },
+    {
+      "id": "real-estate-pipeline",
+      "agents": [
+        "realestate",
+        "research",
+        "admin"
+      ],
+      "cells": [
+        "real-estate"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "ARCADEDB_*"
+      ],
+      "description": "Reviews owned real-estate acquisition pipeline, comps, and draft outreach \u2014 non-WNN cell. Use for deal status and research briefs."
+    },
+    {
+      "id": "reminders-boss-nudge",
+      "agents": [
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "personal-admin"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "TELEGRAM_*"
+      ],
+      "description": "Manages ops.reminders and sends daily Telegram nudges until done or snoozed. Use for Boss follow-ups tied to email or tasks."
+    },
+    {
+      "id": "research-brief",
+      "agents": [
+        "research",
+        "planning",
+        "admin",
+        "hermes"
+      ],
+      "cells": [
+        "*"
+      ],
+      "tier": 0,
+      "credentials": [
+        "OPENAI_*",
+        "OPENROUTER_*"
+      ],
+      "description": "Produces competitive or market research briefs without writing to production systems. Use when Boss or Planning asks for research, competitor scans, or decision memos."
+    },
+    {
+      "id": "resume-policy-gate",
+      "agents": [
+        "admin",
+        "paperclip",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 0,
+      "credentials": [
+        "PAPERCLIP_*"
+      ],
+      "description": "Enforces Boss-paused agent resume rules after CLA-41. Use before enabling heartbeats or unpausing OpenClaw/Paperclip work."
+    },
+    {
+      "id": "rocco-ops-sentry",
+      "agents": [
+        "rocco",
+        "pentest",
+        "admin",
+        "coding"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "GRAFANA_*",
+        "DISCORD_*",
+        "TELEGRAM_*",
+        "OPENCLAW_*"
+      ],
+      "description": "Watch Clawsum health \u2014 gateway, channels, Paperclip proxy, Grafana, stuck agents, LLM spend. Notify Boss with a recommended fix. No exploits."
+    },
+    {
+      "id": "rocco-ring-official",
+      "agents": [
+        "rocco",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 0,
+      "credentials": [
+        "RING_CLIENT_ID",
+        "RING_CLIENT_SECRET",
+        "RING_REFRESH_TOKEN"
+      ],
+      "description": "Manage Gerald's Ring cameras via the official Ring Appstore / Private Use Apps API only. No reverse engineering of Ring private protocols."
+    },
+    {
+      "id": "roofing-storm-intel",
+      "agents": [
+        "realestate",
+        "research",
+        "admin"
+      ],
+      "cells": [
+        "roofing-os"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*",
+        "GHL_*"
+      ],
+      "description": "Summarizes storm / hail / lead signals for Roofing OS / CEOroof cell. Use for storm briefings and outreach draft prep."
+    },
+    {
+      "id": "sellthebizfast-buybox",
+      "agents": [
+        "sellthebizfast",
+        "research",
+        "planning"
+      ],
+      "cells": [
+        "sellthebizfast"
+      ],
+      "tier": 1,
+      "credentials": [
+        "POSTGRES_*"
+      ],
+      "description": "Score a business against the SellTheBizFast buy box (Mallien FUEL + Clawsum filters). Pass/maybe/no with reasons."
+    },
+    {
+      "id": "sellthebizfast-cim-dd",
+      "agents": [
+        "sellthebizfast",
+        "legal",
+        "comms"
+      ],
+      "cells": [
+        "sellthebizfast"
+      ],
+      "tier": 1,
+      "credentials": [],
+      "description": "Qualified-buyer language, request CIM/teaser, overview questions then trench DD. Drafts only; send and LOI = Tier 2\u20133."
+    },
+    {
+      "id": "seo-aeo-geo",
+      "agents": [
+        "seo",
+        "research"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [],
+      "description": "GSC, GMB, knowledge panel, AEO/GEO. Public change = Tier 2."
+    },
+    {
+      "id": "shopify-ops",
+      "agents": [
+        "shopify",
+        "printful",
+        "acceptai"
+      ],
+      "cells": [
+        "acceptai-fastbuy"
+      ],
+      "tier": 1,
+      "credentials": [
+        "SHOPIFY_STORE",
+        "SHOPIFY_ADMIN_TOKEN"
+      ],
+      "description": "Shopify Admin API \u2014 products, orders, inventory. Theme/payments/shipping = Tier 2."
+    },
+    {
+      "id": "skill-forge",
+      "agents": [
+        "coding",
+        "planning",
+        "admin",
+        "hermes"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "techtasia"
+      ],
+      "tier": 1,
+      "credentials": [
+        "PAPERCLIP_API"
+      ],
+      "description": "Turn a decided idea, repo, mockup, or workflow into a Clawsum skill + agent training so someone can actually execute it. Use after inbound-adopt-evaluate says adopt or steal_ideas."
+    },
+    {
+      "id": "social-posting",
+      "agents": [
+        "social",
+        "content",
+        "comms",
+        "admin"
+      ],
+      "cells": [
+        "media-production"
+      ],
+      "tier": 1,
+      "credentials": [
+        "YOUTUBE_*",
+        "META_*",
+        "TIKTOK_*",
+        "PAPERCLIP_*",
+        "POSTGRES_*"
+      ],
+      "description": "Schedule or immediately post ready content-factory packages. Always approval-gated like outbound send."
+    },
+    {
+      "id": "spec-interview",
+      "agents": [
+        "hermes",
+        "admin",
+        "planning"
+      ],
+      "cells": [
+        "clawsum-platform",
+        "personal-admin",
+        "vocalitic",
+        "acceptai-fastbuy",
+        "sellthebizfast"
+      ],
+      "tier": 1,
+      "credentials": [
+        "PAPERCLIP_*",
+        "POSTGRES_*"
+      ],
+      "description": "Interview Boss until a spec card is complete, then open or update a Paperclip issue. Use when the ask is fuzzy, multi-agent, or missing success/owner/tier."
+    },
+    {
+      "id": "techtasia-planning",
+      "agents": [
+        "planning",
+        "admin"
+      ],
+      "cells": [
+        "techtasia"
+      ],
+      "tier": 1,
+      "credentials": [
+        "PAPERCLIP_*",
+        "POSTGRES_*"
+      ],
+      "description": "Planning and priority skills for the Techtasia cell \u2014 roadmaps, risks, approval queues. Use for Techtasia status and planning sessions."
+    },
+    {
+      "id": "telegram-ops-notify",
+      "agents": [
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "TELEGRAM_*"
+      ],
+      "description": "Sends operator notifications to Telegram (daily brief, reminders, alerts) without leaking secrets. Use for CS Ops / Boss DM delivery."
+    },
+    {
+      "id": "vapi-account-ops",
+      "agents": [
+        "vapi",
+        "vocalitic",
+        "admin"
+      ],
+      "cells": [
+        "vocalitic",
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "VAPI_API_KEY"
+      ],
+      "description": "Manage the VAPI org via REST (Bearer VAPI_API_KEY). List assistants/calls/numbers. Create, outbound, buy number = Tier 2."
+    },
+    {
+      "id": "vocalitic-health",
+      "agents": [
+        "coding",
+        "admin"
+      ],
+      "cells": [
+        "vocalitic",
+        "hardware-local-ai"
+      ],
+      "tier": 0,
+      "credentials": [
+        "POSTGRES_*",
+        "OPENCLAW_*"
+      ],
+      "description": "Diagnoses Vocalitic voice AI health \u2014 latency, SignalWire, STT/TTS/LLM errors. Use for uptime, call quality, or infra incidents on the vocalitic cell."
+    },
+    {
+      "id": "vocalitic-product-ops",
+      "agents": [
+        "vocalitic",
+        "coding",
+        "admin"
+      ],
+      "cells": [
+        "vocalitic",
+        "hardware-local-ai"
+      ],
+      "tier": 1,
+      "credentials": [
+        "VOCALITIC_SSH_*",
+        "VOCALITIC_CODEBASE_PATH",
+        "POSTGRES_*"
+      ],
+      "description": "Operate Vocalitic as a product \u2014 read v1m12 codebase, dashboard, logs via SSH; recommend changes for Boss approval."
+    },
+    {
+      "id": "vps-deploy-clawsum",
+      "agents": [
+        "coding",
+        "admin"
+      ],
+      "cells": [
+        "clawsum-platform"
+      ],
+      "tier": 1,
+      "credentials": [
+        "OPENCLAW_*",
+        "POSTGRES_*",
+        "BOSS_OPS_*",
+        "SSH"
+      ],
+      "description": "Deploys Clawsum platform updates to the reference VPS \u2014 git sync, site publish, schema apply, cockpit install. Use when shipping code or marketing to production."
+    }
+  ],
+  "tiers": {
+    "0": "Read-only / summarize \u2014 auto ok",
+    "1": "Drafts / local writes \u2014 auto ok",
+    "2": "Send / prod / spend \u2014 Boss approval",
+    "3": "Banking / wipe / rotate \u2014 human only"
+  },
+  "primary_skills": [
+    "ceo-daily-brief",
+    "agent-daily-review",
+    "hermes-daily-alert",
+    "gmail-inbox-review",
+    "overwatch-approvals"
+  ],
+  "projects": [
+    {
+      "id": "clawsum-platform",
+      "name": "Clawsum Platform",
+      "kind": "cell",
+      "blurb": "Ops + cockpit."
+    },
+    {
+      "id": "personal-admin",
+      "name": "Personal Admin",
+      "kind": "cell",
+      "blurb": "Gerald private lane."
+    },
+    {
+      "id": "wnn-client",
+      "name": "WNN / GHL",
+      "kind": "cell",
+      "blurb": "CRM."
+    },
+    {
+      "id": "real-estate",
+      "name": "Real Estate",
+      "kind": "cell",
+      "blurb": "Deals."
+    },
+    {
+      "id": "roofing-os",
+      "name": "Roofing OS",
+      "kind": "cell",
+      "blurb": "Storm intel."
+    },
+    {
+      "id": "techtasia",
+      "name": "Techtasia",
+      "kind": "cell",
+      "blurb": "Roadmap."
+    },
+    {
+      "id": "acceptai-fastbuy",
+      "name": "AcceptAI / FastBuy",
+      "kind": "cell",
+      "blurb": "Commerce."
+    },
+    {
+      "id": "vocalitic",
+      "name": "Vocalitic",
+      "kind": "cell",
+      "blurb": "Product runtime."
+    },
+    {
+      "id": "hardware-local-ai",
+      "name": "Hardware / Local AI",
+      "kind": "cell",
+      "blurb": "GPU / local models."
+    },
+    {
+      "id": "media-production",
+      "name": "Media Production",
+      "kind": "cell",
+      "blurb": "Studio."
+    },
+    {
+      "id": "sellthebizfast",
+      "name": "SellTheBizFast",
+      "kind": "cell",
+      "blurb": "Acquisitions."
+    }
+  ],
+  "agent_count": 29,
+  "skill_count": 87
+}

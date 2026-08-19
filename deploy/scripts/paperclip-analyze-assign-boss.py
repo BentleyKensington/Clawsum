@@ -114,23 +114,37 @@ def llm_analyze(env: dict, issue: dict) -> dict:
     ident = issue.get("identifier") or issue.get("id", "")[:8]
 
     system = (
-        "You triage work for Clawsum, a multi-agent ops platform. "
+        "You are Gerald's operator. Clawsum must keep improving — overlap is not "
+        "a reason to close a task. If a tool/idea is useful, compare HOW (UI vs "
+        "board vs agent runtime vs skill factory) and recommend adopt, side-by-side, "
+        "or steal-ideas. Every task MUST have an assignee. "
         "Return ONLY valid JSON with keys:\n"
         "  assignee_agent: one of "
         + json.dumps(AGENT_NAMES)
         + "\n"
         "  priority: low|medium|high|urgent\n"
+        "  take: honest 2-4 sentence opinion\n"
+        "  project_fit: which cell/project (never 'none' unless personal noise)\n"
+        "  vs_alternatives: HOW this differs from Hermes/Paperclip/OpenClaw/skills\n"
+        "  adopt_verdict: adopt|side_by_side|steal_ideas|do_the_work|skip_noise\n"
+        "  skills_needed: array of skill ids or new skills to forge\n"
         "  objective: clear 1-2 sentence goal for the assignee\n"
         "  definition_of_done: array of 2-5 concrete completion criteria\n"
-        "  boss_questions: array of 3-5 specific questions for the human Boss "
-        "(what exactly to deliver, constraints, deadline, budget, who else is involved)\n"
-        "  suggested_timeline: string (e.g. 'this week', 'by June 15', 'backlog/no rush')\n"
+        "  suggestions: array of 1-3 next moves\n"
+        "  boss_questions: array of 0-3 real decision questions only\n"
+        "  suggested_timeline: string\n"
         "  category: master_list|gmail|ops|research|other\n"
         "  llm_tier: default|cheap|frontier|coding|research|glm\n"
-        "    default=interactive Codex path; cheap/free=batch OpenRouter free tier;\n"
-        "    frontier=paid Claude/Gemini; coding=Qwen3 Coder; glm=multilingual GLM\n"
-        "Pick the specialist agent that should EXECUTE the work (not Paperclip unless orchestration)."
+        "Pick the specialist who should EXECUTE (not Paperclip unless orchestration)."
     )
+    archive_hits: list = []
+    try:
+        import clawsum_analyst
+
+        archive_hits = clawsum_analyst.consult_archive_env(env, f"{title}\n{desc}")
+    except Exception:
+        archive_hits = []
+
     user = json.dumps(
         {
             "identifier": ident,
@@ -139,8 +153,31 @@ def llm_analyze(env: dict, issue: dict) -> dict:
             "current_status": issue.get("status"),
             "is_gmail": "gmail_id:" in desc.lower() or "gmail triage" in desc.lower(),
             "delegated_from": "Delegated from" in desc,
+            "chatgpt_archive_hits": archive_hits,
         }
     )
+
+    deep = False
+    try:
+        import clawsum_analyst
+
+        deep = clawsum_analyst.needs_deep_research(f"{title}\n{desc}", None, archive_hits)
+        parsed = clawsum_analyst.chat_json(
+            env,
+            {"system_extra": system, "task": json.loads(user)},
+            model=env.get("TASK_ANALYZE_MODEL", "gpt-4o-mini"),
+            deep=deep,
+            force_top=clawsum_analyst.wants_escalate(f"{title}\n{desc}"),
+        )
+        # chat_json uses analyst SYSTEM; merge required assignee keys if missing
+        if not parsed.get("error"):
+            if parsed.get("assignee_agent") not in AGENT_NAMES:
+                # map owner_agent → Paperclip name when possible
+                owner = parsed.get("owner_agent") or parsed.get("assignee_agent")
+                parsed["assignee_agent"] = owner if owner in AGENT_NAMES else "Clawsum Admin"
+            return parsed
+    except Exception:
+        pass
 
     payload = {
         "model": env.get("TASK_ANALYZE_MODEL", "gpt-4o-mini"),
@@ -228,26 +265,40 @@ def build_description(issue: dict, analysis: dict) -> str:
         llm_tier = "default"
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+    sugg = analysis.get("suggestions") or []
+    sugg_md = "\n".join(f"- {x}" for x in sugg) if isinstance(sugg, list) else str(sugg)
     block = f"""
 {ANALYZED_MARKER} {ts} -->
 
-## Objective (auto-analyzed)
+## What this is
 {analysis.get("objective", "")}
 
-## Definition of done
+## My take
+{analysis.get("take") or analysis.get("objective") or ""}
+
+## Does this apply
+{analysis.get("project_fit") or "unspecified"}
+
+## Compared to what we have
+{analysis.get("vs_alternatives") or "n/a"}
+
+## Adopt
+{analysis.get("adopt_verdict") or "do_the_work"}
+
+## Skills to grow
+{chr(10).join('- ' + str(s) for s in (analysis.get('skills_needed') or [])) or '- (none)'}
+
+## What I'd do
+{sugg_md or "- (nothing yet)"}
+
+## Done when
 {done_md}
 
-## Suggested timeline
-{analysis.get("suggested_timeline", "TBD")}
-
-## Category
-{analysis.get("category", "other")}
-
-## LLM tier
-llm:{llm_tier}
+Timeline: {analysis.get("suggested_timeline", "TBD")}
+<!-- llm:{llm_tier} -->
 
 ---
-*Reply to the Boss clarification comment, then ops moves this to todo/in_progress and enables heartbeats.*
+*Reply if you disagree; otherwise say approved as written.*
 """.strip()
     return f"{old}\n\n{block}".strip()
 
@@ -258,23 +309,18 @@ def build_boss_comment(ident: str, title: str, analysis: dict) -> str:
         questions = [questions]
     q_md = "\n".join(f"{i + 1}. {q}" for i, q in enumerate(questions))
 
-    return f"""## Boss — clarification needed ({ident})
+    body = f"""## {title[:200]}
 
-**Task:** {title[:200]}
+{analysis.get("take") or analysis.get("objective") or ""}
 
-**Proposed owner:** {analysis.get("assignee_agent", "Clawsum Admin")}
-**Proposed priority:** {analysis.get("priority", "medium")}
-**Suggested timeline:** {analysis.get("suggested_timeline", "TBD")}
-
-### What we think this is
-{analysis.get("objective", "")}
-
-### Please answer (reply on this issue)
-{q_md}
-
----
-*After you reply, assignee will pick up in Boss UI or via heartbeat. Say "approved as written" to skip further questions.*
+**Fit:** {analysis.get("project_fit") or "unspecified"}
+**Vs what we have:** {analysis.get("vs_alternatives") or "n/a"}
+**Owner / when:** {analysis.get("assignee_agent", "Clawsum Admin")} · {analysis.get("suggested_timeline", "TBD")}
 """
+    if q_md.strip():
+        body += f"\n### Need your call\n{q_md}\n"
+    body += "\n*Say approved as written to skip questions.*\n"
+    return body
 
 
 def process_issue(

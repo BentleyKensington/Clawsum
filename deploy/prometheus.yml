@@ -10,15 +10,30 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-  # HTTP health probes (gateway + Paperclip on host ports)
+  - job_name: node
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  - job_name: containers
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+
+  # HTTP health probes via blackbox (host network) → 127.0.0.1-bound services
   - job_name: clawsum-health
     metrics_path: /probe
     params:
       module: [http_2xx]
     static_configs:
       - targets:
-          - http://host.docker.internal:48166/healthz
-          - http://host.docker.internal:3100/api/health
+          - http://127.0.0.1:48166/healthz
+          - http://127.0.0.1:3100/api/health
+          - http://127.0.0.1:9119/
+          - http://127.0.0.1:8088/
+          - http://127.0.0.1:9091/api/health
         labels:
           stack: clawsum
     relabel_configs:
@@ -26,5 +41,82 @@ scrape_configs:
         target_label: __param_target
       - source_labels: [__param_target]
         target_label: instance
+      # blackbox runs network_mode: host — reach it from Prometheus via host gateway
       - target_label: __address__
-        replacement: blackbox:9115
+        replacement: host.docker.internal:9115
+      - source_labels: [__param_target]
+        regex: ".*:48166.*"
+        target_label: service
+        replacement: openclaw
+      - source_labels: [__param_target]
+        regex: ".*:3100.*"
+        target_label: service
+        replacement: paperclip
+      - source_labels: [__param_target]
+        regex: ".*:9119.*"
+        target_label: service
+        replacement: hermes
+      - source_labels: [__param_target]
+        regex: ".*:8088.*"
+        target_label: service
+        replacement: marketing
+      - source_labels: [__param_target]
+        regex: ".*:9091.*"
+        target_label: service
+        replacement: authelia
+
+  # Verify the public edge, TLS routing, and Authelia interception—not just local ports.
+  # Use http_edge (accepts 401/302) — Authelia challenge means the site is UP.
+  - job_name: clawsum-public
+    metrics_path: /probe
+    params:
+      module: [http_edge]
+    static_configs:
+      - targets:
+          - https://boss.clawsum.com/
+          - https://paperclip.clawsum.com/
+          - https://openclaw.clawsum.com/
+          - https://grafana.clawsum.com/
+          - https://auth.clawsum.com/
+          - https://clawsum.com/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: host.docker.internal:9115
+      - source_labels: [__param_target]
+        regex: "https://([^/]+)/.*"
+        target_label: service
+        replacement: "$1"
+
+  # Internal dependencies with native HTTP health endpoints.
+  - job_name: clawsum-dependencies
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://127.0.0.1:8123/ok
+          - http://127.0.0.1:9000/minio/health/live
+          - http://127.0.0.1:3000/api/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: host.docker.internal:9115
+      - source_labels: [__param_target]
+        regex: ".*:8123.*"
+        target_label: service
+        replacement: langgraph
+      - source_labels: [__param_target]
+        regex: ".*:9000.*"
+        target_label: service
+        replacement: minio
+      - source_labels: [__param_target]
+        regex: ".*:3000.*"
+        target_label: service
+        replacement: grafana

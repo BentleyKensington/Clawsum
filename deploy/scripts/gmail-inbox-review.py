@@ -38,6 +38,8 @@ except ImportError:
 ROOT = Path("/docker/clawsum")
 ENV_FILE = ROOT / ".env"
 SCRIPTS = Path(__file__).resolve().parent
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
 
 DOMAIN_TO_CELL = {
     "admin": "clawsum-platform",
@@ -139,7 +141,7 @@ def guess_cell(subject: str, from_addr: str, body: str, domain_guess: str | None
     return "clawsum-platform"
 
 
-def analyze_email(
+def heuristic_analyze_email(
     *,
     subject: str,
     from_raw: str,
@@ -298,34 +300,40 @@ def analyze_email(
 
 
 def ensure_person(cur, email: str, from_display: str, business_id) -> str | None:
-    if not email:
-        return None
-    cur.execute(
-        "SELECT id FROM ops.people WHERE lower(primary_email) = %s OR %s = ANY(emails) LIMIT 1",
-        (email, email),
-    )
-    row = cur.fetchone()
-    if row:
-        return str(row["id"])
-    name = from_display.strip() or email
-    if "<" in (from_display or ""):
-        name = parseaddr(from_display)[0].strip() or email
-    cur.execute(
-        """
-        INSERT INTO ops.people (display_name, kind, primary_email, emails, primary_business_id, tags, notes)
-        VALUES (%s, 'contact', %s, %s, %s, %s, %s)
-        RETURNING id
-        """,
-        (
-            name[:200],
-            email,
-            [email],
-            business_id,
-            ["auto_from_gmail"],
-            f"Auto-created from clawsums@gmail.com sender {email}",
-        ),
-    )
-    return str(cur.fetchone()["id"])
+    try:
+        import clawsum_contacts
+
+        return clawsum_contacts.ensure_person(cur, email, from_display, business_id)
+    except Exception:
+        # Fallback if module missing
+        if not email:
+            return None
+        cur.execute(
+            "SELECT id FROM ops.people WHERE lower(primary_email) = %s OR %s = ANY(emails) LIMIT 1",
+            (email, email),
+        )
+        row = cur.fetchone()
+        if row:
+            return str(row["id"])
+        name = from_display.strip() or email
+        if "<" in (from_display or ""):
+            name = parseaddr(from_display)[0].strip() or email
+        cur.execute(
+            """
+            INSERT INTO ops.people (display_name, kind, primary_email, emails, primary_business_id, tags, notes)
+            VALUES (%s, 'contact', %s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                name[:200],
+                email,
+                [email],
+                business_id,
+                ["auto_from_gmail"],
+                f"Auto-created from clawsums@gmail.com sender {email}",
+            ),
+        )
+        return str(cur.fetchone()["id"])
 
 
 def main() -> None:
@@ -333,7 +341,7 @@ def main() -> None:
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--inbox-only", action="store_true")
     ap.add_argument("--sync-first", action="store_true")
-    ap.add_argument("--limit", type=int, default=2000)
+    ap.add_argument("--limit", type=int, default=12)
     ap.add_argument("--markdown", action="store_true")
     ap.add_argument(
         "--per-email-report",
@@ -345,6 +353,11 @@ def main() -> None:
     ap.add_argument("--report-dir", help="Write one .md file per email")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--create-reminders", action="store_true")
+    ap.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="Keyword-only review (skip ChatGPT-style analyst)",
+    )
     args = ap.parse_args()
     per_email = args.per_email_report and not args.no_per_email_report
 
@@ -388,7 +401,8 @@ def main() -> None:
             if not args.all:
                 where.append(
                     "(review_status IS NULL OR review_status = 'unreviewed' "
-                    "OR analysis_report IS NULL)"
+                    "OR analysis_report IS NULL OR analysis_report = '' "
+                    "OR COALESCE(analysis_json->>'style','') IS DISTINCT FROM 'chatgpt')"
                 )
             if args.inbox_only:
                 where.append("is_inbox = true")
@@ -398,7 +412,8 @@ def main() -> None:
             sql = f"""
                 SELECT id, gmail_id, from_addr, subject, snippet, body_text,
                        processing_status, domain_guess, paperclip_issue_id,
-                       is_inbox, received_at
+                       is_inbox, received_at, attachments, analysis_json,
+                       analysis_report
                 FROM ops.emails
                 WHERE {' AND '.join(where)}
                 ORDER BY received_at DESC NULLS LAST
@@ -408,23 +423,61 @@ def main() -> None:
             cur.execute(sql, params)
             rows = cur.fetchall()
 
+            use_llm = not args.no_llm and bool(env.get("OPENAI_API_KEY"))
+            if use_llm:
+                print(f"analyst: ChatGPT-style LLM on up to {len(rows)} message(s)", file=sys.stderr)
             for row in rows:
                 subject = row["subject"] or "(no subject)"
                 body = (row["body_text"] or row["snippet"] or "")[:5000]
                 from_raw = row["from_addr"] or ""
-                analysis = analyze_email(
-                    subject=subject,
-                    from_raw=from_raw,
-                    body=body,
-                    snippet=row.get("snippet") or "",
-                    processing_status=row.get("processing_status") or "",
-                    domain_guess=row.get("domain_guess"),
-                    paperclip_issue_id=row.get("paperclip_issue_id"),
-                    is_inbox=bool(row.get("is_inbox")),
-                    gmail_id=row["gmail_id"],
-                    received_at=row.get("received_at"),
-                    mailbox=mailbox,
-                )
+                analysis = None
+                if use_llm:
+                    try:
+                        import clawsum_analyst
+
+                        analysis = clawsum_analyst.analyze_email(
+                            env,
+                            {
+                                "subject": subject,
+                                "from_addr": from_raw,
+                                "body_text": row.get("body_text") or row.get("snippet") or "",
+                                "snippet": row.get("snippet") or "",
+                                "received_at": row.get("received_at"),
+                                "attachments": row.get("attachments") or [],
+                            },
+                            cur=cur,
+                        )
+                        if analysis.get("error"):
+                            print(
+                                f"WARN: analyst fail {row.get('gmail_id')}: {analysis['error']}",
+                                file=sys.stderr,
+                            )
+                            analysis = None
+                    except Exception as exc:
+                        print(f"WARN: analyst exception {row.get('gmail_id')}: {exc}", file=sys.stderr)
+                        analysis = None
+                if analysis is None:
+                    analysis = heuristic_analyze_email(
+                        subject=subject,
+                        from_raw=from_raw,
+                        body=body,
+                        snippet=row.get("snippet") or "",
+                        processing_status=row.get("processing_status") or "",
+                        domain_guess=row.get("domain_guess"),
+                        paperclip_issue_id=row.get("paperclip_issue_id"),
+                        is_inbox=bool(row.get("is_inbox")),
+                        gmail_id=row["gmail_id"],
+                        received_at=row.get("received_at"),
+                        mailbox=mailbox,
+                    )
+                if "person_email" not in analysis:
+                    analysis["person_email"] = extract_email(from_raw)
+                if not analysis.get("business_slug"):
+                    analysis["business_slug"] = guess_cell(
+                        subject, from_raw, body, row.get("domain_guess")
+                    )
+                if "signals" not in analysis:
+                    analysis["signals"] = ["chatgpt_analyst"]
                 cell_slug = analysis["business_slug"]
                 business_id = biz_by_slug.get(cell_slug)
                 email = analysis["person_email"]
@@ -553,7 +606,7 @@ def main() -> None:
                             business_id,
                             person_id,
                             review_status,
-                            f"cell={cell_slug}; priority={analysis['priority']}; action={action}",
+                            (analysis.get("take") or analysis.get("project_fit") or analysis["summary"])[:500],
                             analysis["summary"],
                             analysis["intent"],
                             analysis["recommendation"],
@@ -676,6 +729,17 @@ def main() -> None:
             summary["inbox_pending"] = int(cur.fetchone()["n"])
             cur.execute("SELECT count(*) AS n FROM ops.email_reviews")
             summary["email_reviews_stored"] = int(cur.fetchone()["n"])
+
+            if use_llm and not args.dry_run:
+                try:
+                    import clawsum_analyst
+
+                    n_img = clawsum_analyst.analyze_pending_images(cur, env, limit=8)
+                    summary["images_analyzed"] = n_img
+                    if n_img:
+                        print(f"analyst: archived {n_img} image(s)", file=sys.stderr)
+                except Exception as exc:
+                    print(f"WARN: pending image pass: {exc}", file=sys.stderr)
 
     if args.markdown:
         lines = [

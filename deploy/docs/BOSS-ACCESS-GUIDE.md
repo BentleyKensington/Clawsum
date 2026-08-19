@@ -14,7 +14,7 @@ Use SSH config host **`clawsum`** if you have it (`~/.ssh/config`).
 | **OpenClaw Control UI** | https://clawsum.srv.example.com | Traefik basic auth + trusted-proxy (or gateway token) |
 | **Grafana (metrics)** | SSH tunnel → http://localhost:3000 | `admin` + `GRAFANA_ADMIN_PASSWORD` |
 | **Prometheus (raw metrics)** | SSH tunnel → http://localhost:9090 | None (keep private) |
-| **ArcadeDB Studio** | SSH tunnel → http://localhost:2480 | `root` + `ARCADEDB_ROOT_PASSWORD` |
+| **ArcadeDB Studio** | https://arcade.clawsum.com (Authelia) | Studio login: `root` + `ARCADEDB_ROOT_PASSWORD` |
 | **Obsidian (knowledge)** | Your PC Obsidian app | [BOSS-OBSIDIAN-WINDOWS.md](./BOSS-OBSIDIAN-WINDOWS.md) — SSHFS `Z:` → VPS vault |
 | **Gmail admin inbox** | https://mail.google.com | `clawsums@gmail.com` Google login |
 | **7am digest** | Telegram CS Ops group (or DM) | Automatic |
@@ -156,16 +156,12 @@ http://localhost:9090 — raw PromQL; Boss usually only needs Grafana.
 
 **Use for:** inspecting vertices, running SQL, debugging ETL — after data is loaded.
 
-**Terminal:**
+**Browser:** https://arcade.clawsum.com (Authelia first, then Studio login)
 
-```bash
-ssh -L 2480:127.0.0.1:2480 clawsum
-```
-
-**Browser:** http://localhost:2480
-
-- User: `root`
+- Studio user: `root`
 - Password: `ARCADEDB_ROOT_PASSWORD` in `.env`
+
+SSH tunnel still works: `ssh -L 2480:127.0.0.1:2480 clawsum` → http://localhost:2480
 
 Database for Clawsum graph work: **`clawsum_graph`** (created by ingest script).
 

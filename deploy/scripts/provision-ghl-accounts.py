@@ -183,13 +183,30 @@ def seed_account_workspace(account: dict, env: dict[str, str], dry_run: bool) ->
         f"- **Vibe:** CRM-focused — {account['display_name']} only\n"
     )
     boot = ws / "BOOT.md"
-    boot_text = (
-        f"# BOOT.md — {account['id']}\n\n"
-        "On session start read: SOUL.md, AGENTS.md, TOOLS.md, WORKFLOWS.md, SECURITY.md, DATABASE.md, OBSIDIAN.md.\n\n"
+    boot_bits = [
+        f"# BOOT.md — {account['id']}\n",
+        "On session start read: SOUL.md, AGENTS.md, TOOLS.md, WORKFLOWS.md, SECURITY.md, DATABASE.md, OBSIDIAN.md.\n",
         "**Re-engage:** if Boss asks, use **read** on `REENGAGE.md` (workspace root). "
-        "Search/grep/browser are **denied** and will fail.\n"
-    )
-    boot.write_text(boot_text)
+        "Search/grep/browser are **denied** and will fail.\n",
+    ]
+    if any(k in account.get("slug", "").lower() for k in ("rei", "dispo")):
+        boot_bits.append(
+            "**REI:** also **read** `KNOWLEDGE-REI.md` for wholesaling checklists, "
+            "seller/buyer scripts, and weekly report context. Weekly digest: `WEEKLY.md`.\n"
+        )
+        for cand in (
+            ROOT / "examples" / "instance-overlays" / "REI-WHOLESALE-KNOWLEDGE.md",
+            Path(__file__).resolve().parent.parent
+            / "examples"
+            / "instance-overlays"
+            / "REI-WHOLESALE-KNOWLEDGE.md",
+        ):
+            if cand.exists():
+                (ws / "KNOWLEDGE-REI.md").write_text(
+                    cand.read_text(encoding="utf-8"), encoding="utf-8"
+                )
+                break
+    boot.write_text("\n".join(boot_bits))
     subprocess.run(["chown", "-R", "1000:1000", str(ws)], check=False)
     print(f"Seeded workspace {account['id']}")
 
@@ -199,7 +216,7 @@ def seed_obsidian(account: dict, dry_run: bool) -> None:
     if dry_run:
         print(f"WOULD create Obsidian {folder}")
         return
-    for sub in ("Audits", "Recommendations"):
+    for sub in ("Audits", "Recommendations", "Reports", "Playbooks"):
         (folder / sub).mkdir(parents=True, exist_ok=True)
     readme = folder / "README.md"
     if not readme.exists():
@@ -208,6 +225,23 @@ def seed_obsidian(account: dict, dry_run: bool) -> None:
             f"Agent: **{account['id']}**  \n"
             f"GHL location: `{account['display_name']}` only.\n"
         )
+    # REI instance: seed wholesaling knowledge pack for MCO / Avenou / WNN
+    if any(k in account.get("slug", "").lower() for k in ("rei", "dispo")):
+        knowledge_src = None
+        for cand in (
+            ROOT / "examples" / "instance-overlays" / "REI-WHOLESALE-KNOWLEDGE.md",
+            Path(__file__).resolve().parent.parent
+            / "examples"
+            / "instance-overlays"
+            / "REI-WHOLESALE-KNOWLEDGE.md",
+        ):
+            if cand.exists():
+                knowledge_src = cand
+                break
+        if knowledge_src:
+            dest = folder / "Playbooks" / "REI-WHOLESALE-KNOWLEDGE.md"
+            dest.write_text(knowledge_src.read_text(encoding="utf-8"), encoding="utf-8")
+            print(f"  seeded knowledge → {dest}")
     subprocess.run(["chown", "-R", "1000:1000", str(folder)], check=False)
 
 

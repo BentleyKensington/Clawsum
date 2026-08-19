@@ -21,7 +21,7 @@ USER="${MINIO_ROOT_USER:-clawsum}"
 PASS="${MINIO_ROOT_PASSWORD:-minio_change_me}"
 ENDPOINT="http://127.0.0.1:9000"
 
-for bucket in clawsum-attachments clawsum-scrapes clawsum-backups; do
+for bucket in clawsum-attachments clawsum-scrapes clawsum-backups clawsum-calls clawsum-gmail; do
   docker run --rm --network host --entrypoint /bin/sh \
     minio/mc:latest \
     -c "mc alias set local ${ENDPOINT} ${USER} ${PASS} && mc mb -p local/${bucket} 2>/dev/null || mc ls local/${bucket}" \

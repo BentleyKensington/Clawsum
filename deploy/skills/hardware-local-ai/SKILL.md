@@ -1,7 +1,7 @@
 ---
 name: hardware-local-ai
 description: Diagnostics for local GPU / model servers supporting Vocalitic and local inference. Use for VRAM, uptime, Ollama/vLLM issues.
-agents: [coding, admin]
+agents: [coding, admin, media]
 cells: [hardware-local-ai, vocalitic]
 tier_autonomous: 0
 credentials: [host/docker access]

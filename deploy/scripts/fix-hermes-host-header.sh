@@ -14,6 +14,7 @@ if "hermes-host-rewrite" not in t:
       headers:
         customRequestHeaders:
           Host: \"127.0.0.1:9119\"
+          Origin: \"http://127.0.0.1:9119\"
 """
     if needle not in t:
         raise SystemExit("needle missing")

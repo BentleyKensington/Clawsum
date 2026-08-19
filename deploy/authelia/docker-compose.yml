@@ -1,0 +1,11 @@
+services:
+  authelia:
+    image: authelia/authelia:4.39.6
+    container_name: clawsum-authelia
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./config:/config
+    environment:
+      TZ: America/Chicago
+    # Binds 127.0.0.1:9091 via configuration.yml server.address

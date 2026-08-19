@@ -44,13 +44,47 @@ mkdir -p /docker/clawsum/data/chatgpt-archive
 # scp chatgpt-*.zip root@HOST:/docker/clawsum/data/chatgpt-archive/
 
 cd /docker/clawsum
+# Supports classic conversations.json OR sharded conversations-NNN.json inside the ZIP
 python3 scripts/import-chatgpt-export.py /docker/clawsum/data/chatgpt-archive/YOUR-export.zip
+# Or a directory of extracted shards:
+# python3 scripts/import-chatgpt-export.py /docker/clawsum/data/chatgpt-archive/shards
 python3 scripts/classify-chatgpt-archive.py
 python3 scripts/link-archive-to-paperclip.py
 python3 scripts/archive-proactive-brief.py --markdown
+
+# Promote durable business/mixed facts → ops.memory_facts (+ Arcade). Skips personal.
+python3 scripts/promote-archive-to-memory.py --dry-run --limit 20
+python3 scripts/promote-archive-to-memory.py --resume
 ```
 
 Requires `POSTGRES_*` and `PAPERCLIP_COMPANY_ID` in `/docker/clawsum/.env`.
+
+**Note:** Large OpenAI exports may ship as `conversations-000.json` … `conversations-NNN.json` (not a single `conversations.json`). The importer merges all shards and skips `shared_conversations.json`.
+
+**Memory promote:** `promote-archive-to-memory.py` is Boss-approved extraction into the Phase 1 memory graph. It never processes `scope=personal`, scrubs secrets, and sets `approved_for_hermes_memory` on written facts.
+
+## Promote to memory graph
+
+```bash
+# Dry-run candidate count (skips personal)
+python3 /docker/clawsum/scripts/promote-archive-to-memory.py --dry-run
+
+# Full Boss-approved pass (resumable)
+python3 /docker/clawsum/scripts/promote-archive-to-memory.py --resume
+
+# Priority only (pending/blocked/in_progress)
+python3 /docker/clawsum/scripts/promote-archive-to-memory.py --priority-only --resume
+```
+
+Writes:
+- `ops.memory_facts` / `ops.memory_episodes` (`source_kind=chatgpt`)
+- `ops.extracted_facts` with `approved_for_hermes_memory=true` for durable business facts
+- Arcade `Fact` / `Episode` / `MemoryEntity` mirrors
+- Sets `conversations.approved_for_hermes=true` when ≥1 fact extracted
+
+Logs: `/docker/clawsum/data/chatgpt-archive/promote-full-*.log`
+
+---
 
 ## Hermes proactive behavior
 
@@ -69,6 +103,25 @@ Hermes must:
 4. Keep **personal** items out of business agents and durable memory.
 
 Cockpit API: `GET /api/plugins/clawsum-cockpit/archive` returns the same brief JSON.
+
+## Poll archive → Obsidian memory
+
+Inbox/task analysis already **consults** `ops.conversations` + promoted facts on every item (skips personal).
+
+To refresh the vault Gerald reads:
+
+```bash
+# Incremental pulse → Admin/Archive + Admin/Memory/from-chatgpt-archive.md
+python3 /docker/clawsum/scripts/poll-archive-to-obsidian.py
+
+# Also extract new durable facts into ops.memory_facts first
+python3 /docker/clawsum/scripts/poll-archive-to-obsidian.py --promote
+
+# Hourly cron
+bash /docker/clawsum/scripts/install-archive-obsidian-cron.sh
+```
+
+New ChatGPT export → `import-chatgpt-export.py` → next poll writes the delta into Obsidian. Nightly dream then compresses facts into `Admin/Memory/*-dream.md`.
 
 ## Safety
 

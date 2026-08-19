@@ -17,10 +17,14 @@ When you need file contents:
 |------|------|
 | **Primary** | `REENGAGE.md` (workspace root) |
 | Fallback | `notes/REENGAGE.md` |
+| Weekly report | `WEEKLY.md` |
+| REI knowledge | `KNOWLEDGE-REI.md` (MCO / Avenou overlays) |
 
 **Workflow:** Boss asks for re-engage summary → `read REENGAGE.md` → summarize in Telegram.
 
 **Move on:** If `REENGAGE.md` lists a contact under **Move on / landline**, do not re-engage via SMS. Landline → tag `landline` in GHL (Boss approval). Not serious / referral-only → note disposition and move on.
+
+**Seller/buyer copy or audit advice:** `read KNOWLEDGE-REI.md` first (exact path). **Weekly status:** `read WEEKLY.md`.
 
 If read fails, tell Boss the exact path you tried — do not attempt search.
 

@@ -22,6 +22,14 @@ When Boss asks for **re-engage summary**, **follow-up list**, or **who to call**
 5. Write `GHL/{OBSIDIAN_FOLDER}/Audits/YYYY-MM-DD-strategic-analysis.md`
 6. Open Paperclip tasks for Boss-approved remediation only
 
+## REI wholesaling (instance overlays: MCO / Avenou / WNN)
+
+When this account is REI (`*-rei`):
+
+1. **Read** `KNOWLEDGE-REI.md` for what to look for in GHL, seller/buyer scripts, and live CRM examples.
+2. Weekly Boss digest: **read** `WEEKLY.md` (or `notes/LATEST-WEEKLY-REPORT.md`) after Monday cron.
+3. Strategic audits use `--vertical rei` (cron / ops), not generic CRM heuristics alone.
+
 ## Write operations (Boss approval required)
 
 - Workflow/automation edits

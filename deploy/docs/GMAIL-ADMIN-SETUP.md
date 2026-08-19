@@ -136,6 +136,8 @@ bash /docker/clawsum/scripts/install-gmail-sync-cron.sh
 ```
 
 Prefer the **inbox review** cron so Hermes always has per-email analysis in `ops.email_reviews`.
+
+Each new message is reviewed like a ChatGPT paste: summary, opinion, whether it applies to Gerald’s projects, comparison to what we already run, and what to do next. Image attachments are described and filed in MinIO + `ops.media_objects`. Cap is 12 emails per 15‑minute run so older robotic reviews get upgraded gradually.
 ---
 
 ## Step 7 — OpenClaw Control UI “Gmail connection” (gog skill)
@@ -267,6 +269,35 @@ Force a test alert:
 ```bash
 python3 /docker/clawsum/scripts/gmail_oauth_health.py --from-failure "test oauth alert" --force
 ```
+
+---
+
+## Troubleshooting: `Error 400: invalid_request` (`flowName=GeneralOAuthFlow`)
+
+Google **removed the old “paste a code” (OOB) OAuth flow**. Scripts that used
+`urn:ietf:wg:oauth:2.0:oob` now fail with this exact error.
+
+**Fix:** use the updated SSH re-auth (loopback URL):
+
+```bash
+ssh root@76.13.97.82
+python3 /docker/clawsum/scripts/gmail-reauth-console.py
+```
+
+1. Open the printed URL (incognito) → sign in as **`clawsums@gmail.com`** → Allow.
+2. Browser jumps to `http://127.0.0.1:8765/?code=...` — page may fail to load (**OK**).
+3. Copy the **full** address-bar URL and paste it into the terminal.
+
+OAuth client must be type **Desktop app** (not Web). If the app is in **Testing**,
+`clawsums@gmail.com` must be a **Test user**.
+
+**Alt (easiest on your PC):** download Desktop client JSON → run locally:
+
+```bash
+python deploy/scripts/gmail-oauth-setup.py path/to/client_secret.json
+```
+
+Paste the printed `GMAIL_REFRESH_TOKEN=...` into `/docker/clawsum/.env` on the VPS.
 
 ---
 

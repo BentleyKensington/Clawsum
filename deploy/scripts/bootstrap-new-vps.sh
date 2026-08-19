@@ -92,6 +92,8 @@ bash scripts/install-gmail-sync-cron.sh 2>/dev/null || true
 bash scripts/install-daily-report-cron.sh 2>/dev/null || true
 bash scripts/install-reminders-cron.sh 2>/dev/null || true
 bash scripts/install-obsidian-sync-cron.sh 2>/dev/null || true
+bash scripts/install-chat-outage-replay.sh 2>/dev/null || true
+bash scripts/install-content-factory-cron.sh 2>/dev/null || true
 
 echo ""
 echo "==> Monitoring (optional profile)"

@@ -1,8 +1,8 @@
 ---
 name: minio-archive-store
 description: Stores large ChatGPT exports and email attachments in MinIO with keys recorded in Postgres. Use when raw archives must not live only on local disk.
-agents: [data, coding, admin]
-cells: [clawsum-platform]
+agents: [data, coding, admin, media]
+cells: [clawsum-platform, media-production]
 tier_autonomous: 1
 credentials: [MINIO_*, POSTGRES_*]
 approval_actions: []

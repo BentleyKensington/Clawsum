@@ -1,51 +1,72 @@
-# Clawsum Command — Hermes dashboard theme
+﻿# Clawsum Command — 5th-gen multi-color CEO cockpit
 # Install: bash scripts/install-hermes-cockpit.sh
-# Pick "Clawsum Command" from the palette icon after refresh.
 
 name: clawsum-command
 label: Clawsum Command
-description: Gerald CEO overwatch cockpit — JARVIS face for Hermes UI
+description: Patriotic lobster-red CEO cockpit — US flag field, unique sidebar tones
 
 palette:
   background:
-    hex: "#0a0e14"
+    hex: "#070b18"
     alpha: 1.0
   midground: "#c8d6e5"
   foreground:
     hex: "#f0f4f8"
-    alpha: 0.12
-  warmGlow: "rgba(45, 212, 191, 0.22)"
-  noiseOpacity: 0.35
+    alpha: 0.10
+  warmGlow: "rgba(226, 59, 42, 0.22)"
+  noiseOpacity: 0.28
 
 typography:
   fontSans: '"DM Sans", "Segoe UI", system-ui, sans-serif'
   fontMono: '"IBM Plex Mono", ui-monospace, monospace'
   fontDisplay: '"Syne", "DM Sans", sans-serif'
-  fontUrl: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;700&display=swap"
+  fontUrl: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@600;700&display=swap"
   baseSize: "14px"
   lineHeight: "1.5"
   letterSpacing: "0"
 
 layout:
-  radius: "0.5rem"
+  radius: "0.45rem"
   density: comfortable
 
 layoutVariant: cockpit
 
 assets:
-  # Served by clawsum-cockpit plugin_api after install
-  logo: "/api/plugins/clawsum-cockpit/assets/logo.png"
-  crest: "/api/plugins/clawsum-cockpit/assets/logo-mark.png"
-  hero: "/api/plugins/clawsum-cockpit/assets/hero.svg"
+  logo: "https://clawsum.com/assets/logo.png"
+  crest: "https://clawsum.com/assets/logo-mark.png"
+  hero: "https://clawsum.com/assets/logo.png"
   bg: "/api/plugins/clawsum-cockpit/assets/bg.svg"
 
 colorOverrides:
-  primary: "#2dd4bf"
-  accent: "#38bdf8"
-  destructive: "#f87171"
+  primary: "#e23b2a"
+  accent: "#3b82f6"
+  destructive: "#bf0a30"
   muted: "#64748b"
 
 customCSS: |
+  :root {
+    --hud-cyn: #22d3ee;
+    --hud-amb: #fbbf24;
+    --hud-lim: #a3e635;
+    --hud-ros: #e23b2a;
+    --hud-vio: #a78bfa;
+    --lobster: #e23b2a;
+    --glory-red: #bf0a30;
+    --glory-blue: #002868;
+    --star-white: #f8fafc;
+  }
+  :root[data-layout-variant="cockpit"] body {
+    background-color: #070b18;
+  }
+  html[data-clawsum-page^="/chat"] #root header,
+  html[data-clawsum-page^="/chat"] header {
+    min-height: 0 !important;
+    padding-top: 0.15rem !important;
+    padding-bottom: 0.15rem !important;
+  }
+  html[data-clawsum-page^="/chat"] #root main {
+    padding-top: 0.2rem !important;
+  }
   :root[data-layout-variant="cockpit"] body::before {
     content: "";
     position: fixed;
@@ -56,7 +77,7 @@ customCSS: |
       to bottom,
       transparent 0px,
       transparent 3px,
-      rgba(45, 212, 191, 0.02) 4px
+      rgba(226, 59, 42, 0.03) 4px
     );
     mix-blend-mode: screen;
   }

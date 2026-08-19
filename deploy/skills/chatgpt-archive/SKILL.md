@@ -15,10 +15,12 @@ bash /docker/clawsum/scripts/run-chatgpt-archive.sh /path/to/export.zip
 python3 /docker/clawsum/scripts/classify-chatgpt-archive.py --all
 python3 /docker/clawsum/scripts/link-archive-to-paperclip.py
 python3 /docker/clawsum/scripts/archive-proactive-brief.py --markdown
+# Boss-approved: durable business/mixed facts → memory graph
+python3 /docker/clawsum/scripts/promote-archive-to-memory.py --resume
 ```
 
 ## Hard rules
 
-- `approved_for_hermes` default false.
-- Personal scope → not business agents.
-- Docs: `deploy/docs/CHATGPT-ARCHIVE.md`
+- `approved_for_hermes` default false until promote/Boss gate.
+- Personal scope → not business agents; promote script skips `scope=personal`.
+- Docs: `deploy/docs/CHATGPT-ARCHIVE.md` · Memory: `deploy/docs/MEMORY-PIPELINE.md`

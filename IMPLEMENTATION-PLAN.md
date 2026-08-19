@@ -103,7 +103,7 @@ See **[deploy/docs/PLATFORM-DEPLOY-TEMPLATE.md](deploy/docs/PLATFORM-DEPLOY-TEMP
 | 2 Migration from Hostinger | ✅ Done |
 | 3 Multi-agent + Telegram bindings | ✅ Done (9 groups incl. Paperclip) |
 | 3b AI Persona OS per workspace | ✅ Done (SOUL/SECURITY/ESCALATION seeded) |
-| 4 Postgres + ArcadeDB + Obsidian per domain | 🔄 Postgres + Obsidian done; ArcadeDB empty |
+| 4 Postgres + ArcadeDB + Obsidian per domain | 🔄 Postgres + Obsidian done; Arcade memory graph Phase 1 live (`ops.memory_*`) |
 | 5 Scrapers (Bright Data) | ⬜ Tier 2 / optional pack |
 | 6 Monitoring + daily reports + self-healing | 🔄 Monitoring up; Grafana→Telegram alerts pending |
 | 7 LangGraph + Paperclip + Hermes integration | 🔄 Paperclip live; LangGraph stub only |
@@ -136,6 +136,8 @@ See **[deploy/docs/PLATFORM-DEPLOY-TEMPLATE.md](deploy/docs/PLATFORM-DEPLOY-TEMP
 
 - **[PLATFORM-DEPLOY-TEMPLATE.md](deploy/docs/PLATFORM-DEPLOY-TEMPLATE.md)** — **multi-VPS template gate**, Tier 0–3, bootstrap, finish order
 - **[PLATFORM-MASTER-REPORT.md](deploy/docs/PLATFORM-MASTER-REPORT.md)** — full stack status, knowledge model, Gmail/LangGraph roadmap, Boss + Obsidian roles, todo list
+- **[LOCAL-STACK-PLAN.md](deploy/docs/LOCAL-STACK-PLAN.md)** — full local twin (LLM/TTS/STT) + sync with VPS
+- **[MEMORY-PIPELINE.md](deploy/docs/MEMORY-PIPELINE.md)** — Phase 1 fact → Postgres → Arcade pipeline
 - **[BOSS-ACCESS-GUIDE.md](deploy/docs/BOSS-ACCESS-GUIDE.md)** — how Boss opens Telegram, Boss UI, Control UI, Grafana, ArcadeDB, Gmail, LLM billing
 - [OpenClaw v2026.5.20](https://github.com/openclaw/openclaw/releases/tag/v2026.5.20)
 - [OpenClaw Docker](https://docs.openclaw.ai/install/docker)

@@ -13,11 +13,11 @@ approval_actions: [send_email]
 ## Instructions
 
 1. Ensure schema `05-ops-email.sql` + `14-ops-crm.sql` applied.
-2. Sync then review:
+2. Sync then review (ChatGPT-style: take, owner, adopt verdict, images):
 
 ```bash
 python3 /docker/clawsum/scripts/gmail-sync.py
-python3 /docker/clawsum/scripts/gmail-inbox-review.py --inbox-only --all --markdown --create-reminders
+python3 /docker/clawsum/scripts/gmail-inbox-review.py --inbox-only --markdown --create-reminders --limit 12
 ```
 
 3. Each email must have `analysis_report` + `ops.email_reviews` row.

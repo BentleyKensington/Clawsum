@@ -18,6 +18,8 @@ def chat(
     model: str | None = None,
     temperature: float = 0.2,
     max_tokens: int = 4096,
+    response_format: dict | None = None,
+    timeout: int = 180,
 ) -> dict[str, Any]:
     """Call OpenRouter chat completions. Raises on HTTP errors."""
     api_key = policy.require_openrouter_key()
@@ -34,6 +36,8 @@ def chat(
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
+    if response_format:
+        payload["response_format"] = response_format
     req = urllib.request.Request(
         f"{OPENROUTER_URL}/chat/completions",
         data=json.dumps(payload).encode(),
@@ -46,7 +50,7 @@ def chat(
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             return json.loads(resp.read().decode())
     except urllib.error.HTTPError as e:
         body = e.read().decode()[:800]

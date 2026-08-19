@@ -3,39 +3,145 @@
   "uid": "clawsum-health",
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
-  "refresh": "1m",
+  "version": 2,
+  "refresh": "30s",
+  "tags": ["clawsum"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
   "panels": [
     {
+      "id": 1,
       "type": "stat",
-      "title": "OpenClaw gateway /healthz",
-      "gridPos": { "h": 4, "w": 12, "x": 0, "y": 0 },
+      "title": "OpenClaw",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none" },
       "targets": [
         {
-          "expr": "probe_success{instance=~\".*48166.*\"}",
-          "legendFormat": "gateway"
+          "refId": "A",
+          "expr": "probe_success{job=\"clawsum-health\", service=\"openclaw\"}",
+          "legendFormat": "openclaw"
         }
       ]
     },
     {
+      "id": 2,
       "type": "stat",
-      "title": "Paperclip /api/health",
-      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 0 },
+      "title": "Paperclip",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none" },
       "targets": [
         {
-          "expr": "probe_success{instance=~\".*3100.*\"}",
+          "refId": "A",
+          "expr": "probe_success{job=\"clawsum-health\", service=\"paperclip\"}",
           "legendFormat": "paperclip"
         }
       ]
     },
     {
-      "type": "timeseries",
-      "title": "Probe duration (s)",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "id": 3,
+      "type": "stat",
+      "title": "Hermes / Clawsum",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none" },
       "targets": [
         {
+          "refId": "A",
+          "expr": "probe_success{job=\"clawsum-health\", service=\"hermes\"}",
+          "legendFormat": "hermes"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Marketing",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_success{job=\"clawsum-health\", service=\"marketing\"}",
+          "legendFormat": "marketing"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Authelia",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        }
+      },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "probe_success{job=\"clawsum-health\", service=\"authelia\"}",
+          "legendFormat": "authelia"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Probe duration (s)",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 4 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10, "showPoints": "never" }
+        }
+      },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"] } },
+      "targets": [
+        {
+          "refId": "A",
           "expr": "probe_duration_seconds{job=\"clawsum-health\"}",
-          "legendFormat": "{{instance}}"
+          "legendFormat": "{{service}}"
         }
       ]
     }

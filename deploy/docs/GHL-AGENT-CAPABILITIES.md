@@ -76,4 +76,6 @@ In group: @mention the bot. For re-engage: agent reads `REENGAGE.md` only.
 
 For multiple locations, copy `deploy/config/ghl-accounts.instance.rei.example.json` → `config/ghl-accounts.json` on the VPS and re-run provision. Not the generic template default.
 
-See `deploy/examples/instance-overlays/` for vertical playbooks (e.g. REI).
+See `deploy/examples/instance-overlays/` for vertical playbooks (e.g. REI), including
+`REI-WHOLESALE-KNOWLEDGE.md` (seller/buyer scripts + audit checklist) and Monday weekly
+reports via `ghl-weekly-report.py` / `install-ghl-weekly-report-cron.sh` (MCO + Avenou; nightly generate, 07:30 send).

@@ -140,8 +140,10 @@ Reports archived: `/docker/clawsum/data/reports/global-YYYY-MM-DD.md`
 
 ```text
 OpenClaw :48166/healthz  ─┐
-Paperclip :3100/api/health ┼─► blackbox exporter (HTTP probe)
-                           │
+Paperclip :3100/api/health ┤
+Hermes :9119/              ┼─► blackbox exporter (HTTP probe)
+Marketing :8088/           │
+Authelia :9091/api/health  ┘
                            ▼
                     Prometheus (scrape + store)
                            │
@@ -151,8 +153,8 @@ Paperclip :3100/api/health ┼─► blackbox exporter (HTTP probe)
 
 | Tool | Boss uses it for |
 |------|------------------|
-| **Grafana** | Charts: up/down, probe latency |
-| **Prometheus** | Optional debugging (raw targets) |
+| **Grafana** | Charts: up/down, probe latency — https://grafana.clawsum.com |
+| **Prometheus** | Optional debugging (raw targets via SSH tunnel :9090) |
 | **Boss UI** | Tasks, approvals — separate app |
 | **7am Telegram report** | Text summary; may include one-line Prometheus target status |
 
@@ -162,22 +164,19 @@ Full Boss URLs and tunnels: [BOSS-ACCESS-GUIDE.md](./BOSS-ACCESS-GUIDE.md).
 
 ## Prometheus + Grafana
 
-**Enable on VPS:**
+**Enable / repair on VPS:**
 
 ```bash
 cd /docker/clawsum
-docker compose --profile monitoring up -d
+bash scripts/fix-grafana-monitoring.sh   # perms + datasource + reload
+# or first-time:
+bash scripts/install-monitoring.sh
 ```
 
-**Probes (via blackbox exporter):**
+**Probes (via blackbox exporter):** OpenClaw, Paperclip, Hermes, marketing, Authelia.
 
-- `http://127.0.0.1:48166/healthz` — OpenClaw gateway  
-- `http://127.0.0.1:3100/api/health` — Paperclip  
-
-**Grafana:** default login `admin` / password from `GRAFANA_ADMIN_PASSWORD` in `.env`.  
-Preloaded dashboard: **Clawsum Health**.
-
-**Not in Boss UI:** open Grafana in a second browser tab. Optional future: Traefik path or link tile in your own ops doc.
+**Grafana:** Authelia SSO → auto-login as `boss` (`X-Forwarded-User`).  
+Preloaded dashboard: **Clawsum Health** (Prometheus datasource provisioned).
 
 ---
 

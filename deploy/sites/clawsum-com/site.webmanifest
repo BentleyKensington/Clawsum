@@ -1,7 +1,7 @@
 {
   "name": "Clawsum",
   "short_name": "Clawsum",
-  "description": "Private CEO operating system — Hermes talks, Paperclip manages, OpenClaw acts.",
+  "description": "Private CEO operating system — Clawsum talks, Paperclip manages, OpenClaw acts.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#070b10",

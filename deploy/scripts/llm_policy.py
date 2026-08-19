@@ -140,7 +140,12 @@ BATCH_OPENAI_MODEL = "gpt-4o-mini"
 
 
 def parse_llm_lane(text: str) -> str | None:
-    """Extract llm:cheap|frontier|coding|glm|free|default from task text."""
+    """Extract llm:cheap|frontier|coding|glm|free|default from task text.
+
+    Boss codeword ``escalate`` (standalone word) maps to the frontier lane.
+    """
+    if re.search(r"(?i)(?:^|[^\w])escalate(?:[^\w]|$)", text or ""):
+        return "frontier"
     m = re.search(r"\bllm:(default|cheap|free|frontier|coding|research|glm)\b", text, re.I)
     return m.group(1).lower() if m else None
 

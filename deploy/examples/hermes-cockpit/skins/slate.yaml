@@ -1,0 +1,72 @@
+# Clawsum CLI/TUI skin — replaces Hermes banner & branding
+name: slate
+description: Clawsum ASCII overlay (slate) — teal lobster brand
+
+colors:
+  banner_border: "#2dd4bf"
+  banner_title: "#2dd4bf"
+  banner_accent: "#38bdf8"
+  banner_dim: "#64748b"
+  banner_text: "#e8eef4"
+  ui_accent: "#2dd4bf"
+  ui_label: "#38bdf8"
+  ui_ok: "#4ade80"
+  ui_error: "#f87171"
+  ui_warn: "#fbbf24"
+  prompt: "#e8eef4"
+  input_rule: "#2dd4bf"
+  response_border: "#2dd4bf"
+  status_bar_bg: "#0a0e14"
+  status_bar_text: "#c8d6e5"
+  status_bar_strong: "#2dd4bf"
+  status_bar_dim: "#64748b"
+  status_bar_good: "#4ade80"
+  status_bar_warn: "#fbbf24"
+  status_bar_bad: "#f87171"
+  status_bar_critical: "#ef4444"
+  session_label: "#38bdf8"
+  session_border: "#64748b"
+
+spinner:
+  waiting_faces:
+    - "(◆)"
+    - "(◇)"
+  thinking_faces:
+    - "(⌁)"
+    - "(◎)"
+  thinking_verbs:
+    - "routing"
+    - "briefing"
+    - "clarifying"
+    - "overwatching"
+  wings:
+    - ["⟪◆", "◆⟫"]
+    - ["⟪◇", "◇⟫"]
+
+branding:
+  agent_name: "Clawsum"
+  welcome: "Clawsum Command — talk · Paperclip manages · OpenClaw acts · you approve"
+  goodbye: "Clawsum standing by."
+  response_label: " ◆ Clawsum "
+  prompt_symbol: "❯"
+  help_header: "Clawsum commands"
+
+tool_prefix: "┊"
+
+# Rich-markup ASCII — replaces Hermes AGENT logo
+banner_logo: |
+  [bold #2dd4bf] ██████╗██╗      █████╗ ██╗    ██╗███████╗██╗   ██╗███╗   ███╗[/]
+  [bold #2dd4bf]██╔════╝██║     ██╔══██╗██║    ██║██╔════╝██║   ██║████╗ ████║[/]
+  [#38bdf8]██║     ██║     ███████║██║ █╗ ██║███████╗██║   ██║██╔████╔██║[/]
+  [#38bdf8]██║     ██║     ██╔══██║██║███╗██║╚════██║██║   ██║██║╚██╔╝██║[/]
+  [#64748b]╚██████╗███████╗██║  ██║╚███╔███╔╝███████║╚██████╔╝██║ ╚═╝ ██║[/]
+  [#64748b] ╚═════╝╚══════╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚══════╝ ╚═════╝ ╚═╝     ╚═╝[/]
+
+# Simple crest mark (no Hermes caduceus)
+banner_hero: |
+  [#2dd4bf]            ▄▄▄▄▄▄▄▄▄▄▄            [/]
+  [#2dd4bf]         ▄██▀▀▀▀▀▀▀▀▀▀▀██▄         [/]
+  [#38bdf8]        ██  CLAWSUM CMD  ██        [/]
+  [#38bdf8]         ▀██▄▄▄▄▄▄▄▄▄▄▄██▀         [/]
+  [#64748b]              ▀████▀              [/]
+  [#64748b]               ▀██▀               [/]

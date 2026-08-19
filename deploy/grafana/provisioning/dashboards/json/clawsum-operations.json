@@ -1,0 +1,142 @@
+{
+  "title": "Clawsum Operations",
+  "uid": "clawsum-operations",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 2,
+  "refresh": "30s",
+  "tags": ["clawsum", "operations", "agents"],
+  "time": {"from": "now-24h", "to": "now"},
+  "templating": {"list": []},
+  "annotations": {"list": []},
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Core agents",
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "clawsum_authority_agents", "instant": true}],
+      "fieldConfig": {"defaults": {"color": {"mode": "fixed", "fixedColor": "green"}, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "none"}
+    },
+    {
+      "id": 2, "type": "stat", "title": "Governed skills",
+      "gridPos": {"h": 4, "w": 4, "x": 4, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "clawsum_authority_skills", "instant": true}],
+      "fieldConfig": {"defaults": {"color": {"mode": "fixed", "fixedColor": "blue"}}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "none"}
+    },
+    {
+      "id": 3, "type": "stat", "title": "Waiting approvals",
+      "gridPos": {"h": 4, "w": 4, "x": 8, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "clawsum_approvals{status=\"pending\"} or vector(0)", "instant": true}],
+      "fieldConfig": {"defaults": {"thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "yellow", "value": 1}, {"color": "red", "value": 5}]}}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"}
+    },
+    {
+      "id": 4, "type": "stat", "title": "Inbox needs Boss",
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "clawsum_email_reviews{review_status=\"needs_boss\"} or vector(0)", "instant": true}],
+      "fieldConfig": {"defaults": {"thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "yellow", "value": 1}, {"color": "red", "value": 20}]}}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"}
+    },
+    {
+      "id": 5, "type": "stat", "title": "Gmail sync age",
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "clawsum_gmail_sync_age_seconds", "instant": true}],
+      "fieldConfig": {"defaults": {"unit": "s", "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "yellow", "value": 900}, {"color": "red", "value": 1800}]}}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "none"}
+    },
+    {
+      "id": 6, "type": "stat", "title": "Active cells",
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 0},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "clawsum_business_cells_active", "instant": true}],
+      "fieldConfig": {"defaults": {"color": {"mode": "fixed", "fixedColor": "purple"}}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "none"}
+    },
+    {
+      "id": 7, "type": "barchart", "title": "Paperclip work queue",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "clawsum_paperclip_issues", "legendFormat": "{{status}}", "instant": true}],
+      "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "palette-classic"}}, "overrides": []},
+      "options": {"orientation": "horizontal", "showValue": "always", "legend": {"displayMode": "list", "placement": "bottom"}}
+    },
+    {
+      "id": 8, "type": "barchart", "title": "Inbox state",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"refId": "A", "expr": "clawsum_emails", "legendFormat": "{{processing_status}}", "instant": true},
+        {"refId": "B", "expr": "clawsum_email_reviews", "legendFormat": "review: {{review_status}}", "instant": true}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "palette-classic"}}, "overrides": []},
+      "options": {"orientation": "horizontal", "showValue": "always", "legend": {"displayMode": "list", "placement": "bottom"}}
+    },
+    {
+      "id": 9, "type": "stat", "title": "Service uptime — 24h",
+      "gridPos": {"h": 7, "w": 12, "x": 0, "y": 12},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "avg_over_time(probe_success{job=~\"clawsum-health|clawsum-public|clawsum-dependencies\"}[24h]) * 100", "legendFormat": "{{service}}", "instant": true}],
+      "fieldConfig": {"defaults": {"unit": "percent", "decimals": 2, "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "yellow", "value": 99}, {"color": "green", "value": 99.9}]}}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background", "graphMode": "area", "textMode": "auto", "orientation": "horizontal"}
+    },
+    {
+      "id": 10, "type": "timeseries", "title": "Service response time",
+      "gridPos": {"h": 7, "w": 12, "x": 12, "y": 12},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "probe_duration_seconds{job=~\"clawsum-health|clawsum-public|clawsum-dependencies\"}", "legendFormat": "{{service}}"}],
+      "fieldConfig": {"defaults": {"unit": "s", "custom": {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 8, "showPoints": "never"}}, "overrides": []},
+      "options": {"legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]}}
+    },
+    {
+      "id": 11, "type": "gauge", "title": "VPS CPU",
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 19},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)", "instant": true}],
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "yellow", "value": 70}, {"color": "red", "value": 90}]}}, "overrides": []}
+    },
+    {
+      "id": 12, "type": "gauge", "title": "VPS memory",
+      "gridPos": {"h": 6, "w": 6, "x": 6, "y": 19},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100", "instant": true}],
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "yellow", "value": 75}, {"color": "red", "value": 90}]}}, "overrides": []}
+    },
+    {
+      "id": 13, "type": "gauge", "title": "Root disk",
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 19},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "(1 - node_filesystem_avail_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!~\"tmpfs|overlay\"}) * 100", "instant": true}],
+      "fieldConfig": {"defaults": {"unit": "percent", "min": 0, "max": 100, "thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "yellow", "value": 75}, {"color": "red", "value": 90}]}}, "overrides": []}
+    },
+    {
+      "id": 14, "type": "stat", "title": "Postgres connections",
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 19},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "sum(pg_stat_activity_count)", "instant": true}],
+      "fieldConfig": {"defaults": {"thresholds": {"mode": "absolute", "steps": [{"color": "green"}, {"color": "yellow", "value": 60}, {"color": "red", "value": 90}]}}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "value", "graphMode": "area"}
+    },
+    {
+      "id": 15, "type": "timeseries", "title": "Container CPU",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "topk(10, sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"clawsum.*\"}[5m])) * 100)", "legendFormat": "{{name}}"}],
+      "fieldConfig": {"defaults": {"unit": "percent", "custom": {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 8, "showPoints": "never"}}, "overrides": []},
+      "options": {"legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]}}
+    },
+    {
+      "id": 16, "type": "timeseries", "title": "Container memory",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"refId": "A", "expr": "topk(10, container_memory_working_set_bytes{name=~\"clawsum.*\"})", "legendFormat": "{{name}}"}],
+      "fieldConfig": {"defaults": {"unit": "bytes", "custom": {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 8, "showPoints": "never"}}, "overrides": []},
+      "options": {"legend": {"displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"]}}
+    }
+  ]
+}

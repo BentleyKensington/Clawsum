@@ -117,12 +117,21 @@ def main() -> None:
         return
 
     env = load_env()
-    token = env.get("TELEGRAM_BOT_TOKEN", "")
-    chat_id = env.get("TELEGRAM_REPORT_CHAT_ID", "")
-    if not token:
-        sys.exit("TELEGRAM_BOT_TOKEN missing")
-    send_telegram(report, token, chat_id)
-    print("Sent reminders digest")
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from clawsum_notify import notify_digest, any_ok  # type: ignore
+
+        results = notify_digest(report, env=env)
+        print(f"Notify results: {results}")
+        if not any_ok(results):
+            sys.exit("no channel accepted reminders digest")
+    except Exception as e:  # noqa: BLE001
+        token = env.get("TELEGRAM_BOT_TOKEN", "")
+        chat_id = env.get("TELEGRAM_REPORT_CHAT_ID", "")
+        if not token:
+            sys.exit(f"notify failed ({e}) and TELEGRAM_BOT_TOKEN missing")
+        send_telegram(report, token, chat_id)
+        print("Sent reminders digest (telegram fallback)")
 
 
 if __name__ == "__main__":

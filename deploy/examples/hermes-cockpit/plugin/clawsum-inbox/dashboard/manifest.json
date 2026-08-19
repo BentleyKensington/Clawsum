@@ -1,0 +1,11 @@
+{
+  "name": "clawsum-inbox",
+  "label": "Inbox",
+  "description": "Admin inbox reviews — needs Boss",
+  "icon": "Mail",
+  "version": "1.0.0",
+  "tab": { "path": "/inbox", "position": "before:chat" },
+  "slots": [],
+  "entry": "dist/index.js",
+  "css": "dist/style.css"
+}

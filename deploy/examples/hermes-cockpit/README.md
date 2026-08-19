@@ -11,16 +11,17 @@ Upstream capability: [Extending the Dashboard](https://hermes-agent.nousresearch
 ```text
 hermes-cockpit/
 ├── README.md                 (this file)
-├── SOUL.md                   proactive Hermes instructions (archive + Paperclip)
+├── SOUL.md                   proactive Clawsum instructions (archive + Paperclip)
+├── skins/                    Clawsum ASCII overlays (default + all builtin names)
 ├── theme/clawsum-command.yaml
 ├── assets/                   logo.svg, crest.svg, hero.svg, bg.svg (shipping Clawsum brand)
 └── plugin/clawsum-cockpit/
-    └── dashboard/
-        ├── manifest.json
-        ├── plugin_api.py     /api/plugins/clawsum-cockpit/*
-        └── dist/
-            ├── index.js      tab + shell slots
-            └── style.css
+```
+
+CLI/TUI: `display.skin: clawsum`. User skin YAMLs override Hermes builtins so **every** skin name (`default`, `ares`, …) and every Hermes profile home shows Clawsum ASCII — not Hermes AGENT art. Re-apply with:
+
+```bash
+python3 scripts/ensure-clawsum-ascii-all-profiles.py
 ```
 
 ---
@@ -30,7 +31,7 @@ hermes-cockpit/
 | Piece | Behavior |
 |-------|----------|
 | **Theme** `Clawsum Command` | Teal cockpit layout, fonts, crest/logo assets |
-| **Tab** `/clawsum` | CEO Brief · Inbox · Archive · Approvals · Health |
+| **Tab** `/home` | Home overview · Brief · Archive · Approvals · Health |
 | **SOUL.md** | Paperclip + inbox + archive drive; ask clarifying questions |
 | **Sidebar / header / footer slots** | HUD KPIs + crest + tagline |
 | **Backend** | Brief + inbox + archive + CRM + approvals; links to Boss/OpenClaw/Grafana |

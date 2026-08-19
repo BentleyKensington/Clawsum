@@ -206,26 +206,34 @@ def alert_boss(
     *,
     dry_run: bool = False,
 ) -> bool:
-    token = (env.get("TELEGRAM_BOT_TOKEN") or "").strip()
-    chat = telegram_chat_id(env)
-    if dry_run:
-        print("--- telegram dry-run ---")
-        print(f"chat={chat or '(missing)'}")
-        print(text)
-        return bool(token and chat)
-    if not token or not chat:
-        print(
-            "WARN: cannot alert Boss — TELEGRAM_BOT_TOKEN or "
-            "TELEGRAM_ADMIN_CHAT_ID/TELEGRAM_REPORT_CHAT_ID missing",
-            file=sys.stderr,
-        )
-        return False
     try:
-        send_telegram(text, token, chat)
-        return True
-    except (urllib.error.URLError, TimeoutError, RuntimeError) as e:
-        print(f"WARN: telegram alert failed: {e}", file=sys.stderr)
-        return False
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from clawsum_notify import notify_boss, any_ok  # type: ignore
+
+        results = notify_boss(
+            text,
+            severity="critical" if "BROKEN" in text else "ok",
+            env=env,
+            dry_run=dry_run,
+        )
+        return any_ok(results) if not dry_run else bool(results)
+    except Exception as e:  # noqa: BLE001
+        # Fallback Telegram-only if notify module missing
+        token = (env.get("TELEGRAM_BOT_TOKEN") or "").strip()
+        chat = telegram_chat_id(env)
+        if dry_run:
+            print("--- telegram dry-run fallback ---")
+            print(text)
+            return bool(token and chat)
+        if not token or not chat:
+            print(f"WARN: cannot alert Boss ({e})", file=sys.stderr)
+            return False
+        try:
+            send_telegram(text, token, chat)
+            return True
+        except (urllib.error.URLError, TimeoutError, RuntimeError) as e2:
+            print(f"WARN: telegram alert failed: {e2}", file=sys.stderr)
+            return False
 
 
 def handle_result(

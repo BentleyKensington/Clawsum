@@ -15,4 +15,14 @@
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
+  <url>
+    <loc>https://clawsum.com/privacy/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://clawsum.com/terms/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
 </urlset>

@@ -1,0 +1,11 @@
+{
+  "name": "clawsum-kanban",
+  "label": "Kanban",
+  "description": "Live Paperclip board — not the empty Hermes kanban.db",
+  "icon": "Columns3",
+  "version": "1.4.1",
+  "tab": { "path": "/kanban", "position": "after:cron" },
+  "slots": [],
+  "entry": "dist/index.js",
+  "css": "dist/style.css"
+}

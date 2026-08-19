@@ -70,8 +70,8 @@ Replace placeholder SVGs in `deploy/examples/hermes-cockpit/assets/` with your l
 | **Boss UI (Paperclip)** | `boss.${DOMAIN}` | Tasks, assignees, CLA-41, heartbeats, spend, activity | Infra charts, gateway pairing |
 | **OpenClaw Control UI** | `clawsum.${DOMAIN}` | Channels, Telegram, Gmail/gog, devices, Codex login | Business task board |
 | **Grafana** | `grafana.${DOMAIN}` | CPU/RAM/disk, probes, container health | Gmail bodies, CRM, chat |
-| **Telegram** | mobile | Alerts, daily brief, quick approvals later | Full dashboard |
-| **Discord** | later | Same as Telegram + channel layout | Source of truth |
+| **Telegram** | mobile (dual-write) | Alerts until Discord verified | Full dashboard |
+| **Discord** | preferred mobile | HQ alerts + 2-way agent channels — [DISCORD-HQ.md](./DISCORD-HQ.md) | Source of truth |
 
 ### Control model (unchanged)
 

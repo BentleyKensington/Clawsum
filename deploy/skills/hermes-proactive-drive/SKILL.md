@@ -19,12 +19,14 @@ approval_actions: [create_issue_bulk]
 ```bash
 python3 /docker/clawsum/scripts/archive-proactive-brief.py --markdown
 python3 /docker/clawsum/scripts/gmail-inbox-review.py --inbox-only --markdown --no-per-email-report
+python3 /docker/clawsum/scripts/gmail-task-link.py --markdown
 ```
 
 4. Cross-link related items (say `CLA-…` ids).
-5. Ask **one** question per blocked/needs_boss item.
-6. Propose Paperclip updates; do not stealth-execute Tier 2+.
-7. Keep `scope=personal` out of business agents.
+5. Ask **one** question per blocked/needs_boss item (`spec-interview` if the whole ask is still fuzzy).
+6. Cross-link Gmail + archive + CLA ids (`gmail-task-link.py`).
+7. Propose Paperclip updates; do not stealth-execute Tier 2+.
+8. Keep `scope=personal` out of business agents.
 
 ## Escalation
 

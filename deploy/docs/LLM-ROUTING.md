@@ -13,10 +13,14 @@ Related: [OPENAI-AUTH.md](./OPENAI-AUTH.md) · [OPENROUTER-AND-VOICE.md](./OPENR
 2. Task metadata     → Paperclip label llm:* on the issue
 3. Agent policy      → SOUL/ESCALATION (ask Boss before frontier)
 4. Automatic fallback→ only when primary provider errors (OpenClaw)
-5. Manual override   → Boss /model or script --escalate
+5. Manual override   → Boss says **`escalate`**, `/model`, or script `--escalate`
 ```
 
-The system should **not** silently jump to expensive frontier models on “hard” prompts. Use explicit **labels** or **flags**.
+The system should **not** silently jump to expensive frontier models on “hard” prompts. Use explicit **labels**, **flags**, or the Boss codeword.
+
+### Codeword: `escalate`
+
+If Gerald writes the standalone word **`escalate`** in chat, email, or a Paperclip task, that turn **skips cheap GPT** and uses the OpenRouter **top** model (`OPENROUTER_FRONTIER_MODEL`, else `OPENROUTER_ESCALATION_MODEL`). Does not match “escalation policy” / “escalate to Gerald” in docs — it is the bare word as an order.
 
 ---
 
@@ -28,7 +32,8 @@ The system should **not** silently jump to expensive frontier models on “hard�
 | **interactive-fallback** | Codex missing / rate limit | `openai/gpt-5.4` API | OpenAI API |
 | **batch-cheap** | Crons, triage, analyze-assign | `gpt-4o-mini` | OpenAI API |
 | **batch-free** | High volume, low stakes, Boss label `llm:cheap` | OpenRouter `:free` models | OpenRouter free tier |
-| **escalation** | Label `llm:frontier`, `--escalate`, or OpenClaw fallback | Claude / Gemini / etc. via OR | OpenRouter credits |
+| **escalation** | Codeword **`escalate`**, label `llm:frontier`, `--escalate`, or OpenClaw fallback | `OPENROUTER_FRONTIER_MODEL` or `OPENROUTER_ESCALATION_MODEL` | OpenRouter credits |
+| **analyst-deep** | Inbox/task with repos, compare/adopt, or weak GPT answer | `OPENROUTER_RESEARCH_MODEL` (default Gemini 2.5 Pro), then escalation | OpenRouter credits |
 | **coding** | Label `llm:coding`, Coding agent long jobs | Qwen3 Coder, Devstral via OR | OpenRouter |
 | **multilingual** | Label `llm:glm`, Chinese/EN heavy | `z-ai/glm-*` via OR or NIM direct | OR / NVIDIA |
 

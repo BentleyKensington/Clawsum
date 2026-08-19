@@ -24,16 +24,25 @@ if ! python3 "${SCRIPTS}/gmail-sync.py"; then
   exit 1
 fi
 
-# --all so new + previously unanalyzed messages get reports
+# New + stale robotic reviews only (ChatGPT-style). Cap keeps the 15m cron cheap.
 # --inbox-only focuses on the mailbox Hermes monitors
 if ! python3 "${SCRIPTS}/gmail-inbox-review.py" \
-  --inbox-only \
-  --all \
-  --markdown \
-  --create-reminders \
-  --report-dir "${REPORT_DIR}"; then
+    --inbox-only \
+    --markdown \
+    --create-reminders \
+    --limit 12 \
+    --report-dir "${REPORT_DIR}"; then
   echo "[$(date -Is)] gmail-inbox-review failed" >&2
   exit 1
 fi
+
+# Keep Obsidian/Admin/Inbox fresh from the latest inbox review output.
+if ! bash "${SCRIPTS}/sync-obsidian-reports.sh"; then
+  echo "[$(date -Is)] obsidian sync failed" >&2
+  exit 1
+fi
+
+# Opportunistic document backfill keeps Postgres + Arcade current as text media arrives.
+python3 "${SCRIPTS}/clawsum_docs_etl.py" --backfill-media || true
 
 echo "[$(date -Is)] gmail inbox pipeline ok"

@@ -13,10 +13,11 @@ approval_actions: []
 ## Instructions
 
 1. Identify `ops.businesses.slug` (cell). If unknown → ask Boss.
-2. Choose assignee from skill domain (GHL→ghl, deploy→coding, etc.).
+2. Choose assignee from skill domain (GHL→ghl, deploy→coding, video/audio/Shorts/SEO packs→**media**, etc.).
 3. Create issue with: title, cell slug in body, acceptance criteria, risk tier note.
 4. If Tier 2 action implied → also create `ops.approvals` row.
 5. Do not assign **Clawsum Hermes** unless issue says `Boss authorized Hermes: yes`.
+6. Media production: cell `media-production`, assignee **Clawsum Media** (`media`). Hermes proposes only; OpenClaw executes.
 
 ## Scripts
 

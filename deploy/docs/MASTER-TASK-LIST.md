@@ -1,7 +1,9 @@
 # Clawsum master task list
 
-**Last updated:** 2026-07-02  
+**Last updated:** 2026-08-19  
 **Reference VPS:** `76.13.97.82` · `/docker/clawsum`
+
+**This week’s execution list:** [TASK-LIST-2026-08-19.md](./TASK-LIST-2026-08-19.md) · **System review:** [SYSTEM-REVIEW-2026-08-19.md](./SYSTEM-REVIEW-2026-08-19.md)
 
 Two lists — do not mix them:
 
@@ -39,6 +41,7 @@ Two lists — do not mix them:
 ### Tier 1 — operational baseline
 - [x] Gmail sync cron + triage scripts (cron off during Boss pause)
 - [x] Daily report + Obsidian sync crons
+- [x] Memory Phase 1 — `ops.memory_facts` / episodes + `memory-fact-extract.py` + Arcade Fact graph ([MEMORY-PIPELINE.md](./MEMORY-PIPELINE.md), [LOCAL-STACK-PLAN.md](./LOCAL-STACK-PLAN.md))
 - [x] Heartbeats pause/resume runbooks
 - [x] Hermes policy: Boss-authorized only, heartbeat OFF, `openclaw_gateway` path
 - [x] Boss UI HTTPS route (`setup-boss-ui-traefik.sh` / `boss.srv.example.com`)

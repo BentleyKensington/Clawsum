@@ -1,0 +1,11 @@
+{
+  "name": "clawsum-skills",
+  "label": "Skills",
+  "description": "Clawsum skill authority — live from authority.json",
+  "icon": "Sparkles",
+  "version": "1.4.0",
+  "tab": { "path": "/skills", "override": "/skills", "position": "before:chat" },
+  "slots": [],
+  "entry": "dist/index.js",
+  "css": "dist/style.css"
+}

@@ -27,10 +27,16 @@
     <ul>
       <li>GHL / CRM PITs — configured per cell in Boss / OpenClaw</li>
       <li>Gmail OAuth — OpenClaw Control UI</li>
-      <li>Codex / ChatGPT — Control UI device login</li>
+      <li><strong>ChatGPT / Codex (Hermes)</strong> — device OAuth:
+        <code>hermes auth add openai-codex --type oauth --no-browser --manual-paste</code>
+        inside <code>clawsum-paperclip-1</code>, then re-run
+        <code>bash /docker/clawsum/scripts/configure-hermes-openrouter.sh</code>
+        so primary flips to <code>openai-codex / gpt-5.4</code> with OpenRouter free → escalation fallbacks.</li>
+      <li>Codex / ChatGPT (OpenClaw agents) — Control UI device login</li>
       <li>Future: Discord, calendar, paid data APIs</li>
     </ul>
-    <p>Manage tasks in <a href="https://boss.clawsum.com">Boss</a>. Talk to JARVIS at <a href="https://hermes.clawsum.com">Hermes</a>.</p>
+    <p>Until Codex is connected, Hermes chat uses OpenRouter free Nemotron with Claude Sonnet escalation on 429.</p>
+    <p>Manage tasks in <a href="https://paperclip.clawsum.com">Paperclip</a>. Talk at <a href="https://boss.clawsum.com">Boss</a>.</p>
     <p><a href="https://clawsum.com/">← clawsum.com</a> · <a href="https://clawsum.com/offer/">Founding offer</a></p>
   </main>
 </body>

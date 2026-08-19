@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Terms of Service — Clawsum</title>
+  <meta name="description" content="Terms for using Clawsum, the public site, and the Clawsum Admin Google OAuth client." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://clawsum.com/terms/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://clawsum.com/terms/" />
+  <meta property="og:title" content="Terms of Service — Clawsum" />
+  <meta property="og:description" content="Operator software terms and Gmail connector rules." />
+  <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="/" aria-label="Clawsum home">
+      <img class="brand-logo" src="/assets/logo.png" width="168" height="34" alt="Clawsum" />
+    </a>
+    <nav aria-label="Primary">
+      <a href="/">Home</a>
+      <a href="/offer/">Offer</a>
+      <a href="/privacy/">Privacy</a>
+      <a class="cta-nav" href="/terms/">Terms</a>
+    </nav>
+  </header>
+
+  <main id="main" class="doc">
+    <h1>Terms of Service</h1>
+    <p class="meta">Effective 11 August 2026 · Brand: Clawsum · Operator: Hennessey Holdings LLC</p>
+    <p class="notice">
+      These terms cover the public website, the self-hosted Clawsum software, and the
+      <strong>Clawsum Admin</strong> Google OAuth client. Paid founding seats are also
+      subject to the written order and the
+      <a href="/offer/#agreement">founding agreement summary</a>.
+      This page is not a substitute for that order or for legal counsel.
+    </p>
+
+    <h2>1. Acceptance</h2>
+    <p>
+      By using clawsum.com, connecting Google to Clawsum Admin, or running a Clawsum
+      instance, you agree to these terms. If you do not agree, do not connect Gmail and
+      do not use the software.
+    </p>
+
+    <h2>2. The service</h2>
+    <p>
+      Clawsum is private operator software: a conversation face (Hermes / Clawsum UI),
+      a control plane (Paperclip), and scoped agents (OpenClaw). It is not a consumer
+      social app and is not offered as a public Gmail client for arbitrary Google users.
+    </p>
+
+    <h2>3. Google / Gmail connector</h2>
+    <ul>
+      <li>OAuth scope is <strong>gmail.readonly</strong> only.</li>
+      <li>You must sign in as the mailbox you intend to archive. On our reference instance that is <strong>clawsums@gmail.com</strong>.</li>
+      <li>You may revoke access at any time in your Google Account permissions.</li>
+      <li>We do not warrant uninterrupted sync. Testing-mode Google tokens can expire; production verification is Google’s process, not a Clawsum SLA.</li>
+    </ul>
+    <p>Use of Google user data is described in the <a href="/privacy/">Privacy Policy</a>.</p>
+
+    <h2>4. Accounts and access</h2>
+    <p>
+      Ops hosts (Boss, Paperclip, Grafana, and similar) sit behind operator authentication.
+      You are responsible for credentials you issue, who you invite, and what those people
+      can approve.
+    </p>
+
+    <h2>5. Acceptable use</h2>
+    <p>You may not use Clawsum to:</p>
+    <ul>
+      <li>Access a Google account you do not control</li>
+      <li>Violate Google’s API or user-data rules</li>
+      <li>Send unlawful, deceptive, or unconsented communications (the Gmail connector cannot send mail)</li>
+      <li>Probe, disrupt, or exfiltrate systems you do not own</li>
+    </ul>
+
+    <h2>6. Commercial terms</h2>
+    <p>
+      Founding Operator pricing, term length, and payment timing are stated on
+      <a href="/offer/">clawsum.com/offer</a>. No payment is due until you accept a written order.
+    </p>
+
+    <h2>7. Disclaimer</h2>
+    <p>
+      The software and site are provided “as is.” We do not warrant that briefs, agent
+      actions, or inbox triage will be complete or error-free. You remain responsible for
+      business, legal, and financial decisions.
+    </p>
+
+    <h2>8. Limitation of liability</h2>
+    <p>
+      To the fullest extent allowed by law, Hennessey Holdings LLC and the Clawsum operators
+      are not liable for indirect, incidental, or consequential damages, or for lost profits,
+      data, or goodwill, arising from use of the site, software, or Gmail connector.
+    </p>
+
+    <h2>9. Changes</h2>
+    <p>We may update these terms by posting a new effective date on this page.</p>
+
+    <h2>10. Contact</h2>
+    <p>
+      <a href="mailto:clawsums@gmail.com">clawsums@gmail.com</a> ·
+      <a href="/privacy/">Privacy Policy</a> ·
+      <a href="https://clawsum.com/">clawsum.com</a>
+    </p>
+  </main>
+
+  <footer>
+    <a class="brand foot-brand" href="/">
+      <img src="/assets/logo.png" width="140" height="28" alt="Clawsum" />
+    </a>
+    <div class="foot-links">
+      <a href="/">Home</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="mailto:clawsums@gmail.com">clawsums@gmail.com</a>
+    </div>
+    <p class="legal">© <span id="y"></span> Clawsum. Self-hosted CEO operating system.</p>
+  </footer>
+  <script>document.getElementById("y").textContent = new Date().getFullYear();</script>
+</body>
+</html>

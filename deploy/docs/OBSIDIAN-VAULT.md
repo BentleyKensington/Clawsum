@@ -114,6 +114,7 @@ Telegram: *“Save this to Obsidian under Research as a brief.”*
 | 7:00 | `daily-global-report.py` → Telegram + `data/reports/global-*.md` |
 | 7:02 | `sync-obsidian-reports.sh` → `Admin/Reports/` |
 | 7:05 | `reminders-notify.py` |
+| hourly `:40` | `poll-archive-to-obsidian.py` → `Admin/Archive` + `Admin/Memory/from-chatgpt-archive.md` |
 
 Log: `/docker/clawsum/data/reports/obsidian-sync.log`
 
