@@ -2,7 +2,7 @@
 
 **As of:** 2026-08-19  
 **Owner:** OpenClaw `llm-lab` (+ Vocalitic for product apply)  
-**Email attachments:** not in this workspace. Re-run `python3 scripts/gmail-topic-scan.py --query deepgram --since today` on the VPS after Gmail sync. Findings below are from Deepgram public docs.
+**Today’s mail (ops.emails id 64903, 2026-08-19 21:01 UTC):** Gerald (Red Rover) forwarded Deepgram+Twilio webinar photos. Gmail stored **Google Drive links**, not MIME attachments (`attachments=[]`). Caption: “Deepgram flux stt with Deepgram tts and more.” Screenshots reviewed below.
 
 Related: [LLM-LAB.md](./LLM-LAB.md) · [OPENROUTER-AND-VOICE.md](./OPENROUTER-AND-VOICE.md) · Vocalitic `vocalitic-product-ops`
 
@@ -45,6 +45,41 @@ NVIDIA shows up two ways: (1) Deepgram Engine on NVIDIA GPUs, (2) Nemotron LLMs 
 **Rule:** Vocalitic production voice path should be evaluated as Flux STT + (Flux TTS **or** ElevenLabs) + cheap LLM, with frontier LLM only on hard turns.
 
 Weekly `llm-research-watch.py` re-checks Deepgram, NVIDIA NIM, OpenRouter `:free`, and Whisper/Parakeet releases.
+
+---
+
+## Webinar 2026-08-19 (Deepgram + Twilio) — what the photos actually say
+
+Presenters: **Theresa Foy** (Deepgram) and **Michael Carpenter**. Thesis: **Twilio carries the call; Deepgram makes the conversation.** Operating phone calls is the hard part — web demos never pay the PSTN tax.
+
+### Six problems (their frame)
+
+1. Audio path tax: hops, codecs, jitter.
+2. Real callers break turn-taking (interrupt, trail-off, noise, speakerphone).
+3. Machines answer (AMD / voicemail) — most agents have no plan.
+4. Answered + compliant: spam flags, STIR/SHAKEN, consent, calling windows.
+5. Plumbing eats the roadmap (streaming, barge-in, conversational state).
+6. Flying blind after launch without call-level insight.
+
+### Their stack (maps to Vocalitic / VAPI)
+
+Audio in (PSTN/SIP) → **Flux STT** (transcripts **+ turn events**) → **LLM of your choice with function calling** → **Deepgram TTS** (or BYO TTS) → audio out.
+
+**Voice Agent API** (`wss://agent.deepgram.com/v1/agent/converse`): one connection that orchestrates STT + LLM + TTS + barge-in. Slides say **bring your own LLM or TTS and swap mid-call**. Function calling mid-call (CRM, slots, book/confirm). After-call: Twilio Conversational Intelligence for summaries/webhooks.
+
+**Flux differentiator they sold:** turn events not just transcripts; native barge-in; trail-off; thresholds tunable mid-stream. Collocate STT/LLM/TTS/turn detection so there are **no extra hops between services**.
+
+Demo they showed: dental scheduling dashboard, inbound/outbound, function `Check Available Slots`, live transcript. Playground: [playground.deepgram.com](https://playground.deepgram.com). Console: [console.deepgram.com](https://console.deepgram.com). Docs: [developers.deepgram.com/docs](https://developers.deepgram.com/docs). Reference: [inbound telephony agent](https://developers.deepgram.com/docs/inbound-telephony-agent.md) (Flux `flux-general-en`, Twilio Media Streams, MIT).
+
+### Clawsum takeaway vs VAPI
+
+| Path | Use when |
+|------|----------|
+| **Vocalitic today** | Keep current SignalWire/Twilio-style media path; evaluate **Flux STT** in the listen slot before ripping TTS. |
+| **Deepgram Voice Agent API** | Fastest “one socket” phone agent if we want Deepgram to own barge-in. Still BYO LLM (cheap default). |
+| **VAPI** | Separate company/agent for the VAPI **account**. Do not duplicate Deepgram Voice Agent and VAPI as two production runtimes for the same number without a spec-interview. |
+
+AMD, branded calling, and STIR/SHAKEN are **Twilio Trust Hub** problems, not LLM problems. Put those on Vocalitic/VAPI runbooks, not LLM Lab.
 
 ---
 
