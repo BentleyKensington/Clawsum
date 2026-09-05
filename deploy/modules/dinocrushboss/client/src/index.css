@@ -1,0 +1,359 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
+}
+
+/* Hyper-realistic dinosaur animations */
+@keyframes dinoBreath {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.02); opacity: 0.6; }
+}
+
+@keyframes magicalAura {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.05); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes animate-breathe {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.02) translateY(-1px); }
+}
+
+@keyframes animate-sway {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(1px) rotate(0.5deg); }
+  75% { transform: translateX(-1px) rotate(-0.5deg); }
+}
+
+@keyframes animate-dart {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(2px); }
+  50% { transform: translateX(-1px); }
+  75% { transform: translateX(1px); }
+}
+
+@keyframes animate-magical {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); }
+  33% { transform: scale(1.03) rotate(1deg); filter: hue-rotate(120deg); }
+  66% { transform: scale(0.98) rotate(-1deg); filter: hue-rotate(240deg); }
+}
+
+@keyframes animate-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+  50% { transform: translateY(-8px) rotate(5deg); opacity: 1; }
+}
+
+@keyframes animate-drip {
+  0% { transform: translateY(-2px); opacity: 1; }
+  100% { transform: translateY(10px); opacity: 0; }
+}
+
+/* Candy Crush style hint bounce animation */
+@keyframes hint-bounce {
+  0%, 100% { 
+    transform: translateY(0) scale(1); 
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+  }
+  25% { 
+    transform: translateY(-8px) scale(1.05); 
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.7);
+  }
+  50% { 
+    transform: translateY(0) scale(1); 
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+  }
+  75% { 
+    transform: translateY(-5px) scale(1.03); 
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+  }
+}
+
+.animate-hint-bounce {
+  animation: hint-bounce 1s ease-in-out infinite;
+}
+
+@keyframes screenShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* Enhanced special effects */
+@keyframes specialPulse {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg); 
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
+  }
+  50% { 
+    transform: scale(1.1) rotate(180deg); 
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.8); 
+  }
+}
+
+@keyframes cascadeShimmer {
+  0% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+  50% { transform: translateY(0) scale(1.1); opacity: 1; }
+  100% { transform: translateY(20px) scale(0.9); opacity: 0; }
+}
+
+/* CSS classes for animations */
+.animate-breathe { animation: animate-breathe 3s ease-in-out infinite; }
+.animate-sway { animation: animate-sway 4s ease-in-out infinite; }
+.animate-dart { animation: animate-dart 0.8s ease-in-out infinite; }
+.animate-magical { animation: animate-magical 2s ease-in-out infinite; }
+.animate-float { animation: animate-float 2s ease-in-out infinite; }
+.animate-drip { animation: animate-drip 1s ease-out infinite; }
+
+/* Delay classes for staggered animations */
+.delay-0 { animation-delay: 0s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-1000 { animation-delay: 1s; }
+
+/* Board rescue animations */
+@keyframes rescueGlow {
+  0%, 100% { box-shadow: 0 0 20px #00ff00; }
+  50% { box-shadow: 0 0 60px #00ff00, 0 0 100px #00ff0044; }
+}
+
+@keyframes rescueSparkle {
+  0% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+  100% { opacity: 0; transform: scale(0) rotate(360deg); }
+}
+
+.rescue-animation { animation: rescueGlow 2s ease-in-out; }
+.rescue-sparkle { animation: rescueSparkle 1s ease-in-out; }
+
+/* Advanced Dinosaur Animations for New Varieties */
+@keyframes animate-metallic {
+  0%, 100% { filter: brightness(1) contrast(1); transform: scale(1); }
+  50% { filter: brightness(1.3) contrast(1.2); transform: scale(1.02); }
+}
+
+@keyframes animate-golden {
+  0%, 100% { filter: hue-rotate(0deg) brightness(1.2) saturate(1.5); }
+  50% { filter: hue-rotate(10deg) brightness(1.4) saturate(2); }
+}
+
+@keyframes animate-crystalline {
+  0%, 100% { filter: brightness(1.1) saturate(1.3); transform: scale(1); }
+  33% { filter: brightness(1.3) saturate(1.6); transform: scale(1.01); }
+  66% { filter: brightness(1.4) saturate(1.8); transform: scale(1.02); }
+}
+
+@keyframes animate-shadow {
+  0%, 100% { filter: brightness(0.7) contrast(1.5); transform: scale(1); }
+  50% { filter: brightness(0.5) contrast(2); transform: scale(1.01); }
+}
+
+@keyframes animate-rainbow {
+  0% { filter: hue-rotate(0deg) brightness(1.2); }
+  25% { filter: hue-rotate(90deg) brightness(1.3); }
+  50% { filter: hue-rotate(180deg) brightness(1.4); }
+  75% { filter: hue-rotate(270deg) brightness(1.3); }
+  100% { filter: hue-rotate(360deg) brightness(1.2); }
+}
+
+@keyframes animate-volcanic {
+  0%, 100% { filter: brightness(1.1) contrast(1.2) hue-rotate(0deg); }
+  25% { filter: brightness(1.3) contrast(1.4) hue-rotate(5deg); }
+  50% { filter: brightness(1.5) contrast(1.6) hue-rotate(10deg); }
+  75% { filter: brightness(1.4) contrast(1.5) hue-rotate(5deg); }
+}
+
+@keyframes animate-cosmic {
+  0%, 100% { 
+    filter: brightness(1.2) saturate(2) hue-rotate(0deg);
+    box-shadow: 0 0 10px rgba(76, 0, 153, 0.5);
+  }
+  33% { 
+    filter: brightness(1.4) saturate(2.5) hue-rotate(120deg);
+    box-shadow: 0 0 15px rgba(76, 0, 153, 0.7);
+  }
+  66% { 
+    filter: brightness(1.6) saturate(3) hue-rotate(240deg);
+    box-shadow: 0 0 20px rgba(76, 0, 153, 0.9);
+  }
+}
+
+@keyframes animate-aquatic {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1px) scale(1.01); }
+}
+
+@keyframes animate-earthQuake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-0.5px); }
+  20%, 40%, 60%, 80% { transform: translateX(0.5px); }
+}
+
+/* Animation classes for new dinosaur types */
+.animate-metallic { animation: animate-metallic 2s ease-in-out infinite; }
+.animate-golden { animation: animate-golden 3s ease-in-out infinite; }
+.animate-crystalline { animation: animate-crystalline 2.5s ease-in-out infinite; }
+.animate-shadow { animation: animate-shadow 4s ease-in-out infinite; }
+.animate-rainbow { animation: animate-rainbow 3s linear infinite; }
+.animate-volcanic { animation: animate-volcanic 2s ease-in-out infinite; }
+.animate-cosmic { animation: animate-cosmic 4s ease-in-out infinite; }
+.animate-aquatic { animation: animate-aquatic 3s ease-in-out infinite; }
+.animate-earthQuake { animation: animate-earthQuake 0.5s ease-in-out infinite; }
+
+/* Enhanced Visual Effects for Rare Dinosaurs */
+@keyframes animate-superGlow {
+  0%, 100% { 
+    box-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
+    filter: brightness(1.3) saturate(2);
+  }
+  50% { 
+    box-shadow: 0 0 30px currentColor, 0 0 60px currentColor, 0 0 90px currentColor;
+    filter: brightness(1.6) saturate(2.5);
+  }
+}
+
+@keyframes animate-pulseRing {
+  0% { 
+    transform: scale(0.8); 
+    opacity: 1; 
+    border: 2px solid currentColor; 
+  }
+  100% { 
+    transform: scale(2); 
+    opacity: 0; 
+    border: 2px solid transparent; 
+  }
+}
+
+@keyframes animate-spiralParticles {
+  0% { 
+    transform: rotate(0deg) translateX(0px) rotate(0deg); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: rotate(360deg) translateX(30px) rotate(-360deg); 
+    opacity: 0; 
+  }
+}
+
+@keyframes animate-energyWave {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg); 
+    opacity: 0.8; 
+  }
+  25% { 
+    transform: scale(1.2) rotate(90deg); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: scale(1.4) rotate(180deg); 
+    opacity: 0.6; 
+  }
+  75% { 
+    transform: scale(1.2) rotate(270deg); 
+    opacity: 1; 
+  }
+}
+
+.animate-superGlow { animation: animate-superGlow 2s ease-in-out infinite; }
+.animate-pulseRing { animation: animate-pulseRing 2s ease-out infinite; }
+.animate-spiralParticles { animation: animate-spiralParticles 3s linear infinite; }
+.animate-energyWave { animation: animate-energyWave 4s ease-in-out infinite; }
+
+/* Live dinosaur idle motion — transform only, staggered per tile via animation-delay */
+@keyframes dino-idle-bob {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.05); }
+}
+@keyframes dino-idle-sway {
+  0%, 100% { transform: rotate(-5deg) translateY(0); }
+  50% { transform: rotate(5deg) translateY(-2px); }
+}
+@keyframes dino-idle-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-7deg) scale(1.04); }
+  75% { transform: rotate(7deg) scale(1.04); }
+}
+@keyframes dino-idle-stomp {
+  0%, 70%, 100% { transform: translateY(0) scale(1); }
+  80% { transform: translateY(2px) scale(1.08, 0.92); }
+  90% { transform: translateY(-4px) scale(0.96, 1.08); }
+}
+@keyframes dino-idle-dart {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  30% { transform: translateX(3px) rotate(4deg); }
+  60% { transform: translateX(-3px) rotate(-4deg); }
+}
+@keyframes dino-idle-glide {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-5px) rotate(3deg); }
+}
+@keyframes dino-idle-snap {
+  0%, 65%, 100% { transform: scale(1) rotate(0deg); }
+  72% { transform: scale(1.08, 0.92) rotate(-6deg); }
+  82% { transform: scale(0.95, 1.08) rotate(6deg); }
+}
+@keyframes dino-idle-peck {
+  0%, 70%, 100% { transform: translateY(0) rotate(0deg); }
+  78% { transform: translateY(3px) rotate(10deg); }
+  88% { transform: translateY(-2px) rotate(-6deg); }
+}
+@keyframes dino-selected-pulse {
+  0%, 100% { transform: scale(1.08) rotate(-4deg); }
+  50% { transform: scale(1.16) rotate(4deg); }
+}
+@keyframes dino-crush-pop {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  40% { transform: scale(1.25) rotate(-12deg); opacity: 1; }
+  100% { transform: scale(0.2) rotate(20deg); opacity: 0; }
+}
+
+.dino-idle-bob { animation: dino-idle-bob 2.4s ease-in-out infinite; }
+.dino-idle-sway { animation: dino-idle-sway 2.8s ease-in-out infinite; }
+.dino-idle-wiggle { animation: dino-idle-wiggle 1.8s ease-in-out infinite; }
+.dino-idle-stomp { animation: dino-idle-stomp 2.2s ease-in-out infinite; }
+.dino-idle-dart { animation: dino-idle-dart 1.6s ease-in-out infinite; }
+.dino-idle-glide { animation: dino-idle-glide 2.6s ease-in-out infinite; }
+.dino-idle-snap { animation: dino-idle-snap 2s ease-in-out infinite; }
+.dino-idle-peck { animation: dino-idle-peck 1.9s ease-in-out infinite; }
+.dino-selected { animation: dino-selected-pulse 0.45s ease-in-out infinite; }
+.dino-crush { animation: dino-crush-pop 0.28s ease-in forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dino-idle-bob,
+  .dino-idle-sway,
+  .dino-idle-wiggle,
+  .dino-idle-stomp,
+  .dino-idle-dart,
+  .dino-idle-glide,
+  .dino-idle-snap,
+  .dino-idle-peck,
+  .dino-selected {
+    animation: none;
+  }
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dino Crush — free match-3 dinosaur game</title>
+  <meta name="description" content="Dino Crush is free. Match 17 labeled dinosaurs, smash combos, and save your stars with an email. Created by Alex Hennessey." />
+  <link rel="canonical" href="https://dinocrushboss.com/" />
+  <meta property="og:title" content="Dino Crush — free forever" />
+  <meta property="og:description" content="Match dinosaurs. Smash combos. Email keeps your save. No cash, no cards — just the game." />
+  <meta property="og:url" content="https://dinocrushboss.com/" />
+  <meta property="og:image" content="https://dinocrushboss.com/assets/play.jpg" />
+  <meta name="theme-color" content="#1a0b42" />
+  <link rel="icon" href="/assets/favicon.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/"><img src="/assets/logo.png" alt="Dino Crush" /></a>
+    <nav class="site-nav">
+      <a href="#play">Play</a>
+      <a href="#board">Board</a>
+      <a href="#screens">Screens</a>
+      <a href="#dinos">Dinos</a>
+      <a class="cta-nav" href="https://game.dinocrushboss.com/?guest=1">Play as guest</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="badge">Free forever · kid lane</p>
+      <img class="hero-logo" src="/assets/logo.png" alt="Dino Crush" />
+      <h1>Match dinos.<br />Save the stars.</h1>
+      <p class="lede">Seventeen labeled dinosaurs on a jungle board. Swap three in a row, chain combos, and climb 30 levels. Dino Crush is <strong>free</strong>. Play as guest with no sign-up, or use an email if you want the stars to follow you.</p>
+      <p class="credit">Created by Alex Hennessey</p>
+      <div className="actions">
+        <a class="btn btn-gold" href="https://login.dinocrushboss.com">Save and play</a>
+        <a class="btn btn-ghost" href="https://game.dinocrushboss.com/?guest=1">Play as guest</a>
+        <a class="btn btn-ghost" href="#board">Watch the board</a>
+      </div>
+    </div>
+    <figure class="hero-shot">
+      <img src="/assets/play.jpg" alt="Dino Crush jungle play — dinosaurs colliding in the arena" />
+    </figure>
+  </section>
+
+  <section class="wrap" id="play">
+    <p class="kicker">How it works</p>
+    <h2>Email in. Adventure on.</h2>
+    <ol class="steps">
+      <li>
+        <span>1</span>
+        <div>
+          <h3>Open your save</h3>
+          <p>Sign in at <a href="https://login.dinocrushboss.com">login.dinocrushboss.com</a> to keep stars, or <a href="https://game.dinocrushboss.com/?guest=1">play as guest</a> with no registration. Family shortcut: <strong>play@dinocrushboss.com</strong>.</p>
+        </div>
+      </li>
+      <li>
+        <span>2</span>
+        <div>
+          <h3>Start Adventure</h3>
+          <p>The start screen is the real Main Menu — logo, How to Play, and 30 levels with your stars.</p>
+        </div>
+      </li>
+      <li>
+        <span>3</span>
+        <div>
+          <h3>Match and smash</h3>
+          <p>Swap neighbors to make three-or-more. Combos stack. Stars save to your email when the level completes.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="band" id="board">
+    <div class="wrap board-split">
+      <div>
+        <p class="kicker">Live tiles</p>
+        <h2>The real match-3 board</h2>
+        <p class="lede">These are the same 3D labeled dinos from the game — T-Rex, Ankylosaurus, Parasaurolophus, Spinosaurus, Carnotaurus, Dilophosaurus. Watch a swap, a crush, and a refill.</p>
+      </div>
+      <div class="board-shell" aria-label="Animated Dino Crush board">
+        <div class="board-hud">
+          <span>Level 1</span>
+          <span id="combo-label">Combo ×1</span>
+          <span>Score <b id="score-label">0</b></span>
+        </div>
+        <div id="crush-board" class="crush-board" role="img" aria-label="Six by six dinosaur match-3 board"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="screens">
+    <p class="kicker">From the game</p>
+    <h2>Start, smash, stars</h2>
+    <div class="gallery">
+      <figure>
+        <img src="/assets/screen-start.png" alt="Start screen — Dino Crush logo, Start Adventure, How to Play, and level select" />
+        <figcaption>Start Adventure</figcaption>
+      </figure>
+      <figure>
+        <img src="/assets/screen-board.png" alt="Match-3 board with labeled dinosaur tiles, score, and stars" />
+        <figcaption>The board</figcaption>
+      </figure>
+      <figure>
+        <img src="/assets/screen-win.png" alt="Level complete screen with one to three stars" />
+        <figcaption>Level complete</figcaption>
+      </figure>
+      <figure>
+        <img src="/assets/boss.jpg" alt="Dino Crush boss mascot — cartoon T-rex with a hawk" />
+        <figcaption>Boss energy</figcaption>
+      </figure>
+      <figure>
+        <img src="/assets/impact.jpg" alt="Dino Crush impact — dinosaurs colliding in the jungle" />
+        <figcaption>Impact</figcaption>
+      </figure>
+      <figure>
+        <img src="/assets/play.jpg" alt="Dino Crush jungle arena" />
+        <figcaption>Jungle arena</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap" id="dinos">
+    <p class="kicker">Roster</p>
+    <h2>17 labeled dinosaurs</h2>
+    <p class="lede">Every tile is a named dino, not a candy blob. Early levels use six types. Later levels bring the full set.</p>
+    <ul class="roster">
+      <li><img src="/assets/dinos/trex.png" alt="" /><span>T-Rex</span></li>
+      <li><img src="/assets/dinos/ankylosaurus.png" alt="" /><span>Ankylosaurus</span></li>
+      <li><img src="/assets/dinos/parasaurolophus.png" alt="" /><span>Parasaurolophus</span></li>
+      <li><img src="/assets/dinos/spinosaurus.png" alt="" /><span>Spinosaurus</span></li>
+      <li><img src="/assets/dinos/carnotaurus.png" alt="" /><span>Carnotaurus</span></li>
+      <li><img src="/assets/dinos/dilophosaurus.png" alt="" /><span>Dilophosaurus</span></li>
+      <li><img src="/assets/dinos/oviraptor.png" alt="" /><span>Oviraptor</span></li>
+      <li><img src="/assets/dinos/gallimimus.png" alt="" /><span>Gallimimus</span></li>
+      <li><img src="/assets/dinos/iguanodon.png" alt="" /><span>Iguanodon</span></li>
+      <li><img src="/assets/dinos/pachycephalosaurus.png" alt="" /><span>Pachycephalosaurus</span></li>
+      <li><img src="/assets/dinos/diplodocus.png" alt="" /><span>Diplodocus</span></li>
+      <li><img src="/assets/dinos/utahraptor.png" alt="" /><span>Utahraptor</span></li>
+      <li><img src="/assets/dinos/brachiosaurus.png" alt="" /><span>Brachiosaurus</span></li>
+      <li><img src="/assets/dinos/pterodactyl.png" alt="" /><span>Pterodactyl</span></li>
+      <li><img src="/assets/dinos/stegosaurus.png" alt="" /><span>Stegosaurus</span></li>
+      <li><img src="/assets/dinos/triceratops.png" alt="" /><span>Triceratops</span></li>
+      <li><img src="/assets/dinos/velociraptor.png" alt="" /><span>Velociraptor</span></li>
+    </ul>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap">
+      <p class="badge">No credit card</p>
+      <h2>Ready when you are</h2>
+      <p>Play as guest right now, or create a free email save so stars follow you.</p>
+      <a class="btn btn-gold" href="https://game.dinocrushboss.com/?guest=1">Play as guest</a>
+      <a class="btn btn-ghost" href="https://login.dinocrushboss.com">Save with email</a>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="wrap foot-row">
+      <a class="brand" href="/"><img src="/assets/logo.png" alt="Dino Crush" /></a>
+      <p>Created by Alex Hennessey · A DinoHawk game · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
+    </div>
+  </footer>
+  <script src="/board.js"></script>
+</body>
+</html>
